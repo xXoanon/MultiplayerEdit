@@ -1,0 +1,3765 @@
+
+---
+events:
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CMakeDetermineSystem.cmake:12 (find_program)"
+      - "CMakeLists.txt:3 (project)"
+    mode: "program"
+    variable: "CMAKE_UNAME"
+    description: "Path to a program."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: true
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "uname"
+    candidate_directories:
+      - "/usr/local/sbin/"
+      - "/usr/local/bin/"
+      - "/usr/bin/"
+      - "/opt/android-sdk/cmdline-tools/latest/bin/"
+      - "/opt/android-sdk/platform-tools/"
+      - "/opt/android-sdk/tools/"
+      - "/opt/android-sdk/tools/bin/"
+      - "/var/lib/flatpak/exports/bin/"
+      - "/usr/lib/jvm/default/bin/"
+      - "/usr/bin/site_perl/"
+      - "/usr/bin/vendor_perl/"
+      - "/usr/bin/core_perl/"
+      - "/bin/"
+    searched_directories:
+      - "/usr/local/sbin/uname"
+      - "/usr/local/bin/uname"
+    found: "/usr/bin/uname"
+    search_context:
+      ENV{PATH}:
+        - "/usr/local/sbin"
+        - "/usr/local/bin"
+        - "/usr/bin"
+        - "/opt/android-sdk/cmdline-tools/latest/bin"
+        - "/opt/android-sdk/platform-tools"
+        - "/opt/android-sdk/tools"
+        - "/opt/android-sdk/tools/bin"
+        - "/var/lib/flatpak/exports/bin"
+        - "/usr/lib/jvm/default/bin"
+        - "/usr/bin/site_perl"
+        - "/usr/bin/vendor_perl"
+        - "/usr/bin/core_perl"
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/home/d050/.local/share/Geode/cross-tools/clang-msvc-sdk/clang-msvc.cmake:136 (find_program)"
+      - "/usr/share/cmake/Modules/CMakeDetermineSystem.cmake:146 (include)"
+      - "CMakeLists.txt:3 (project)"
+    mode: "program"
+    variable: "LLD_LINK_PATH"
+    description: "Path to a program."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: true
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "lld-link-"
+      - "lld-link"
+      - "lld-link-18"
+      - "lld-link-17"
+      - "lld-link-16"
+      - "lld-link-15"
+      - "lld-link-14"
+      - "lld-link-13"
+    candidate_directories:
+      - "/usr/local/sbin/"
+      - "/usr/local/bin/"
+      - "/usr/bin/"
+      - "/opt/android-sdk/cmdline-tools/latest/bin/"
+      - "/opt/android-sdk/platform-tools/"
+      - "/opt/android-sdk/tools/"
+      - "/opt/android-sdk/tools/bin/"
+      - "/var/lib/flatpak/exports/bin/"
+      - "/usr/lib/jvm/default/bin/"
+      - "/usr/bin/site_perl/"
+      - "/usr/bin/vendor_perl/"
+      - "/usr/bin/core_perl/"
+    searched_directories:
+      - "/usr/local/sbin/lld-link-"
+      - "/usr/local/bin/lld-link-"
+      - "/usr/bin/lld-link-"
+      - "/opt/android-sdk/cmdline-tools/latest/bin/lld-link-"
+      - "/opt/android-sdk/platform-tools/lld-link-"
+      - "/opt/android-sdk/tools/lld-link-"
+      - "/opt/android-sdk/tools/bin/lld-link-"
+      - "/var/lib/flatpak/exports/bin/lld-link-"
+      - "/usr/lib/jvm/default/bin/lld-link-"
+      - "/usr/bin/site_perl/lld-link-"
+      - "/usr/bin/vendor_perl/lld-link-"
+      - "/usr/bin/core_perl/lld-link-"
+      - "/usr/local/sbin/lld-link"
+      - "/usr/local/bin/lld-link"
+    found: "/usr/bin/lld-link"
+    search_context:
+      ENV{PATH}:
+        - "/usr/local/sbin"
+        - "/usr/local/bin"
+        - "/usr/bin"
+        - "/opt/android-sdk/cmdline-tools/latest/bin"
+        - "/opt/android-sdk/platform-tools"
+        - "/opt/android-sdk/tools"
+        - "/opt/android-sdk/tools/bin"
+        - "/var/lib/flatpak/exports/bin"
+        - "/usr/lib/jvm/default/bin"
+        - "/usr/bin/site_perl"
+        - "/usr/bin/vendor_perl"
+        - "/usr/bin/core_perl"
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/home/d050/.local/share/Geode/cross-tools/clang-msvc-sdk/clang-msvc.cmake:142 (find_program)"
+      - "/usr/share/cmake/Modules/CMakeDetermineSystem.cmake:146 (include)"
+      - "CMakeLists.txt:3 (project)"
+    mode: "program"
+    variable: "LLVM_AR_PATH"
+    description: "Path to a program."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: true
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "llvm-ar-"
+      - "llvm-ar"
+      - "llvm-ar-18"
+      - "llvm-ar-17"
+      - "llvm-ar-16"
+      - "llvm-ar-15"
+      - "llvm-ar-14"
+      - "llvm-ar-13"
+    candidate_directories:
+      - "/usr/local/sbin/"
+      - "/usr/local/bin/"
+      - "/usr/bin/"
+      - "/opt/android-sdk/cmdline-tools/latest/bin/"
+      - "/opt/android-sdk/platform-tools/"
+      - "/opt/android-sdk/tools/"
+      - "/opt/android-sdk/tools/bin/"
+      - "/var/lib/flatpak/exports/bin/"
+      - "/usr/lib/jvm/default/bin/"
+      - "/usr/bin/site_perl/"
+      - "/usr/bin/vendor_perl/"
+      - "/usr/bin/core_perl/"
+    searched_directories:
+      - "/usr/local/sbin/llvm-ar-"
+      - "/usr/local/bin/llvm-ar-"
+      - "/usr/bin/llvm-ar-"
+      - "/opt/android-sdk/cmdline-tools/latest/bin/llvm-ar-"
+      - "/opt/android-sdk/platform-tools/llvm-ar-"
+      - "/opt/android-sdk/tools/llvm-ar-"
+      - "/opt/android-sdk/tools/bin/llvm-ar-"
+      - "/var/lib/flatpak/exports/bin/llvm-ar-"
+      - "/usr/lib/jvm/default/bin/llvm-ar-"
+      - "/usr/bin/site_perl/llvm-ar-"
+      - "/usr/bin/vendor_perl/llvm-ar-"
+      - "/usr/bin/core_perl/llvm-ar-"
+      - "/usr/local/sbin/llvm-ar"
+      - "/usr/local/bin/llvm-ar"
+    found: "/usr/bin/llvm-ar"
+    search_context:
+      ENV{PATH}:
+        - "/usr/local/sbin"
+        - "/usr/local/bin"
+        - "/usr/bin"
+        - "/opt/android-sdk/cmdline-tools/latest/bin"
+        - "/opt/android-sdk/platform-tools"
+        - "/opt/android-sdk/tools"
+        - "/opt/android-sdk/tools/bin"
+        - "/var/lib/flatpak/exports/bin"
+        - "/usr/lib/jvm/default/bin"
+        - "/usr/bin/site_perl"
+        - "/usr/bin/vendor_perl"
+        - "/usr/bin/core_perl"
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/home/d050/.local/share/Geode/cross-tools/clang-msvc-sdk/clang-msvc.cmake:148 (find_program)"
+      - "/usr/share/cmake/Modules/CMakeDetermineSystem.cmake:146 (include)"
+      - "CMakeLists.txt:3 (project)"
+    mode: "program"
+    variable: "LLVM_NM_PATH"
+    description: "Path to a program."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: true
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "llvm-nm-"
+      - "llvm-nm"
+      - "llvm-nm-18"
+      - "llvm-nm-17"
+      - "llvm-nm-16"
+      - "llvm-nm-15"
+      - "llvm-nm-14"
+      - "llvm-nm-13"
+    candidate_directories:
+      - "/usr/local/sbin/"
+      - "/usr/local/bin/"
+      - "/usr/bin/"
+      - "/opt/android-sdk/cmdline-tools/latest/bin/"
+      - "/opt/android-sdk/platform-tools/"
+      - "/opt/android-sdk/tools/"
+      - "/opt/android-sdk/tools/bin/"
+      - "/var/lib/flatpak/exports/bin/"
+      - "/usr/lib/jvm/default/bin/"
+      - "/usr/bin/site_perl/"
+      - "/usr/bin/vendor_perl/"
+      - "/usr/bin/core_perl/"
+    searched_directories:
+      - "/usr/local/sbin/llvm-nm-"
+      - "/usr/local/bin/llvm-nm-"
+      - "/usr/bin/llvm-nm-"
+      - "/opt/android-sdk/cmdline-tools/latest/bin/llvm-nm-"
+      - "/opt/android-sdk/platform-tools/llvm-nm-"
+      - "/opt/android-sdk/tools/llvm-nm-"
+      - "/opt/android-sdk/tools/bin/llvm-nm-"
+      - "/var/lib/flatpak/exports/bin/llvm-nm-"
+      - "/usr/lib/jvm/default/bin/llvm-nm-"
+      - "/usr/bin/site_perl/llvm-nm-"
+      - "/usr/bin/vendor_perl/llvm-nm-"
+      - "/usr/bin/core_perl/llvm-nm-"
+      - "/usr/local/sbin/llvm-nm"
+      - "/usr/local/bin/llvm-nm"
+    found: "/usr/bin/llvm-nm"
+    search_context:
+      ENV{PATH}:
+        - "/usr/local/sbin"
+        - "/usr/local/bin"
+        - "/usr/bin"
+        - "/opt/android-sdk/cmdline-tools/latest/bin"
+        - "/opt/android-sdk/platform-tools"
+        - "/opt/android-sdk/tools"
+        - "/opt/android-sdk/tools/bin"
+        - "/var/lib/flatpak/exports/bin"
+        - "/usr/lib/jvm/default/bin"
+        - "/usr/bin/site_perl"
+        - "/usr/bin/vendor_perl"
+        - "/usr/bin/core_perl"
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/home/d050/.local/share/Geode/cross-tools/clang-msvc-sdk/clang-msvc.cmake:154 (find_program)"
+      - "/usr/share/cmake/Modules/CMakeDetermineSystem.cmake:146 (include)"
+      - "CMakeLists.txt:3 (project)"
+    mode: "program"
+    variable: "LLVM_MT_PATH"
+    description: "Path to a program."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: true
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "llvm-mt-"
+      - "llvm-mt"
+      - "llvm-mt-18"
+      - "llvm-mt-17"
+      - "llvm-mt-16"
+      - "llvm-mt-15"
+      - "llvm-mt-14"
+      - "llvm-mt-13"
+    candidate_directories:
+      - "/usr/local/sbin/"
+      - "/usr/local/bin/"
+      - "/usr/bin/"
+      - "/opt/android-sdk/cmdline-tools/latest/bin/"
+      - "/opt/android-sdk/platform-tools/"
+      - "/opt/android-sdk/tools/"
+      - "/opt/android-sdk/tools/bin/"
+      - "/var/lib/flatpak/exports/bin/"
+      - "/usr/lib/jvm/default/bin/"
+      - "/usr/bin/site_perl/"
+      - "/usr/bin/vendor_perl/"
+      - "/usr/bin/core_perl/"
+    searched_directories:
+      - "/usr/local/sbin/llvm-mt-"
+      - "/usr/local/bin/llvm-mt-"
+      - "/usr/bin/llvm-mt-"
+      - "/opt/android-sdk/cmdline-tools/latest/bin/llvm-mt-"
+      - "/opt/android-sdk/platform-tools/llvm-mt-"
+      - "/opt/android-sdk/tools/llvm-mt-"
+      - "/opt/android-sdk/tools/bin/llvm-mt-"
+      - "/var/lib/flatpak/exports/bin/llvm-mt-"
+      - "/usr/lib/jvm/default/bin/llvm-mt-"
+      - "/usr/bin/site_perl/llvm-mt-"
+      - "/usr/bin/vendor_perl/llvm-mt-"
+      - "/usr/bin/core_perl/llvm-mt-"
+      - "/usr/local/sbin/llvm-mt"
+      - "/usr/local/bin/llvm-mt"
+    found: "/usr/bin/llvm-mt"
+    search_context:
+      ENV{PATH}:
+        - "/usr/local/sbin"
+        - "/usr/local/bin"
+        - "/usr/bin"
+        - "/opt/android-sdk/cmdline-tools/latest/bin"
+        - "/opt/android-sdk/platform-tools"
+        - "/opt/android-sdk/tools"
+        - "/opt/android-sdk/tools/bin"
+        - "/var/lib/flatpak/exports/bin"
+        - "/usr/lib/jvm/default/bin"
+        - "/usr/bin/site_perl"
+        - "/usr/bin/vendor_perl"
+        - "/usr/bin/core_perl"
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/home/d050/.local/share/Geode/cross-tools/clang-msvc-sdk/clang-msvc.cmake:161 (find_program)"
+      - "/usr/share/cmake/Modules/CMakeDetermineSystem.cmake:146 (include)"
+      - "CMakeLists.txt:3 (project)"
+    mode: "program"
+    variable: "CLANG_C_PATH"
+    description: "Path to a program."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: true
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "clang-"
+      - "clang"
+      - "clang-18"
+      - "clang-17"
+      - "clang-16"
+      - "clang-15"
+      - "clang-14"
+      - "clang-13"
+    candidate_directories:
+      - "/usr/local/sbin/"
+      - "/usr/local/bin/"
+      - "/usr/bin/"
+      - "/opt/android-sdk/cmdline-tools/latest/bin/"
+      - "/opt/android-sdk/platform-tools/"
+      - "/opt/android-sdk/tools/"
+      - "/opt/android-sdk/tools/bin/"
+      - "/var/lib/flatpak/exports/bin/"
+      - "/usr/lib/jvm/default/bin/"
+      - "/usr/bin/site_perl/"
+      - "/usr/bin/vendor_perl/"
+      - "/usr/bin/core_perl/"
+    searched_directories:
+      - "/usr/local/sbin/clang-"
+      - "/usr/local/bin/clang-"
+      - "/usr/bin/clang-"
+      - "/opt/android-sdk/cmdline-tools/latest/bin/clang-"
+      - "/opt/android-sdk/platform-tools/clang-"
+      - "/opt/android-sdk/tools/clang-"
+      - "/opt/android-sdk/tools/bin/clang-"
+      - "/var/lib/flatpak/exports/bin/clang-"
+      - "/usr/lib/jvm/default/bin/clang-"
+      - "/usr/bin/site_perl/clang-"
+      - "/usr/bin/vendor_perl/clang-"
+      - "/usr/bin/core_perl/clang-"
+      - "/usr/local/sbin/clang"
+      - "/usr/local/bin/clang"
+    found: "/usr/bin/clang"
+    search_context:
+      ENV{PATH}:
+        - "/usr/local/sbin"
+        - "/usr/local/bin"
+        - "/usr/bin"
+        - "/opt/android-sdk/cmdline-tools/latest/bin"
+        - "/opt/android-sdk/platform-tools"
+        - "/opt/android-sdk/tools"
+        - "/opt/android-sdk/tools/bin"
+        - "/var/lib/flatpak/exports/bin"
+        - "/usr/lib/jvm/default/bin"
+        - "/usr/bin/site_perl"
+        - "/usr/bin/vendor_perl"
+        - "/usr/bin/core_perl"
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/home/d050/.local/share/Geode/cross-tools/clang-msvc-sdk/clang-msvc.cmake:167 (find_program)"
+      - "/usr/share/cmake/Modules/CMakeDetermineSystem.cmake:146 (include)"
+      - "CMakeLists.txt:3 (project)"
+    mode: "program"
+    variable: "CLANG_CXX_PATH"
+    description: "Path to a program."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: true
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "clang++-"
+      - "clang++"
+      - "clang++-18"
+      - "clang++-17"
+      - "clang++-16"
+      - "clang++-15"
+      - "clang++-14"
+      - "clang++-13"
+    candidate_directories:
+      - "/usr/local/sbin/"
+      - "/usr/local/bin/"
+      - "/usr/bin/"
+      - "/opt/android-sdk/cmdline-tools/latest/bin/"
+      - "/opt/android-sdk/platform-tools/"
+      - "/opt/android-sdk/tools/"
+      - "/opt/android-sdk/tools/bin/"
+      - "/var/lib/flatpak/exports/bin/"
+      - "/usr/lib/jvm/default/bin/"
+      - "/usr/bin/site_perl/"
+      - "/usr/bin/vendor_perl/"
+      - "/usr/bin/core_perl/"
+    searched_directories:
+      - "/usr/local/sbin/clang++-"
+      - "/usr/local/bin/clang++-"
+      - "/usr/bin/clang++-"
+      - "/opt/android-sdk/cmdline-tools/latest/bin/clang++-"
+      - "/opt/android-sdk/platform-tools/clang++-"
+      - "/opt/android-sdk/tools/clang++-"
+      - "/opt/android-sdk/tools/bin/clang++-"
+      - "/var/lib/flatpak/exports/bin/clang++-"
+      - "/usr/lib/jvm/default/bin/clang++-"
+      - "/usr/bin/site_perl/clang++-"
+      - "/usr/bin/vendor_perl/clang++-"
+      - "/usr/bin/core_perl/clang++-"
+      - "/usr/local/sbin/clang++"
+      - "/usr/local/bin/clang++"
+    found: "/usr/bin/clang++"
+    search_context:
+      ENV{PATH}:
+        - "/usr/local/sbin"
+        - "/usr/local/bin"
+        - "/usr/bin"
+        - "/opt/android-sdk/cmdline-tools/latest/bin"
+        - "/opt/android-sdk/platform-tools"
+        - "/opt/android-sdk/tools"
+        - "/opt/android-sdk/tools/bin"
+        - "/var/lib/flatpak/exports/bin"
+        - "/usr/lib/jvm/default/bin"
+        - "/usr/bin/site_perl"
+        - "/usr/bin/vendor_perl"
+        - "/usr/bin/core_perl"
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/home/d050/.local/share/Geode/cross-tools/clang-msvc-sdk/clang-msvc.cmake:173 (find_program)"
+      - "/usr/share/cmake/Modules/CMakeDetermineSystem.cmake:146 (include)"
+      - "CMakeLists.txt:3 (project)"
+    mode: "program"
+    variable: "LLVM_RC_PATH"
+    description: "Path to a program."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: true
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "llvm-rc-"
+      - "llvm-rc"
+      - "llvm-rc-18"
+      - "llvm-rc-17"
+      - "llvm-rc-16"
+      - "llvm-rc-15"
+      - "llvm-rc-14"
+      - "llvm-rc-13"
+    candidate_directories:
+      - "/usr/local/sbin/"
+      - "/usr/local/bin/"
+      - "/usr/bin/"
+      - "/opt/android-sdk/cmdline-tools/latest/bin/"
+      - "/opt/android-sdk/platform-tools/"
+      - "/opt/android-sdk/tools/"
+      - "/opt/android-sdk/tools/bin/"
+      - "/var/lib/flatpak/exports/bin/"
+      - "/usr/lib/jvm/default/bin/"
+      - "/usr/bin/site_perl/"
+      - "/usr/bin/vendor_perl/"
+      - "/usr/bin/core_perl/"
+    searched_directories:
+      - "/usr/local/sbin/llvm-rc-"
+      - "/usr/local/bin/llvm-rc-"
+      - "/usr/bin/llvm-rc-"
+      - "/opt/android-sdk/cmdline-tools/latest/bin/llvm-rc-"
+      - "/opt/android-sdk/platform-tools/llvm-rc-"
+      - "/opt/android-sdk/tools/llvm-rc-"
+      - "/opt/android-sdk/tools/bin/llvm-rc-"
+      - "/var/lib/flatpak/exports/bin/llvm-rc-"
+      - "/usr/lib/jvm/default/bin/llvm-rc-"
+      - "/usr/bin/site_perl/llvm-rc-"
+      - "/usr/bin/vendor_perl/llvm-rc-"
+      - "/usr/bin/core_perl/llvm-rc-"
+      - "/usr/local/sbin/llvm-rc"
+      - "/usr/local/bin/llvm-rc"
+    found: "/usr/bin/llvm-rc"
+    search_context:
+      ENV{PATH}:
+        - "/usr/local/sbin"
+        - "/usr/local/bin"
+        - "/usr/bin"
+        - "/opt/android-sdk/cmdline-tools/latest/bin"
+        - "/opt/android-sdk/platform-tools"
+        - "/opt/android-sdk/tools"
+        - "/opt/android-sdk/tools/bin"
+        - "/var/lib/flatpak/exports/bin"
+        - "/usr/lib/jvm/default/bin"
+        - "/usr/bin/site_perl"
+        - "/usr/bin/vendor_perl"
+        - "/usr/bin/core_perl"
+  -
+    kind: "message-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CMakeDetermineSystem.cmake:207 (message)"
+      - "CMakeLists.txt:3 (project)"
+    message: |
+      The target system is: Windows - 10.0 - AMD64
+      The host system is: Linux - 7.0.9-1-cachyos - x86_64
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CMakeUnixFindMake.cmake:5 (find_program)"
+      - "CMakeLists.txt:3 (project)"
+    mode: "program"
+    variable: "CMAKE_MAKE_PROGRAM"
+    description: "Path to a program."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: true
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "gmake"
+      - "make"
+      - "smake"
+    candidate_directories:
+      - "/usr/local/sbin/"
+      - "/usr/local/bin/"
+      - "/usr/bin/"
+      - "/opt/android-sdk/cmdline-tools/latest/bin/"
+      - "/opt/android-sdk/platform-tools/"
+      - "/opt/android-sdk/tools/"
+      - "/opt/android-sdk/tools/bin/"
+      - "/var/lib/flatpak/exports/bin/"
+      - "/usr/lib/jvm/default/bin/"
+      - "/usr/bin/site_perl/"
+      - "/usr/bin/vendor_perl/"
+      - "/usr/bin/core_perl/"
+    searched_directories:
+      - "/usr/local/sbin/gmake"
+      - "/usr/local/bin/gmake"
+      - "/usr/bin/gmake"
+      - "/opt/android-sdk/cmdline-tools/latest/bin/gmake"
+      - "/opt/android-sdk/platform-tools/gmake"
+      - "/opt/android-sdk/tools/gmake"
+      - "/opt/android-sdk/tools/bin/gmake"
+      - "/var/lib/flatpak/exports/bin/gmake"
+      - "/usr/lib/jvm/default/bin/gmake"
+      - "/usr/bin/site_perl/gmake"
+      - "/usr/bin/vendor_perl/gmake"
+      - "/usr/bin/core_perl/gmake"
+      - "/usr/local/sbin/make"
+      - "/usr/local/bin/make"
+    found: "/usr/bin/make"
+    search_context:
+      ENV{PATH}:
+        - "/usr/local/sbin"
+        - "/usr/local/bin"
+        - "/usr/bin"
+        - "/opt/android-sdk/cmdline-tools/latest/bin"
+        - "/opt/android-sdk/platform-tools"
+        - "/opt/android-sdk/tools"
+        - "/opt/android-sdk/tools/bin"
+        - "/var/lib/flatpak/exports/bin"
+        - "/usr/lib/jvm/default/bin"
+        - "/usr/bin/site_perl"
+        - "/usr/bin/vendor_perl"
+        - "/usr/bin/core_perl"
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CMakeDetermineCompilerId.cmake:468 (find_file)"
+      - "/usr/share/cmake/Modules/CMakeDetermineCompilerId.cmake:506 (CMAKE_DETERMINE_COMPILER_ID_WRITE)"
+      - "/usr/share/cmake/Modules/CMakeDetermineCompilerId.cmake:8 (CMAKE_DETERMINE_COMPILER_ID_BUILD)"
+      - "/usr/share/cmake/Modules/CMakeDetermineCompilerId.cmake:64 (__determine_compiler_id_test)"
+      - "/usr/share/cmake/Modules/CMakeDetermineCCompiler.cmake:122 (CMAKE_DETERMINE_COMPILER_ID)"
+      - "CMakeLists.txt:3 (project)"
+    mode: "file"
+    variable: "src_in"
+    description: "Path to a file."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: true
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "CMakeCCompilerId.c.in"
+    candidate_directories:
+      - "/usr/share/cmake/Modules/"
+    found: "/usr/share/cmake/Modules/CMakeCCompilerId.c.in"
+    search_context:
+      ENV{PATH}:
+        - "/usr/local/sbin"
+        - "/usr/local/bin"
+        - "/usr/bin"
+        - "/opt/android-sdk/cmdline-tools/latest/bin"
+        - "/opt/android-sdk/platform-tools"
+        - "/opt/android-sdk/tools"
+        - "/opt/android-sdk/tools/bin"
+        - "/var/lib/flatpak/exports/bin"
+        - "/usr/lib/jvm/default/bin"
+        - "/usr/bin/site_perl"
+        - "/usr/bin/vendor_perl"
+        - "/usr/bin/core_perl"
+  -
+    kind: "message-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CMakeDetermineCompilerId.cmake:17 (message)"
+      - "/usr/share/cmake/Modules/CMakeDetermineCompilerId.cmake:64 (__determine_compiler_id_test)"
+      - "/usr/share/cmake/Modules/CMakeDetermineCCompiler.cmake:122 (CMAKE_DETERMINE_COMPILER_ID)"
+      - "CMakeLists.txt:3 (project)"
+    message: |
+      Compiling the C compiler identification source file "CMakeCCompilerId.c" failed.
+      Compiler: /usr/bin/clang 
+      Build flags: -fexceptions;-fcxx-exceptions;-D_CRT_SECURE_NO_WARNINGS;--target=x86_64-windows-msvc;-fms-compatibility-version=19.37;-Wno-unused-command-line-argument;-isystem;/usr/bin/../lib/clang/22/include;-isystem/home/d050/.local/share/Geode/cross-tools/splat/crt/include;-isystem/home/d050/.local/share/Geode/cross-tools/splat/sdk/include/ucrt;-isystem/home/d050/.local/share/Geode/cross-tools/splat/sdk/include/shared;-isystem/home/d050/.local/share/Geode/cross-tools/splat/sdk/include/um;-isystem/home/d050/.local/share/Geode/cross-tools/splat/sdk/include/winrt;-ivfsoverlay/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/winsdk_vfs_overlay.yaml
+      Id flags:  
+      
+      The output was:
+      1
+      clang: warning: unable to find a Visual Studio installation; try running Clang from a developer command prompt [-Wmsvc-not-found]
+      clang: error: unable to execute command: posix_spawn failed: No such file or directory
+      clang: error: linker command failed with exit code 1 (use -v to see invocation)
+      
+      
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CMakeDetermineCompilerId.cmake:468 (find_file)"
+      - "/usr/share/cmake/Modules/CMakeDetermineCompilerId.cmake:506 (CMAKE_DETERMINE_COMPILER_ID_WRITE)"
+      - "/usr/share/cmake/Modules/CMakeDetermineCompilerId.cmake:8 (CMAKE_DETERMINE_COMPILER_ID_BUILD)"
+      - "/usr/share/cmake/Modules/CMakeDetermineCompilerId.cmake:64 (__determine_compiler_id_test)"
+      - "/usr/share/cmake/Modules/CMakeDetermineCCompiler.cmake:122 (CMAKE_DETERMINE_COMPILER_ID)"
+      - "CMakeLists.txt:3 (project)"
+    mode: "file"
+    variable: "src_in"
+    description: "Path to a file."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: true
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "CMakeCCompilerId.c.in"
+    candidate_directories:
+      - "/usr/share/cmake/Modules/"
+    found: "/usr/share/cmake/Modules/CMakeCCompilerId.c.in"
+    search_context:
+      ENV{PATH}:
+        - "/usr/local/sbin"
+        - "/usr/local/bin"
+        - "/usr/bin"
+        - "/opt/android-sdk/cmdline-tools/latest/bin"
+        - "/opt/android-sdk/platform-tools"
+        - "/opt/android-sdk/tools"
+        - "/opt/android-sdk/tools/bin"
+        - "/var/lib/flatpak/exports/bin"
+        - "/usr/lib/jvm/default/bin"
+        - "/usr/bin/site_perl"
+        - "/usr/bin/vendor_perl"
+        - "/usr/bin/core_perl"
+  -
+    kind: "message-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CMakeDetermineCompilerId.cmake:17 (message)"
+      - "/usr/share/cmake/Modules/CMakeDetermineCompilerId.cmake:64 (__determine_compiler_id_test)"
+      - "/usr/share/cmake/Modules/CMakeDetermineCCompiler.cmake:122 (CMAKE_DETERMINE_COMPILER_ID)"
+      - "CMakeLists.txt:3 (project)"
+    message: |
+      Compiling the C compiler identification source file "CMakeCCompilerId.c" succeeded.
+      Compiler: /usr/bin/clang 
+      Build flags: -fexceptions;-fcxx-exceptions;-D_CRT_SECURE_NO_WARNINGS;--target=x86_64-windows-msvc;-fms-compatibility-version=19.37;-Wno-unused-command-line-argument;-isystem;/usr/bin/../lib/clang/22/include;-isystem/home/d050/.local/share/Geode/cross-tools/splat/crt/include;-isystem/home/d050/.local/share/Geode/cross-tools/splat/sdk/include/ucrt;-isystem/home/d050/.local/share/Geode/cross-tools/splat/sdk/include/shared;-isystem/home/d050/.local/share/Geode/cross-tools/splat/sdk/include/um;-isystem/home/d050/.local/share/Geode/cross-tools/splat/sdk/include/winrt;-ivfsoverlay/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/winsdk_vfs_overlay.yaml
+      Id flags: -c 
+      
+      The output was:
+      0
+      
+      
+      Compilation of the C compiler identification source "CMakeCCompilerId.c" produced "CMakeCCompilerId.o"
+      
+      The C compiler identification is Clang, found in:
+        /home/d050/Coding/Me Coding/MultiplayerEdit/build-win/CMakeFiles/4.3.2/CompilerIdC/CMakeCCompilerId.o
+      
+  -
+    kind: "message-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CMakeDetermineCompilerId.cmake:1347 (message)"
+      - "/usr/share/cmake/Modules/CMakeDetermineCompilerId.cmake:250 (CMAKE_DETERMINE_MSVC_SHOWINCLUDES_PREFIX)"
+      - "/usr/share/cmake/Modules/CMakeDetermineCCompiler.cmake:122 (CMAKE_DETERMINE_COMPILER_ID)"
+      - "CMakeLists.txt:3 (project)"
+    message: |
+      Detecting C compiler /showIncludes prefix:
+        
+  -
+    kind: "message-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CMakeDetermineCompilerId.cmake:1347 (message)"
+      - "/usr/share/cmake/Modules/CMakeDetermineCompilerId.cmake:250 (CMAKE_DETERMINE_MSVC_SHOWINCLUDES_PREFIX)"
+      - "/usr/share/cmake/Modules/CMakeDetermineCCompiler.cmake:122 (CMAKE_DETERMINE_COMPILER_ID)"
+      - "CMakeLists.txt:3 (project)"
+    message: |
+      Detecting C compiler /showIncludes prefix:
+        
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CMakeFindBinUtils.cmake:243 (find_program)"
+      - "/usr/share/cmake/Modules/CMakeDetermineCCompiler.cmake:200 (include)"
+      - "CMakeLists.txt:3 (project)"
+    mode: "program"
+    variable: "CMAKE_RANLIB"
+    description: "Path to a program."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: false
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: false
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "llvm-ranlib"
+      - "ranlib"
+    candidate_directories:
+      - "/usr/bin/"
+      - "/usr/local/sbin/"
+      - "/usr/local/bin/"
+      - "/opt/android-sdk/cmdline-tools/latest/bin/"
+      - "/opt/android-sdk/platform-tools/"
+      - "/opt/android-sdk/tools/"
+      - "/opt/android-sdk/tools/bin/"
+      - "/var/lib/flatpak/exports/bin/"
+      - "/usr/lib/jvm/default/bin/"
+      - "/usr/bin/site_perl/"
+      - "/usr/bin/vendor_perl/"
+      - "/usr/bin/core_perl/"
+    found: "/usr/bin/llvm-ranlib"
+    search_context:
+      ENV{PATH}:
+        - "/usr/local/sbin"
+        - "/usr/local/bin"
+        - "/usr/bin"
+        - "/opt/android-sdk/cmdline-tools/latest/bin"
+        - "/opt/android-sdk/platform-tools"
+        - "/opt/android-sdk/tools"
+        - "/opt/android-sdk/tools/bin"
+        - "/var/lib/flatpak/exports/bin"
+        - "/usr/lib/jvm/default/bin"
+        - "/usr/bin/site_perl"
+        - "/usr/bin/vendor_perl"
+        - "/usr/bin/core_perl"
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CMakeFindBinUtils.cmake:243 (find_program)"
+      - "/usr/share/cmake/Modules/CMakeDetermineCCompiler.cmake:200 (include)"
+      - "CMakeLists.txt:3 (project)"
+    mode: "program"
+    variable: "CMAKE_STRIP"
+    description: "Path to a program."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: false
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: false
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "llvm-strip"
+      - "strip"
+    candidate_directories:
+      - "/usr/bin/"
+      - "/usr/local/sbin/"
+      - "/usr/local/bin/"
+      - "/opt/android-sdk/cmdline-tools/latest/bin/"
+      - "/opt/android-sdk/platform-tools/"
+      - "/opt/android-sdk/tools/"
+      - "/opt/android-sdk/tools/bin/"
+      - "/var/lib/flatpak/exports/bin/"
+      - "/usr/lib/jvm/default/bin/"
+      - "/usr/bin/site_perl/"
+      - "/usr/bin/vendor_perl/"
+      - "/usr/bin/core_perl/"
+    found: "/usr/bin/llvm-strip"
+    search_context:
+      ENV{PATH}:
+        - "/usr/local/sbin"
+        - "/usr/local/bin"
+        - "/usr/bin"
+        - "/opt/android-sdk/cmdline-tools/latest/bin"
+        - "/opt/android-sdk/platform-tools"
+        - "/opt/android-sdk/tools"
+        - "/opt/android-sdk/tools/bin"
+        - "/var/lib/flatpak/exports/bin"
+        - "/usr/lib/jvm/default/bin"
+        - "/usr/bin/site_perl"
+        - "/usr/bin/vendor_perl"
+        - "/usr/bin/core_perl"
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CMakeFindBinUtils.cmake:243 (find_program)"
+      - "/usr/share/cmake/Modules/CMakeDetermineCCompiler.cmake:200 (include)"
+      - "CMakeLists.txt:3 (project)"
+    mode: "program"
+    variable: "CMAKE_OBJDUMP"
+    description: "Path to a program."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: false
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: false
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "llvm-objdump"
+      - "objdump"
+    candidate_directories:
+      - "/usr/bin/"
+      - "/usr/local/sbin/"
+      - "/usr/local/bin/"
+      - "/opt/android-sdk/cmdline-tools/latest/bin/"
+      - "/opt/android-sdk/platform-tools/"
+      - "/opt/android-sdk/tools/"
+      - "/opt/android-sdk/tools/bin/"
+      - "/var/lib/flatpak/exports/bin/"
+      - "/usr/lib/jvm/default/bin/"
+      - "/usr/bin/site_perl/"
+      - "/usr/bin/vendor_perl/"
+      - "/usr/bin/core_perl/"
+    found: "/usr/bin/llvm-objdump"
+    search_context:
+      ENV{PATH}:
+        - "/usr/local/sbin"
+        - "/usr/local/bin"
+        - "/usr/bin"
+        - "/opt/android-sdk/cmdline-tools/latest/bin"
+        - "/opt/android-sdk/platform-tools"
+        - "/opt/android-sdk/tools"
+        - "/opt/android-sdk/tools/bin"
+        - "/var/lib/flatpak/exports/bin"
+        - "/usr/lib/jvm/default/bin"
+        - "/usr/bin/site_perl"
+        - "/usr/bin/vendor_perl"
+        - "/usr/bin/core_perl"
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CMakeFindBinUtils.cmake:243 (find_program)"
+      - "/usr/share/cmake/Modules/CMakeDetermineCCompiler.cmake:200 (include)"
+      - "CMakeLists.txt:3 (project)"
+    mode: "program"
+    variable: "CMAKE_OBJCOPY"
+    description: "Path to a program."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: false
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: false
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "llvm-objcopy"
+      - "objcopy"
+    candidate_directories:
+      - "/usr/bin/"
+      - "/usr/local/sbin/"
+      - "/usr/local/bin/"
+      - "/opt/android-sdk/cmdline-tools/latest/bin/"
+      - "/opt/android-sdk/platform-tools/"
+      - "/opt/android-sdk/tools/"
+      - "/opt/android-sdk/tools/bin/"
+      - "/var/lib/flatpak/exports/bin/"
+      - "/usr/lib/jvm/default/bin/"
+      - "/usr/bin/site_perl/"
+      - "/usr/bin/vendor_perl/"
+      - "/usr/bin/core_perl/"
+    found: "/usr/bin/llvm-objcopy"
+    search_context:
+      ENV{PATH}:
+        - "/usr/local/sbin"
+        - "/usr/local/bin"
+        - "/usr/bin"
+        - "/opt/android-sdk/cmdline-tools/latest/bin"
+        - "/opt/android-sdk/platform-tools"
+        - "/opt/android-sdk/tools"
+        - "/opt/android-sdk/tools/bin"
+        - "/var/lib/flatpak/exports/bin"
+        - "/usr/lib/jvm/default/bin"
+        - "/usr/bin/site_perl"
+        - "/usr/bin/vendor_perl"
+        - "/usr/bin/core_perl"
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CMakeFindBinUtils.cmake:243 (find_program)"
+      - "/usr/share/cmake/Modules/CMakeDetermineCCompiler.cmake:200 (include)"
+      - "CMakeLists.txt:3 (project)"
+    mode: "program"
+    variable: "CMAKE_READELF"
+    description: "Path to a program."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: false
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: false
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "llvm-readelf"
+      - "readelf"
+    candidate_directories:
+      - "/usr/bin/"
+      - "/usr/local/sbin/"
+      - "/usr/local/bin/"
+      - "/opt/android-sdk/cmdline-tools/latest/bin/"
+      - "/opt/android-sdk/platform-tools/"
+      - "/opt/android-sdk/tools/"
+      - "/opt/android-sdk/tools/bin/"
+      - "/var/lib/flatpak/exports/bin/"
+      - "/usr/lib/jvm/default/bin/"
+      - "/usr/bin/site_perl/"
+      - "/usr/bin/vendor_perl/"
+      - "/usr/bin/core_perl/"
+    found: "/usr/bin/llvm-readelf"
+    search_context:
+      ENV{PATH}:
+        - "/usr/local/sbin"
+        - "/usr/local/bin"
+        - "/usr/bin"
+        - "/opt/android-sdk/cmdline-tools/latest/bin"
+        - "/opt/android-sdk/platform-tools"
+        - "/opt/android-sdk/tools"
+        - "/opt/android-sdk/tools/bin"
+        - "/var/lib/flatpak/exports/bin"
+        - "/usr/lib/jvm/default/bin"
+        - "/usr/bin/site_perl"
+        - "/usr/bin/vendor_perl"
+        - "/usr/bin/core_perl"
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CMakeFindBinUtils.cmake:243 (find_program)"
+      - "/usr/share/cmake/Modules/CMakeDetermineCCompiler.cmake:200 (include)"
+      - "CMakeLists.txt:3 (project)"
+    mode: "program"
+    variable: "CMAKE_DLLTOOL"
+    description: "Path to a program."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: false
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: false
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "llvm-dlltool"
+      - "dlltool"
+    candidate_directories:
+      - "/usr/bin/"
+      - "/usr/local/sbin/"
+      - "/usr/local/bin/"
+      - "/opt/android-sdk/cmdline-tools/latest/bin/"
+      - "/opt/android-sdk/platform-tools/"
+      - "/opt/android-sdk/tools/"
+      - "/opt/android-sdk/tools/bin/"
+      - "/var/lib/flatpak/exports/bin/"
+      - "/usr/lib/jvm/default/bin/"
+      - "/usr/bin/site_perl/"
+      - "/usr/bin/vendor_perl/"
+      - "/usr/bin/core_perl/"
+    found: "/usr/bin/llvm-dlltool"
+    search_context:
+      ENV{PATH}:
+        - "/usr/local/sbin"
+        - "/usr/local/bin"
+        - "/usr/bin"
+        - "/opt/android-sdk/cmdline-tools/latest/bin"
+        - "/opt/android-sdk/platform-tools"
+        - "/opt/android-sdk/tools"
+        - "/opt/android-sdk/tools/bin"
+        - "/var/lib/flatpak/exports/bin"
+        - "/usr/lib/jvm/default/bin"
+        - "/usr/bin/site_perl"
+        - "/usr/bin/vendor_perl"
+        - "/usr/bin/core_perl"
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CMakeFindBinUtils.cmake:243 (find_program)"
+      - "/usr/share/cmake/Modules/CMakeDetermineCCompiler.cmake:200 (include)"
+      - "CMakeLists.txt:3 (project)"
+    mode: "program"
+    variable: "CMAKE_ADDR2LINE"
+    description: "Path to a program."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: false
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: false
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "llvm-addr2line"
+      - "addr2line"
+    candidate_directories:
+      - "/usr/bin/"
+      - "/usr/local/sbin/"
+      - "/usr/local/bin/"
+      - "/opt/android-sdk/cmdline-tools/latest/bin/"
+      - "/opt/android-sdk/platform-tools/"
+      - "/opt/android-sdk/tools/"
+      - "/opt/android-sdk/tools/bin/"
+      - "/var/lib/flatpak/exports/bin/"
+      - "/usr/lib/jvm/default/bin/"
+      - "/usr/bin/site_perl/"
+      - "/usr/bin/vendor_perl/"
+      - "/usr/bin/core_perl/"
+    found: "/usr/bin/llvm-addr2line"
+    search_context:
+      ENV{PATH}:
+        - "/usr/local/sbin"
+        - "/usr/local/bin"
+        - "/usr/bin"
+        - "/opt/android-sdk/cmdline-tools/latest/bin"
+        - "/opt/android-sdk/platform-tools"
+        - "/opt/android-sdk/tools"
+        - "/opt/android-sdk/tools/bin"
+        - "/var/lib/flatpak/exports/bin"
+        - "/usr/lib/jvm/default/bin"
+        - "/usr/bin/site_perl"
+        - "/usr/bin/vendor_perl"
+        - "/usr/bin/core_perl"
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CMakeFindBinUtils.cmake:243 (find_program)"
+      - "/usr/share/cmake/Modules/CMakeDetermineCCompiler.cmake:200 (include)"
+      - "CMakeLists.txt:3 (project)"
+    mode: "program"
+    variable: "CMAKE_TAPI"
+    description: "Path to a program."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: false
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: false
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "tapi"
+    candidate_directories:
+      - "/usr/bin/"
+      - "/usr/local/sbin/"
+      - "/usr/local/bin/"
+      - "/opt/android-sdk/cmdline-tools/latest/bin/"
+      - "/opt/android-sdk/platform-tools/"
+      - "/opt/android-sdk/tools/"
+      - "/opt/android-sdk/tools/bin/"
+      - "/var/lib/flatpak/exports/bin/"
+      - "/usr/lib/jvm/default/bin/"
+      - "/usr/bin/site_perl/"
+      - "/usr/bin/vendor_perl/"
+      - "/usr/bin/core_perl/"
+    searched_directories:
+      - "/usr/bin/tapi"
+      - "/usr/local/sbin/tapi"
+      - "/usr/local/bin/tapi"
+      - "/opt/android-sdk/cmdline-tools/latest/bin/tapi"
+      - "/opt/android-sdk/platform-tools/tapi"
+      - "/opt/android-sdk/tools/tapi"
+      - "/opt/android-sdk/tools/bin/tapi"
+      - "/var/lib/flatpak/exports/bin/tapi"
+      - "/usr/lib/jvm/default/bin/tapi"
+      - "/usr/bin/site_perl/tapi"
+      - "/usr/bin/vendor_perl/tapi"
+      - "/usr/bin/core_perl/tapi"
+    found: false
+    search_context:
+      ENV{PATH}:
+        - "/usr/local/sbin"
+        - "/usr/local/bin"
+        - "/usr/bin"
+        - "/opt/android-sdk/cmdline-tools/latest/bin"
+        - "/opt/android-sdk/platform-tools"
+        - "/opt/android-sdk/tools"
+        - "/opt/android-sdk/tools/bin"
+        - "/var/lib/flatpak/exports/bin"
+        - "/usr/lib/jvm/default/bin"
+        - "/usr/bin/site_perl"
+        - "/usr/bin/vendor_perl"
+        - "/usr/bin/core_perl"
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/Compiler/Clang-FindBinUtils.cmake:26 (find_program)"
+      - "/usr/share/cmake/Modules/CMakeDetermineCCompiler.cmake:201 (include)"
+      - "CMakeLists.txt:3 (project)"
+    mode: "program"
+    variable: "CMAKE_C_COMPILER_AR"
+    description: "LLVM archiver"
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: false
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: false
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "llvm-ar-22.1"
+      - "llvm-ar-22"
+      - "llvm-ar22"
+      - "llvm-ar"
+    candidate_directories:
+      - "/usr/bin/"
+      - "/usr/local/sbin/"
+      - "/usr/local/bin/"
+      - "/opt/android-sdk/cmdline-tools/latest/bin/"
+      - "/opt/android-sdk/platform-tools/"
+      - "/opt/android-sdk/tools/"
+      - "/opt/android-sdk/tools/bin/"
+      - "/var/lib/flatpak/exports/bin/"
+      - "/usr/lib/jvm/default/bin/"
+      - "/usr/bin/site_perl/"
+      - "/usr/bin/vendor_perl/"
+      - "/usr/bin/core_perl/"
+    searched_directories:
+      - "/usr/bin/llvm-ar-22.1"
+      - "/usr/local/sbin/llvm-ar-22.1"
+      - "/usr/local/bin/llvm-ar-22.1"
+      - "/opt/android-sdk/cmdline-tools/latest/bin/llvm-ar-22.1"
+      - "/opt/android-sdk/platform-tools/llvm-ar-22.1"
+      - "/opt/android-sdk/tools/llvm-ar-22.1"
+      - "/opt/android-sdk/tools/bin/llvm-ar-22.1"
+      - "/var/lib/flatpak/exports/bin/llvm-ar-22.1"
+      - "/usr/lib/jvm/default/bin/llvm-ar-22.1"
+      - "/usr/bin/site_perl/llvm-ar-22.1"
+      - "/usr/bin/vendor_perl/llvm-ar-22.1"
+      - "/usr/bin/core_perl/llvm-ar-22.1"
+      - "/usr/bin/llvm-ar-22"
+      - "/usr/local/sbin/llvm-ar-22"
+      - "/usr/local/bin/llvm-ar-22"
+      - "/opt/android-sdk/cmdline-tools/latest/bin/llvm-ar-22"
+      - "/opt/android-sdk/platform-tools/llvm-ar-22"
+      - "/opt/android-sdk/tools/llvm-ar-22"
+      - "/opt/android-sdk/tools/bin/llvm-ar-22"
+      - "/var/lib/flatpak/exports/bin/llvm-ar-22"
+      - "/usr/lib/jvm/default/bin/llvm-ar-22"
+      - "/usr/bin/site_perl/llvm-ar-22"
+      - "/usr/bin/vendor_perl/llvm-ar-22"
+      - "/usr/bin/core_perl/llvm-ar-22"
+      - "/usr/bin/llvm-ar22"
+      - "/usr/local/sbin/llvm-ar22"
+      - "/usr/local/bin/llvm-ar22"
+      - "/opt/android-sdk/cmdline-tools/latest/bin/llvm-ar22"
+      - "/opt/android-sdk/platform-tools/llvm-ar22"
+      - "/opt/android-sdk/tools/llvm-ar22"
+      - "/opt/android-sdk/tools/bin/llvm-ar22"
+      - "/var/lib/flatpak/exports/bin/llvm-ar22"
+      - "/usr/lib/jvm/default/bin/llvm-ar22"
+      - "/usr/bin/site_perl/llvm-ar22"
+      - "/usr/bin/vendor_perl/llvm-ar22"
+      - "/usr/bin/core_perl/llvm-ar22"
+    found: "/usr/bin/llvm-ar"
+    search_context:
+      ENV{PATH}:
+        - "/usr/local/sbin"
+        - "/usr/local/bin"
+        - "/usr/bin"
+        - "/opt/android-sdk/cmdline-tools/latest/bin"
+        - "/opt/android-sdk/platform-tools"
+        - "/opt/android-sdk/tools"
+        - "/opt/android-sdk/tools/bin"
+        - "/var/lib/flatpak/exports/bin"
+        - "/usr/lib/jvm/default/bin"
+        - "/usr/bin/site_perl"
+        - "/usr/bin/vendor_perl"
+        - "/usr/bin/core_perl"
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/Compiler/Clang-FindBinUtils.cmake:38 (find_program)"
+      - "/usr/share/cmake/Modules/CMakeDetermineCCompiler.cmake:201 (include)"
+      - "CMakeLists.txt:3 (project)"
+    mode: "program"
+    variable: "CMAKE_C_COMPILER_RANLIB"
+    description: "Generate index for LLVM archive"
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: false
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: false
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "llvm-ranlib-22.1"
+      - "llvm-ranlib-22"
+      - "llvm-ranlib22"
+      - "llvm-ranlib"
+    candidate_directories:
+      - "/usr/bin/"
+      - "/usr/local/sbin/"
+      - "/usr/local/bin/"
+      - "/opt/android-sdk/cmdline-tools/latest/bin/"
+      - "/opt/android-sdk/platform-tools/"
+      - "/opt/android-sdk/tools/"
+      - "/opt/android-sdk/tools/bin/"
+      - "/var/lib/flatpak/exports/bin/"
+      - "/usr/lib/jvm/default/bin/"
+      - "/usr/bin/site_perl/"
+      - "/usr/bin/vendor_perl/"
+      - "/usr/bin/core_perl/"
+    searched_directories:
+      - "/usr/bin/llvm-ranlib-22.1"
+      - "/usr/local/sbin/llvm-ranlib-22.1"
+      - "/usr/local/bin/llvm-ranlib-22.1"
+      - "/opt/android-sdk/cmdline-tools/latest/bin/llvm-ranlib-22.1"
+      - "/opt/android-sdk/platform-tools/llvm-ranlib-22.1"
+      - "/opt/android-sdk/tools/llvm-ranlib-22.1"
+      - "/opt/android-sdk/tools/bin/llvm-ranlib-22.1"
+      - "/var/lib/flatpak/exports/bin/llvm-ranlib-22.1"
+      - "/usr/lib/jvm/default/bin/llvm-ranlib-22.1"
+      - "/usr/bin/site_perl/llvm-ranlib-22.1"
+      - "/usr/bin/vendor_perl/llvm-ranlib-22.1"
+      - "/usr/bin/core_perl/llvm-ranlib-22.1"
+      - "/usr/bin/llvm-ranlib-22"
+      - "/usr/local/sbin/llvm-ranlib-22"
+      - "/usr/local/bin/llvm-ranlib-22"
+      - "/opt/android-sdk/cmdline-tools/latest/bin/llvm-ranlib-22"
+      - "/opt/android-sdk/platform-tools/llvm-ranlib-22"
+      - "/opt/android-sdk/tools/llvm-ranlib-22"
+      - "/opt/android-sdk/tools/bin/llvm-ranlib-22"
+      - "/var/lib/flatpak/exports/bin/llvm-ranlib-22"
+      - "/usr/lib/jvm/default/bin/llvm-ranlib-22"
+      - "/usr/bin/site_perl/llvm-ranlib-22"
+      - "/usr/bin/vendor_perl/llvm-ranlib-22"
+      - "/usr/bin/core_perl/llvm-ranlib-22"
+      - "/usr/bin/llvm-ranlib22"
+      - "/usr/local/sbin/llvm-ranlib22"
+      - "/usr/local/bin/llvm-ranlib22"
+      - "/opt/android-sdk/cmdline-tools/latest/bin/llvm-ranlib22"
+      - "/opt/android-sdk/platform-tools/llvm-ranlib22"
+      - "/opt/android-sdk/tools/llvm-ranlib22"
+      - "/opt/android-sdk/tools/bin/llvm-ranlib22"
+      - "/var/lib/flatpak/exports/bin/llvm-ranlib22"
+      - "/usr/lib/jvm/default/bin/llvm-ranlib22"
+      - "/usr/bin/site_perl/llvm-ranlib22"
+      - "/usr/bin/vendor_perl/llvm-ranlib22"
+      - "/usr/bin/core_perl/llvm-ranlib22"
+    found: "/usr/bin/llvm-ranlib"
+    search_context:
+      ENV{PATH}:
+        - "/usr/local/sbin"
+        - "/usr/local/bin"
+        - "/usr/bin"
+        - "/opt/android-sdk/cmdline-tools/latest/bin"
+        - "/opt/android-sdk/platform-tools"
+        - "/opt/android-sdk/tools"
+        - "/opt/android-sdk/tools/bin"
+        - "/var/lib/flatpak/exports/bin"
+        - "/usr/lib/jvm/default/bin"
+        - "/usr/bin/site_perl"
+        - "/usr/bin/vendor_perl"
+        - "/usr/bin/core_perl"
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/Compiler/Clang-FindBinUtils.cmake:50 (find_program)"
+      - "/usr/share/cmake/Modules/CMakeDetermineCCompiler.cmake:201 (include)"
+      - "CMakeLists.txt:3 (project)"
+    mode: "program"
+    variable: "CMAKE_C_COMPILER_CLANG_SCAN_DEPS"
+    description: "`clang-scan-deps` dependency scanner"
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: false
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: false
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "clang-scan-deps-22.1"
+      - "clang-scan-deps-22"
+      - "clang-scan-deps22"
+      - "clang-scan-deps"
+    candidate_directories:
+      - "/usr/bin/"
+      - "/usr/local/sbin/"
+      - "/usr/local/bin/"
+      - "/opt/android-sdk/cmdline-tools/latest/bin/"
+      - "/opt/android-sdk/platform-tools/"
+      - "/opt/android-sdk/tools/"
+      - "/opt/android-sdk/tools/bin/"
+      - "/var/lib/flatpak/exports/bin/"
+      - "/usr/lib/jvm/default/bin/"
+      - "/usr/bin/site_perl/"
+      - "/usr/bin/vendor_perl/"
+      - "/usr/bin/core_perl/"
+    searched_directories:
+      - "/usr/bin/clang-scan-deps-22.1"
+      - "/usr/local/sbin/clang-scan-deps-22.1"
+      - "/usr/local/bin/clang-scan-deps-22.1"
+      - "/opt/android-sdk/cmdline-tools/latest/bin/clang-scan-deps-22.1"
+      - "/opt/android-sdk/platform-tools/clang-scan-deps-22.1"
+      - "/opt/android-sdk/tools/clang-scan-deps-22.1"
+      - "/opt/android-sdk/tools/bin/clang-scan-deps-22.1"
+      - "/var/lib/flatpak/exports/bin/clang-scan-deps-22.1"
+      - "/usr/lib/jvm/default/bin/clang-scan-deps-22.1"
+      - "/usr/bin/site_perl/clang-scan-deps-22.1"
+      - "/usr/bin/vendor_perl/clang-scan-deps-22.1"
+      - "/usr/bin/core_perl/clang-scan-deps-22.1"
+      - "/usr/bin/clang-scan-deps-22"
+      - "/usr/local/sbin/clang-scan-deps-22"
+      - "/usr/local/bin/clang-scan-deps-22"
+      - "/opt/android-sdk/cmdline-tools/latest/bin/clang-scan-deps-22"
+      - "/opt/android-sdk/platform-tools/clang-scan-deps-22"
+      - "/opt/android-sdk/tools/clang-scan-deps-22"
+      - "/opt/android-sdk/tools/bin/clang-scan-deps-22"
+      - "/var/lib/flatpak/exports/bin/clang-scan-deps-22"
+      - "/usr/lib/jvm/default/bin/clang-scan-deps-22"
+      - "/usr/bin/site_perl/clang-scan-deps-22"
+      - "/usr/bin/vendor_perl/clang-scan-deps-22"
+      - "/usr/bin/core_perl/clang-scan-deps-22"
+      - "/usr/bin/clang-scan-deps22"
+      - "/usr/local/sbin/clang-scan-deps22"
+      - "/usr/local/bin/clang-scan-deps22"
+      - "/opt/android-sdk/cmdline-tools/latest/bin/clang-scan-deps22"
+      - "/opt/android-sdk/platform-tools/clang-scan-deps22"
+      - "/opt/android-sdk/tools/clang-scan-deps22"
+      - "/opt/android-sdk/tools/bin/clang-scan-deps22"
+      - "/var/lib/flatpak/exports/bin/clang-scan-deps22"
+      - "/usr/lib/jvm/default/bin/clang-scan-deps22"
+      - "/usr/bin/site_perl/clang-scan-deps22"
+      - "/usr/bin/vendor_perl/clang-scan-deps22"
+      - "/usr/bin/core_perl/clang-scan-deps22"
+    found: "/usr/bin/clang-scan-deps"
+    search_context:
+      ENV{PATH}:
+        - "/usr/local/sbin"
+        - "/usr/local/bin"
+        - "/usr/bin"
+        - "/opt/android-sdk/cmdline-tools/latest/bin"
+        - "/opt/android-sdk/platform-tools"
+        - "/opt/android-sdk/tools"
+        - "/opt/android-sdk/tools/bin"
+        - "/var/lib/flatpak/exports/bin"
+        - "/usr/lib/jvm/default/bin"
+        - "/usr/bin/site_perl"
+        - "/usr/bin/vendor_perl"
+        - "/usr/bin/core_perl"
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CMakeDetermineCompilerId.cmake:468 (find_file)"
+      - "/usr/share/cmake/Modules/CMakeDetermineCompilerId.cmake:506 (CMAKE_DETERMINE_COMPILER_ID_WRITE)"
+      - "/usr/share/cmake/Modules/CMakeDetermineCompilerId.cmake:8 (CMAKE_DETERMINE_COMPILER_ID_BUILD)"
+      - "/usr/share/cmake/Modules/CMakeDetermineCompilerId.cmake:64 (__determine_compiler_id_test)"
+      - "/usr/share/cmake/Modules/CMakeDetermineCXXCompiler.cmake:125 (CMAKE_DETERMINE_COMPILER_ID)"
+      - "CMakeLists.txt:3 (project)"
+    mode: "file"
+    variable: "src_in"
+    description: "Path to a file."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: true
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "CMakeCXXCompilerId.cpp.in"
+    candidate_directories:
+      - "/usr/share/cmake/Modules/"
+    found: "/usr/share/cmake/Modules/CMakeCXXCompilerId.cpp.in"
+    search_context:
+      ENV{PATH}:
+        - "/usr/local/sbin"
+        - "/usr/local/bin"
+        - "/usr/bin"
+        - "/opt/android-sdk/cmdline-tools/latest/bin"
+        - "/opt/android-sdk/platform-tools"
+        - "/opt/android-sdk/tools"
+        - "/opt/android-sdk/tools/bin"
+        - "/var/lib/flatpak/exports/bin"
+        - "/usr/lib/jvm/default/bin"
+        - "/usr/bin/site_perl"
+        - "/usr/bin/vendor_perl"
+        - "/usr/bin/core_perl"
+  -
+    kind: "message-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CMakeDetermineCompilerId.cmake:17 (message)"
+      - "/usr/share/cmake/Modules/CMakeDetermineCompilerId.cmake:64 (__determine_compiler_id_test)"
+      - "/usr/share/cmake/Modules/CMakeDetermineCXXCompiler.cmake:125 (CMAKE_DETERMINE_COMPILER_ID)"
+      - "CMakeLists.txt:3 (project)"
+    message: |
+      Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" failed.
+      Compiler: /usr/bin/clang++ 
+      Build flags: -fexceptions;-fcxx-exceptions;-D_CRT_SECURE_NO_WARNINGS;--target=x86_64-windows-msvc;-fms-compatibility-version=19.37;-Wno-unused-command-line-argument;-isystem;/usr/bin/../lib/clang/22/include;-isystem/home/d050/.local/share/Geode/cross-tools/splat/crt/include;-isystem/home/d050/.local/share/Geode/cross-tools/splat/sdk/include/ucrt;-isystem/home/d050/.local/share/Geode/cross-tools/splat/sdk/include/shared;-isystem/home/d050/.local/share/Geode/cross-tools/splat/sdk/include/um;-isystem/home/d050/.local/share/Geode/cross-tools/splat/sdk/include/winrt;-ivfsoverlay/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/winsdk_vfs_overlay.yaml
+      Id flags:  
+      
+      The output was:
+      1
+      clang++: warning: unable to find a Visual Studio installation; try running Clang from a developer command prompt [-Wmsvc-not-found]
+      clang++: error: unable to execute command: posix_spawn failed: No such file or directory
+      clang++: error: linker command failed with exit code 1 (use -v to see invocation)
+      
+      
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CMakeDetermineCompilerId.cmake:468 (find_file)"
+      - "/usr/share/cmake/Modules/CMakeDetermineCompilerId.cmake:506 (CMAKE_DETERMINE_COMPILER_ID_WRITE)"
+      - "/usr/share/cmake/Modules/CMakeDetermineCompilerId.cmake:8 (CMAKE_DETERMINE_COMPILER_ID_BUILD)"
+      - "/usr/share/cmake/Modules/CMakeDetermineCompilerId.cmake:64 (__determine_compiler_id_test)"
+      - "/usr/share/cmake/Modules/CMakeDetermineCXXCompiler.cmake:125 (CMAKE_DETERMINE_COMPILER_ID)"
+      - "CMakeLists.txt:3 (project)"
+    mode: "file"
+    variable: "src_in"
+    description: "Path to a file."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: true
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "CMakeCXXCompilerId.cpp.in"
+    candidate_directories:
+      - "/usr/share/cmake/Modules/"
+    found: "/usr/share/cmake/Modules/CMakeCXXCompilerId.cpp.in"
+    search_context:
+      ENV{PATH}:
+        - "/usr/local/sbin"
+        - "/usr/local/bin"
+        - "/usr/bin"
+        - "/opt/android-sdk/cmdline-tools/latest/bin"
+        - "/opt/android-sdk/platform-tools"
+        - "/opt/android-sdk/tools"
+        - "/opt/android-sdk/tools/bin"
+        - "/var/lib/flatpak/exports/bin"
+        - "/usr/lib/jvm/default/bin"
+        - "/usr/bin/site_perl"
+        - "/usr/bin/vendor_perl"
+        - "/usr/bin/core_perl"
+  -
+    kind: "message-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CMakeDetermineCompilerId.cmake:17 (message)"
+      - "/usr/share/cmake/Modules/CMakeDetermineCompilerId.cmake:64 (__determine_compiler_id_test)"
+      - "/usr/share/cmake/Modules/CMakeDetermineCXXCompiler.cmake:125 (CMAKE_DETERMINE_COMPILER_ID)"
+      - "CMakeLists.txt:3 (project)"
+    message: |
+      Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" succeeded.
+      Compiler: /usr/bin/clang++ 
+      Build flags: -fexceptions;-fcxx-exceptions;-D_CRT_SECURE_NO_WARNINGS;--target=x86_64-windows-msvc;-fms-compatibility-version=19.37;-Wno-unused-command-line-argument;-isystem;/usr/bin/../lib/clang/22/include;-isystem/home/d050/.local/share/Geode/cross-tools/splat/crt/include;-isystem/home/d050/.local/share/Geode/cross-tools/splat/sdk/include/ucrt;-isystem/home/d050/.local/share/Geode/cross-tools/splat/sdk/include/shared;-isystem/home/d050/.local/share/Geode/cross-tools/splat/sdk/include/um;-isystem/home/d050/.local/share/Geode/cross-tools/splat/sdk/include/winrt;-ivfsoverlay/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/winsdk_vfs_overlay.yaml
+      Id flags: -c 
+      
+      The output was:
+      0
+      
+      
+      Compilation of the CXX compiler identification source "CMakeCXXCompilerId.cpp" produced "CMakeCXXCompilerId.o"
+      
+      The CXX compiler identification is Clang, found in:
+        /home/d050/Coding/Me Coding/MultiplayerEdit/build-win/CMakeFiles/4.3.2/CompilerIdCXX/CMakeCXXCompilerId.o
+      
+  -
+    kind: "message-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CMakeDetermineCompilerId.cmake:1347 (message)"
+      - "/usr/share/cmake/Modules/CMakeDetermineCompilerId.cmake:250 (CMAKE_DETERMINE_MSVC_SHOWINCLUDES_PREFIX)"
+      - "/usr/share/cmake/Modules/CMakeDetermineCXXCompiler.cmake:125 (CMAKE_DETERMINE_COMPILER_ID)"
+      - "CMakeLists.txt:3 (project)"
+    message: |
+      Detecting CXX compiler /showIncludes prefix:
+        
+  -
+    kind: "message-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CMakeDetermineCompilerId.cmake:1347 (message)"
+      - "/usr/share/cmake/Modules/CMakeDetermineCompilerId.cmake:250 (CMAKE_DETERMINE_MSVC_SHOWINCLUDES_PREFIX)"
+      - "/usr/share/cmake/Modules/CMakeDetermineCXXCompiler.cmake:125 (CMAKE_DETERMINE_COMPILER_ID)"
+      - "CMakeLists.txt:3 (project)"
+    message: |
+      Detecting CXX compiler /showIncludes prefix:
+        
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/Compiler/Clang-FindBinUtils.cmake:26 (find_program)"
+      - "/usr/share/cmake/Modules/CMakeDetermineCXXCompiler.cmake:207 (include)"
+      - "CMakeLists.txt:3 (project)"
+    mode: "program"
+    variable: "CMAKE_CXX_COMPILER_AR"
+    description: "LLVM archiver"
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: false
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: false
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "llvm-ar-22.1"
+      - "llvm-ar-22"
+      - "llvm-ar22"
+      - "llvm-ar"
+    candidate_directories:
+      - "/usr/bin/"
+      - "/usr/local/sbin/"
+      - "/usr/local/bin/"
+      - "/opt/android-sdk/cmdline-tools/latest/bin/"
+      - "/opt/android-sdk/platform-tools/"
+      - "/opt/android-sdk/tools/"
+      - "/opt/android-sdk/tools/bin/"
+      - "/var/lib/flatpak/exports/bin/"
+      - "/usr/lib/jvm/default/bin/"
+      - "/usr/bin/site_perl/"
+      - "/usr/bin/vendor_perl/"
+      - "/usr/bin/core_perl/"
+    searched_directories:
+      - "/usr/bin/llvm-ar-22.1"
+      - "/usr/local/sbin/llvm-ar-22.1"
+      - "/usr/local/bin/llvm-ar-22.1"
+      - "/opt/android-sdk/cmdline-tools/latest/bin/llvm-ar-22.1"
+      - "/opt/android-sdk/platform-tools/llvm-ar-22.1"
+      - "/opt/android-sdk/tools/llvm-ar-22.1"
+      - "/opt/android-sdk/tools/bin/llvm-ar-22.1"
+      - "/var/lib/flatpak/exports/bin/llvm-ar-22.1"
+      - "/usr/lib/jvm/default/bin/llvm-ar-22.1"
+      - "/usr/bin/site_perl/llvm-ar-22.1"
+      - "/usr/bin/vendor_perl/llvm-ar-22.1"
+      - "/usr/bin/core_perl/llvm-ar-22.1"
+      - "/usr/bin/llvm-ar-22"
+      - "/usr/local/sbin/llvm-ar-22"
+      - "/usr/local/bin/llvm-ar-22"
+      - "/opt/android-sdk/cmdline-tools/latest/bin/llvm-ar-22"
+      - "/opt/android-sdk/platform-tools/llvm-ar-22"
+      - "/opt/android-sdk/tools/llvm-ar-22"
+      - "/opt/android-sdk/tools/bin/llvm-ar-22"
+      - "/var/lib/flatpak/exports/bin/llvm-ar-22"
+      - "/usr/lib/jvm/default/bin/llvm-ar-22"
+      - "/usr/bin/site_perl/llvm-ar-22"
+      - "/usr/bin/vendor_perl/llvm-ar-22"
+      - "/usr/bin/core_perl/llvm-ar-22"
+      - "/usr/bin/llvm-ar22"
+      - "/usr/local/sbin/llvm-ar22"
+      - "/usr/local/bin/llvm-ar22"
+      - "/opt/android-sdk/cmdline-tools/latest/bin/llvm-ar22"
+      - "/opt/android-sdk/platform-tools/llvm-ar22"
+      - "/opt/android-sdk/tools/llvm-ar22"
+      - "/opt/android-sdk/tools/bin/llvm-ar22"
+      - "/var/lib/flatpak/exports/bin/llvm-ar22"
+      - "/usr/lib/jvm/default/bin/llvm-ar22"
+      - "/usr/bin/site_perl/llvm-ar22"
+      - "/usr/bin/vendor_perl/llvm-ar22"
+      - "/usr/bin/core_perl/llvm-ar22"
+    found: "/usr/bin/llvm-ar"
+    search_context:
+      ENV{PATH}:
+        - "/usr/local/sbin"
+        - "/usr/local/bin"
+        - "/usr/bin"
+        - "/opt/android-sdk/cmdline-tools/latest/bin"
+        - "/opt/android-sdk/platform-tools"
+        - "/opt/android-sdk/tools"
+        - "/opt/android-sdk/tools/bin"
+        - "/var/lib/flatpak/exports/bin"
+        - "/usr/lib/jvm/default/bin"
+        - "/usr/bin/site_perl"
+        - "/usr/bin/vendor_perl"
+        - "/usr/bin/core_perl"
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/Compiler/Clang-FindBinUtils.cmake:38 (find_program)"
+      - "/usr/share/cmake/Modules/CMakeDetermineCXXCompiler.cmake:207 (include)"
+      - "CMakeLists.txt:3 (project)"
+    mode: "program"
+    variable: "CMAKE_CXX_COMPILER_RANLIB"
+    description: "Generate index for LLVM archive"
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: false
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: false
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "llvm-ranlib-22.1"
+      - "llvm-ranlib-22"
+      - "llvm-ranlib22"
+      - "llvm-ranlib"
+    candidate_directories:
+      - "/usr/bin/"
+      - "/usr/local/sbin/"
+      - "/usr/local/bin/"
+      - "/opt/android-sdk/cmdline-tools/latest/bin/"
+      - "/opt/android-sdk/platform-tools/"
+      - "/opt/android-sdk/tools/"
+      - "/opt/android-sdk/tools/bin/"
+      - "/var/lib/flatpak/exports/bin/"
+      - "/usr/lib/jvm/default/bin/"
+      - "/usr/bin/site_perl/"
+      - "/usr/bin/vendor_perl/"
+      - "/usr/bin/core_perl/"
+    searched_directories:
+      - "/usr/bin/llvm-ranlib-22.1"
+      - "/usr/local/sbin/llvm-ranlib-22.1"
+      - "/usr/local/bin/llvm-ranlib-22.1"
+      - "/opt/android-sdk/cmdline-tools/latest/bin/llvm-ranlib-22.1"
+      - "/opt/android-sdk/platform-tools/llvm-ranlib-22.1"
+      - "/opt/android-sdk/tools/llvm-ranlib-22.1"
+      - "/opt/android-sdk/tools/bin/llvm-ranlib-22.1"
+      - "/var/lib/flatpak/exports/bin/llvm-ranlib-22.1"
+      - "/usr/lib/jvm/default/bin/llvm-ranlib-22.1"
+      - "/usr/bin/site_perl/llvm-ranlib-22.1"
+      - "/usr/bin/vendor_perl/llvm-ranlib-22.1"
+      - "/usr/bin/core_perl/llvm-ranlib-22.1"
+      - "/usr/bin/llvm-ranlib-22"
+      - "/usr/local/sbin/llvm-ranlib-22"
+      - "/usr/local/bin/llvm-ranlib-22"
+      - "/opt/android-sdk/cmdline-tools/latest/bin/llvm-ranlib-22"
+      - "/opt/android-sdk/platform-tools/llvm-ranlib-22"
+      - "/opt/android-sdk/tools/llvm-ranlib-22"
+      - "/opt/android-sdk/tools/bin/llvm-ranlib-22"
+      - "/var/lib/flatpak/exports/bin/llvm-ranlib-22"
+      - "/usr/lib/jvm/default/bin/llvm-ranlib-22"
+      - "/usr/bin/site_perl/llvm-ranlib-22"
+      - "/usr/bin/vendor_perl/llvm-ranlib-22"
+      - "/usr/bin/core_perl/llvm-ranlib-22"
+      - "/usr/bin/llvm-ranlib22"
+      - "/usr/local/sbin/llvm-ranlib22"
+      - "/usr/local/bin/llvm-ranlib22"
+      - "/opt/android-sdk/cmdline-tools/latest/bin/llvm-ranlib22"
+      - "/opt/android-sdk/platform-tools/llvm-ranlib22"
+      - "/opt/android-sdk/tools/llvm-ranlib22"
+      - "/opt/android-sdk/tools/bin/llvm-ranlib22"
+      - "/var/lib/flatpak/exports/bin/llvm-ranlib22"
+      - "/usr/lib/jvm/default/bin/llvm-ranlib22"
+      - "/usr/bin/site_perl/llvm-ranlib22"
+      - "/usr/bin/vendor_perl/llvm-ranlib22"
+      - "/usr/bin/core_perl/llvm-ranlib22"
+    found: "/usr/bin/llvm-ranlib"
+    search_context:
+      ENV{PATH}:
+        - "/usr/local/sbin"
+        - "/usr/local/bin"
+        - "/usr/bin"
+        - "/opt/android-sdk/cmdline-tools/latest/bin"
+        - "/opt/android-sdk/platform-tools"
+        - "/opt/android-sdk/tools"
+        - "/opt/android-sdk/tools/bin"
+        - "/var/lib/flatpak/exports/bin"
+        - "/usr/lib/jvm/default/bin"
+        - "/usr/bin/site_perl"
+        - "/usr/bin/vendor_perl"
+        - "/usr/bin/core_perl"
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/Compiler/Clang-FindBinUtils.cmake:50 (find_program)"
+      - "/usr/share/cmake/Modules/CMakeDetermineCXXCompiler.cmake:207 (include)"
+      - "CMakeLists.txt:3 (project)"
+    mode: "program"
+    variable: "CMAKE_CXX_COMPILER_CLANG_SCAN_DEPS"
+    description: "`clang-scan-deps` dependency scanner"
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: false
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: false
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "clang-scan-deps-22.1"
+      - "clang-scan-deps-22"
+      - "clang-scan-deps22"
+      - "clang-scan-deps"
+    candidate_directories:
+      - "/usr/bin/"
+      - "/usr/local/sbin/"
+      - "/usr/local/bin/"
+      - "/opt/android-sdk/cmdline-tools/latest/bin/"
+      - "/opt/android-sdk/platform-tools/"
+      - "/opt/android-sdk/tools/"
+      - "/opt/android-sdk/tools/bin/"
+      - "/var/lib/flatpak/exports/bin/"
+      - "/usr/lib/jvm/default/bin/"
+      - "/usr/bin/site_perl/"
+      - "/usr/bin/vendor_perl/"
+      - "/usr/bin/core_perl/"
+    searched_directories:
+      - "/usr/bin/clang-scan-deps-22.1"
+      - "/usr/local/sbin/clang-scan-deps-22.1"
+      - "/usr/local/bin/clang-scan-deps-22.1"
+      - "/opt/android-sdk/cmdline-tools/latest/bin/clang-scan-deps-22.1"
+      - "/opt/android-sdk/platform-tools/clang-scan-deps-22.1"
+      - "/opt/android-sdk/tools/clang-scan-deps-22.1"
+      - "/opt/android-sdk/tools/bin/clang-scan-deps-22.1"
+      - "/var/lib/flatpak/exports/bin/clang-scan-deps-22.1"
+      - "/usr/lib/jvm/default/bin/clang-scan-deps-22.1"
+      - "/usr/bin/site_perl/clang-scan-deps-22.1"
+      - "/usr/bin/vendor_perl/clang-scan-deps-22.1"
+      - "/usr/bin/core_perl/clang-scan-deps-22.1"
+      - "/usr/bin/clang-scan-deps-22"
+      - "/usr/local/sbin/clang-scan-deps-22"
+      - "/usr/local/bin/clang-scan-deps-22"
+      - "/opt/android-sdk/cmdline-tools/latest/bin/clang-scan-deps-22"
+      - "/opt/android-sdk/platform-tools/clang-scan-deps-22"
+      - "/opt/android-sdk/tools/clang-scan-deps-22"
+      - "/opt/android-sdk/tools/bin/clang-scan-deps-22"
+      - "/var/lib/flatpak/exports/bin/clang-scan-deps-22"
+      - "/usr/lib/jvm/default/bin/clang-scan-deps-22"
+      - "/usr/bin/site_perl/clang-scan-deps-22"
+      - "/usr/bin/vendor_perl/clang-scan-deps-22"
+      - "/usr/bin/core_perl/clang-scan-deps-22"
+      - "/usr/bin/clang-scan-deps22"
+      - "/usr/local/sbin/clang-scan-deps22"
+      - "/usr/local/bin/clang-scan-deps22"
+      - "/opt/android-sdk/cmdline-tools/latest/bin/clang-scan-deps22"
+      - "/opt/android-sdk/platform-tools/clang-scan-deps22"
+      - "/opt/android-sdk/tools/clang-scan-deps22"
+      - "/opt/android-sdk/tools/bin/clang-scan-deps22"
+      - "/var/lib/flatpak/exports/bin/clang-scan-deps22"
+      - "/usr/lib/jvm/default/bin/clang-scan-deps22"
+      - "/usr/bin/site_perl/clang-scan-deps22"
+      - "/usr/bin/vendor_perl/clang-scan-deps22"
+      - "/usr/bin/core_perl/clang-scan-deps22"
+    found: "/usr/bin/clang-scan-deps"
+    search_context:
+      ENV{PATH}:
+        - "/usr/local/sbin"
+        - "/usr/local/bin"
+        - "/usr/bin"
+        - "/opt/android-sdk/cmdline-tools/latest/bin"
+        - "/opt/android-sdk/platform-tools"
+        - "/opt/android-sdk/tools"
+        - "/opt/android-sdk/tools/bin"
+        - "/var/lib/flatpak/exports/bin"
+        - "/usr/lib/jvm/default/bin"
+        - "/usr/bin/site_perl"
+        - "/usr/bin/vendor_perl"
+        - "/usr/bin/core_perl"
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/Platform/Windows-Clang.cmake:210 (find_program)"
+      - "/usr/share/cmake/Modules/Platform/Windows-Clang-C.cmake:1 (include)"
+      - "/usr/share/cmake/Modules/CMakeCInformation.cmake:48 (include)"
+      - "CMakeLists.txt:3 (project)"
+    mode: "program"
+    variable: "__RC_COMPILER_PATH"
+    description: "Path to a program."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: true
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "rc"
+    candidate_directories:
+      - "/usr/local/sbin/"
+      - "/usr/local/bin/"
+      - "/usr/bin/"
+      - "/opt/android-sdk/cmdline-tools/latest/bin/"
+      - "/opt/android-sdk/platform-tools/"
+      - "/opt/android-sdk/tools/"
+      - "/opt/android-sdk/tools/bin/"
+      - "/var/lib/flatpak/exports/bin/"
+      - "/usr/lib/jvm/default/bin/"
+      - "/usr/bin/site_perl/"
+      - "/usr/bin/vendor_perl/"
+      - "/usr/bin/core_perl/"
+      - "/usr/bin/"
+      - "/usr/sbin/"
+      - "/usr/"
+      - "/usr/local/bin/"
+      - "/usr/local/sbin/"
+      - "/usr/local/"
+      - "/bin/"
+      - "/sbin/"
+    searched_directories:
+      - "/usr/local/sbin/rc"
+      - "/usr/local/bin/rc"
+      - "/usr/bin/rc"
+      - "/opt/android-sdk/cmdline-tools/latest/bin/rc"
+      - "/opt/android-sdk/platform-tools/rc"
+      - "/opt/android-sdk/tools/rc"
+      - "/opt/android-sdk/tools/bin/rc"
+      - "/var/lib/flatpak/exports/bin/rc"
+      - "/usr/lib/jvm/default/bin/rc"
+      - "/usr/bin/site_perl/rc"
+      - "/usr/bin/vendor_perl/rc"
+      - "/usr/bin/core_perl/rc"
+      - "/usr/bin/rc"
+      - "/usr/sbin/rc"
+      - "/usr/rc"
+      - "/usr/local/bin/rc"
+      - "/usr/local/sbin/rc"
+      - "/usr/local/rc"
+      - "/bin/rc"
+      - "/sbin/rc"
+    found: false
+    search_context:
+      ENV{PATH}:
+        - "/usr/local/sbin"
+        - "/usr/local/bin"
+        - "/usr/bin"
+        - "/opt/android-sdk/cmdline-tools/latest/bin"
+        - "/opt/android-sdk/platform-tools"
+        - "/opt/android-sdk/tools"
+        - "/opt/android-sdk/tools/bin"
+        - "/var/lib/flatpak/exports/bin"
+        - "/usr/lib/jvm/default/bin"
+        - "/usr/bin/site_perl"
+        - "/usr/bin/vendor_perl"
+        - "/usr/bin/core_perl"
+      CMAKE_INSTALL_PREFIX: "/usr/local"
+      CMAKE_SYSTEM_PREFIX_PATH:
+        - "/usr"
+        - "/usr/local"
+        - "/"
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/Platform/Windows-Clang.cmake:216 (find_program)"
+      - "/usr/share/cmake/Modules/Platform/Windows-Clang-C.cmake:1 (include)"
+      - "/usr/share/cmake/Modules/CMakeCInformation.cmake:48 (include)"
+      - "CMakeLists.txt:3 (project)"
+    mode: "program"
+    variable: "__RC_COMPILER_PATH"
+    description: "Path to a program."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: true
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "llvm-rc"
+    candidate_directories:
+      - "/usr/local/sbin/"
+      - "/usr/local/bin/"
+      - "/usr/bin/"
+      - "/opt/android-sdk/cmdline-tools/latest/bin/"
+      - "/opt/android-sdk/platform-tools/"
+      - "/opt/android-sdk/tools/"
+      - "/opt/android-sdk/tools/bin/"
+      - "/var/lib/flatpak/exports/bin/"
+      - "/usr/lib/jvm/default/bin/"
+      - "/usr/bin/site_perl/"
+      - "/usr/bin/vendor_perl/"
+      - "/usr/bin/core_perl/"
+      - "/usr/bin/"
+      - "/usr/sbin/"
+      - "/usr/"
+      - "/usr/local/bin/"
+      - "/usr/local/sbin/"
+      - "/usr/local/"
+      - "/bin/"
+      - "/sbin/"
+    searched_directories:
+      - "/usr/local/sbin/llvm-rc"
+      - "/usr/local/bin/llvm-rc"
+    found: "/usr/bin/llvm-rc"
+    search_context:
+      ENV{PATH}:
+        - "/usr/local/sbin"
+        - "/usr/local/bin"
+        - "/usr/bin"
+        - "/opt/android-sdk/cmdline-tools/latest/bin"
+        - "/opt/android-sdk/platform-tools"
+        - "/opt/android-sdk/tools"
+        - "/opt/android-sdk/tools/bin"
+        - "/var/lib/flatpak/exports/bin"
+        - "/usr/lib/jvm/default/bin"
+        - "/usr/bin/site_perl"
+        - "/usr/bin/vendor_perl"
+        - "/usr/bin/core_perl"
+      CMAKE_INSTALL_PREFIX: "/usr/local"
+      CMAKE_SYSTEM_PREFIX_PATH:
+        - "/usr"
+        - "/usr/local"
+        - "/"
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CMakeDetermineCompilerABI.cmake:83 (try_compile)"
+      - "/usr/share/cmake/Modules/CMakeTestCCompiler.cmake:26 (CMAKE_DETERMINE_COMPILER_ABI)"
+      - "CMakeLists.txt:3 (project)"
+    checks:
+      - "Detecting C compiler ABI info"
+    directories:
+      source: "/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/CMakeFiles/CMakeScratch/TryCompile-SeqSxU"
+      binary: "/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/CMakeFiles/CMakeScratch/TryCompile-SeqSxU"
+    cmakeVariables:
+      CMAKE_CXX_COMPILER_CLANG_SCAN_DEPS: "/usr/bin/clang-scan-deps"
+      CMAKE_CXX_STDLIB_MODULES_JSON: ""
+      CMAKE_C_FLAGS: " -fexceptions -fcxx-exceptions -D_CRT_SECURE_NO_WARNINGS --target=x86_64-windows-msvc -fms-compatibility-version=19.37 -Wno-unused-command-line-argument -isystem /usr/bin/../lib/clang/22/include -isystem\"/home/d050/.local/share/Geode/cross-tools/splat/crt/include\" -isystem\"/home/d050/.local/share/Geode/cross-tools/splat/sdk/include/ucrt\" -isystem\"/home/d050/.local/share/Geode/cross-tools/splat/sdk/include/shared\" -isystem\"/home/d050/.local/share/Geode/cross-tools/splat/sdk/include/um\" -isystem\"/home/d050/.local/share/Geode/cross-tools/splat/sdk/include/winrt\" -ivfsoverlay\"/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/winsdk_vfs_overlay.yaml\""
+      CMAKE_C_FLAGS_DEBUG: "-O0 -g -Xclang -gcodeview"
+      CMAKE_EXE_LINKER_FLAGS: " -L\"/home/d050/.local/share/Geode/cross-tools/splat/crt/lib/x86_64\" -L\"/home/d050/.local/share/Geode/cross-tools/splat/sdk/lib/ucrt/x86_64\" -L\"/home/d050/.local/share/Geode/cross-tools/splat/sdk/lib/um/x86_64\" -L\"/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/winsdk_lib_symlinks\""
+    buildResult:
+      variable: "CMAKE_C_ABI_COMPILED"
+      cached: true
+      stdout: |
+        Change Dir: '/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/CMakeFiles/CMakeScratch/TryCompile-SeqSxU'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/make -f Makefile cmTC_69e2c/fast
+        /usr/bin/make  -f CMakeFiles/cmTC_69e2c.dir/build.make CMakeFiles/cmTC_69e2c.dir/build
+        make[1]: Entering directory '/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/CMakeFiles/CMakeScratch/TryCompile-SeqSxU'
+        Building C object CMakeFiles/cmTC_69e2c.dir/CMakeCCompilerABI.c.obj
+        /usr/bin/clang -D_MBCS  -fexceptions -fcxx-exceptions -D_CRT_SECURE_NO_WARNINGS --target=x86_64-windows-msvc -fms-compatibility-version=19.37 -Wno-unused-command-line-argument -isystem /usr/bin/../lib/clang/22/include -isystem"/home/d050/.local/share/Geode/cross-tools/splat/crt/include" -isystem"/home/d050/.local/share/Geode/cross-tools/splat/sdk/include/ucrt" -isystem"/home/d050/.local/share/Geode/cross-tools/splat/sdk/include/shared" -isystem"/home/d050/.local/share/Geode/cross-tools/splat/sdk/include/um" -isystem"/home/d050/.local/share/Geode/cross-tools/splat/sdk/include/winrt" -ivfsoverlay"/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/winsdk_vfs_overlay.yaml"  -O0 -g -Xclang -gcodeview -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -MD -MT CMakeFiles/cmTC_69e2c.dir/CMakeCCompilerABI.c.obj -MF CMakeFiles/cmTC_69e2c.dir/CMakeCCompilerABI.c.obj.d -o CMakeFiles/cmTC_69e2c.dir/CMakeCCompilerABI.c.obj -c /usr/share/cmake/Modules/CMakeCCompilerABI.c
+        Linking C executable cmTC_69e2c.exe
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_69e2c.dir/link.txt --verbose=1
+        clang version 22.1.5
+        Target: x86_64-unknown-windows-msvc
+        Thread model: posix
+        InstalledDir: /usr/bin
+         "/usr/bin/lld-link" -out:cmTC_69e2c.exe -libpath:lib/amd64 -libpath:atlmfc/lib/amd64 -libpath:/home/d050/.local/share/Geode/cross-tools/splat/crt/lib/x86_64 -libpath:/home/d050/.local/share/Geode/cross-tools/splat/sdk/lib/ucrt/x86_64 -libpath:/home/d050/.local/share/Geode/cross-tools/splat/sdk/lib/um/x86_64 "-libpath:/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/winsdk_lib_symlinks" -nologo -debug /subsystem:console CMakeFiles/cmTC_69e2c.dir/CMakeCCompilerABI.c.obj /MANIFEST:EMBED /implib:cmTC_69e2c.lib "/pdb:/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/CMakeFiles/CMakeScratch/TryCompile-SeqSxU/cmTC_69e2c.pdb" /version:0.0 user32.lib kernel32.lib shell32.lib ole32.lib crypt32.lib advapi32.lib delayimp.lib gdi32.lib
+        /usr/bin/clang -nostartfiles -nostdlib  -fexceptions -fcxx-exceptions -D_CRT_SECURE_NO_WARNINGS --target=x86_64-windows-msvc -fms-compatibility-version=19.37 -Wno-unused-command-line-argument -isystem /usr/bin/../lib/clang/22/include -isystem"/home/d050/.local/share/Geode/cross-tools/splat/crt/include" -isystem"/home/d050/.local/share/Geode/cross-tools/splat/sdk/include/ucrt" -isystem"/home/d050/.local/share/Geode/cross-tools/splat/sdk/include/shared" -isystem"/home/d050/.local/share/Geode/cross-tools/splat/sdk/include/um" -isystem"/home/d050/.local/share/Geode/cross-tools/splat/sdk/include/winrt" -ivfsoverlay"/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/winsdk_vfs_overlay.yaml"  -O0 -g -Xclang -gcodeview -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd  -L"/home/d050/.local/share/Geode/cross-tools/splat/crt/lib/x86_64" -L"/home/d050/.local/share/Geode/cross-tools/splat/sdk/lib/ucrt/x86_64" -L"/home/d050/.local/share/Geode/cross-tools/splat/sdk/lib/um/x86_64" -L"/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/winsdk_lib_symlinks" -v -Xlinker /subsystem:console -fuse-ld=lld-link @CMakeFiles/cmTC_69e2c.dir/objects1.rsp -o cmTC_69e2c.exe -Xlinker /MANIFEST:EMBED -Xlinker /implib:cmTC_69e2c.lib -Xlinker /pdb:"/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/CMakeFiles/CMakeScratch/TryCompile-SeqSxU/cmTC_69e2c.pdb" -Xlinker /version:0.0  @CMakeFiles/cmTC_69e2c.dir/linkLibs.rsp
+        make[1]: Leaving directory '/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/CMakeFiles/CMakeScratch/TryCompile-SeqSxU'
+        
+      exitCode: 0
+  -
+    kind: "message-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CMakeDetermineCompilerABI.cmake:253 (message)"
+      - "/usr/share/cmake/Modules/CMakeTestCCompiler.cmake:26 (CMAKE_DETERMINE_COMPILER_ABI)"
+      - "CMakeLists.txt:3 (project)"
+    message: |
+      Parsed C implicit link information:
+        link line regex: [^( *|.*[/\\])(ld[0-9]*(|\\.[a-rt-z][a-z]*|\\.s[a-np-z][a-z]*|\\.so[a-z]+)|link\\.exe|lld-link(\\.exe)?|CMAKE_LINK_STARTFILE-NOTFOUND|([^/\\]+-)?ld|collect2)[^/\\]*( |$)]
+        linker tool regex: [^[ 	]*(->|"|[0-9]+>[ 	-]*Build:[ 	0-9]+ ms[ 	]*)?[ 	]*(([^"]*[/\\])?(ld[0-9]*(|\\.[a-rt-z][a-z]*|\\.s[a-np-z][a-z]*|\\.so[a-z]+)|link\\.exe|lld-link(\\.exe)?))("|,| |$)]
+        linker tool for 'C': /usr/bin/lld-link
+        implicit libs: []
+        implicit objs: []
+        implicit dirs: []
+        implicit fwks: []
+      
+      
+  -
+    kind: "message-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/Internal/CMakeDetermineLinkerId.cmake:38 (message)"
+      - "/usr/share/cmake/Modules/CMakeDetermineCompilerABI.cmake:299 (cmake_determine_linker_id)"
+      - "/usr/share/cmake/Modules/CMakeTestCCompiler.cmake:26 (CMAKE_DETERMINE_COMPILER_ABI)"
+      - "CMakeLists.txt:3 (project)"
+    message: |
+      Running the C compiler's linker: "/usr/bin/lld-link" "-v"
+      lld-link: warning: ignoring unknown argument '-v'
+      lld-link: error: no input files
+  -
+    kind: "message-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/Internal/CMakeDetermineLinkerId.cmake:38 (message)"
+      - "/usr/share/cmake/Modules/CMakeDetermineCompilerABI.cmake:299 (cmake_determine_linker_id)"
+      - "/usr/share/cmake/Modules/CMakeTestCCompiler.cmake:26 (CMAKE_DETERMINE_COMPILER_ABI)"
+      - "CMakeLists.txt:3 (project)"
+    message: |
+      Running the C compiler's linker: "/usr/bin/lld-link" "-V"
+      lld-link: warning: ignoring unknown argument '-V'
+      lld-link: error: no input files
+  -
+    kind: "message-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/Internal/CMakeDetermineLinkerId.cmake:38 (message)"
+      - "/usr/share/cmake/Modules/CMakeDetermineCompilerABI.cmake:299 (cmake_determine_linker_id)"
+      - "/usr/share/cmake/Modules/CMakeTestCCompiler.cmake:26 (CMAKE_DETERMINE_COMPILER_ABI)"
+      - "CMakeLists.txt:3 (project)"
+    message: |
+      Running the C compiler's linker: "/usr/bin/lld-link" "--version"
+      LLD 22.1.5
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CMakeDetermineCompilerABI.cmake:83 (try_compile)"
+      - "/usr/share/cmake/Modules/CMakeTestCXXCompiler.cmake:26 (CMAKE_DETERMINE_COMPILER_ABI)"
+      - "CMakeLists.txt:3 (project)"
+    checks:
+      - "Detecting CXX compiler ABI info"
+    directories:
+      source: "/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/CMakeFiles/CMakeScratch/TryCompile-QevClh"
+      binary: "/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/CMakeFiles/CMakeScratch/TryCompile-QevClh"
+    cmakeVariables:
+      CMAKE_CXX_COMPILER_CLANG_SCAN_DEPS: "/usr/bin/clang-scan-deps"
+      CMAKE_CXX_FLAGS: " -fexceptions -fcxx-exceptions -D_CRT_SECURE_NO_WARNINGS --target=x86_64-windows-msvc -fms-compatibility-version=19.37 -Wno-unused-command-line-argument -isystem /usr/bin/../lib/clang/22/include -isystem\"/home/d050/.local/share/Geode/cross-tools/splat/crt/include\" -isystem\"/home/d050/.local/share/Geode/cross-tools/splat/sdk/include/ucrt\" -isystem\"/home/d050/.local/share/Geode/cross-tools/splat/sdk/include/shared\" -isystem\"/home/d050/.local/share/Geode/cross-tools/splat/sdk/include/um\" -isystem\"/home/d050/.local/share/Geode/cross-tools/splat/sdk/include/winrt\" -ivfsoverlay\"/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/winsdk_vfs_overlay.yaml\""
+      CMAKE_CXX_FLAGS_DEBUG: "-O0 -g -Xclang -gcodeview"
+      CMAKE_CXX_SCAN_FOR_MODULES: "OFF"
+      CMAKE_CXX_STDLIB_MODULES_JSON: ""
+      CMAKE_EXE_LINKER_FLAGS: " -L\"/home/d050/.local/share/Geode/cross-tools/splat/crt/lib/x86_64\" -L\"/home/d050/.local/share/Geode/cross-tools/splat/sdk/lib/ucrt/x86_64\" -L\"/home/d050/.local/share/Geode/cross-tools/splat/sdk/lib/um/x86_64\" -L\"/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/winsdk_lib_symlinks\""
+    buildResult:
+      variable: "CMAKE_CXX_ABI_COMPILED"
+      cached: true
+      stdout: |
+        Change Dir: '/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/CMakeFiles/CMakeScratch/TryCompile-QevClh'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/make -f Makefile cmTC_4eea4/fast
+        /usr/bin/make  -f CMakeFiles/cmTC_4eea4.dir/build.make CMakeFiles/cmTC_4eea4.dir/build
+        make[1]: Entering directory '/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/CMakeFiles/CMakeScratch/TryCompile-QevClh'
+        Building CXX object CMakeFiles/cmTC_4eea4.dir/CMakeCXXCompilerABI.cpp.obj
+        /usr/bin/clang++ -D_MBCS  -fexceptions -fcxx-exceptions -D_CRT_SECURE_NO_WARNINGS --target=x86_64-windows-msvc -fms-compatibility-version=19.37 -Wno-unused-command-line-argument -isystem /usr/bin/../lib/clang/22/include -isystem"/home/d050/.local/share/Geode/cross-tools/splat/crt/include" -isystem"/home/d050/.local/share/Geode/cross-tools/splat/sdk/include/ucrt" -isystem"/home/d050/.local/share/Geode/cross-tools/splat/sdk/include/shared" -isystem"/home/d050/.local/share/Geode/cross-tools/splat/sdk/include/um" -isystem"/home/d050/.local/share/Geode/cross-tools/splat/sdk/include/winrt" -ivfsoverlay"/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/winsdk_vfs_overlay.yaml"  -O0 -g -Xclang -gcodeview -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -MD -MT CMakeFiles/cmTC_4eea4.dir/CMakeCXXCompilerABI.cpp.obj -MF CMakeFiles/cmTC_4eea4.dir/CMakeCXXCompilerABI.cpp.obj.d -o CMakeFiles/cmTC_4eea4.dir/CMakeCXXCompilerABI.cpp.obj -c /usr/share/cmake/Modules/CMakeCXXCompilerABI.cpp
+        Linking CXX executable cmTC_4eea4.exe
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_4eea4.dir/link.txt --verbose=1
+        clang version 22.1.5
+        Target: x86_64-unknown-windows-msvc
+        Thread model: posix
+        InstalledDir: /usr/bin
+         "/usr/bin/lld-link" -out:cmTC_4eea4.exe -libpath:lib/amd64 -libpath:atlmfc/lib/amd64 -libpath:/home/d050/.local/share/Geode/cross-tools/splat/crt/lib/x86_64 -libpath:/home/d050/.local/share/Geode/cross-tools/splat/sdk/lib/ucrt/x86_64 -libpath:/home/d050/.local/share/Geode/cross-tools/splat/sdk/lib/um/x86_64 "-libpath:/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/winsdk_lib_symlinks" -nologo -debug /subsystem:console CMakeFiles/cmTC_4eea4.dir/CMakeCXXCompilerABI.cpp.obj /MANIFEST:EMBED /implib:cmTC_4eea4.lib "/pdb:/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/CMakeFiles/CMakeScratch/TryCompile-QevClh/cmTC_4eea4.pdb" /version:0.0 user32.lib kernel32.lib shell32.lib ole32.lib crypt32.lib advapi32.lib delayimp.lib gdi32.lib
+        /usr/bin/clang++ -nostartfiles -nostdlib  -fexceptions -fcxx-exceptions -D_CRT_SECURE_NO_WARNINGS --target=x86_64-windows-msvc -fms-compatibility-version=19.37 -Wno-unused-command-line-argument -isystem /usr/bin/../lib/clang/22/include -isystem"/home/d050/.local/share/Geode/cross-tools/splat/crt/include" -isystem"/home/d050/.local/share/Geode/cross-tools/splat/sdk/include/ucrt" -isystem"/home/d050/.local/share/Geode/cross-tools/splat/sdk/include/shared" -isystem"/home/d050/.local/share/Geode/cross-tools/splat/sdk/include/um" -isystem"/home/d050/.local/share/Geode/cross-tools/splat/sdk/include/winrt" -ivfsoverlay"/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/winsdk_vfs_overlay.yaml"  -O0 -g -Xclang -gcodeview -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd  -L"/home/d050/.local/share/Geode/cross-tools/splat/crt/lib/x86_64" -L"/home/d050/.local/share/Geode/cross-tools/splat/sdk/lib/ucrt/x86_64" -L"/home/d050/.local/share/Geode/cross-tools/splat/sdk/lib/um/x86_64" -L"/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/winsdk_lib_symlinks" -v -Xlinker /subsystem:console -fuse-ld=lld-link @CMakeFiles/cmTC_4eea4.dir/objects1.rsp -o cmTC_4eea4.exe -Xlinker /MANIFEST:EMBED -Xlinker /implib:cmTC_4eea4.lib -Xlinker /pdb:"/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/CMakeFiles/CMakeScratch/TryCompile-QevClh/cmTC_4eea4.pdb" -Xlinker /version:0.0  @CMakeFiles/cmTC_4eea4.dir/linkLibs.rsp
+        make[1]: Leaving directory '/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/CMakeFiles/CMakeScratch/TryCompile-QevClh'
+        
+      exitCode: 0
+  -
+    kind: "message-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CMakeDetermineCompilerABI.cmake:253 (message)"
+      - "/usr/share/cmake/Modules/CMakeTestCXXCompiler.cmake:26 (CMAKE_DETERMINE_COMPILER_ABI)"
+      - "CMakeLists.txt:3 (project)"
+    message: |
+      Parsed CXX implicit link information:
+        link line regex: [^( *|.*[/\\])(ld[0-9]*(|\\.[a-rt-z][a-z]*|\\.s[a-np-z][a-z]*|\\.so[a-z]+)|link\\.exe|lld-link(\\.exe)?|CMAKE_LINK_STARTFILE-NOTFOUND|([^/\\]+-)?ld|collect2)[^/\\]*( |$)]
+        linker tool regex: [^[ 	]*(->|"|[0-9]+>[ 	-]*Build:[ 	0-9]+ ms[ 	]*)?[ 	]*(([^"]*[/\\])?(ld[0-9]*(|\\.[a-rt-z][a-z]*|\\.s[a-np-z][a-z]*|\\.so[a-z]+)|link\\.exe|lld-link(\\.exe)?))("|,| |$)]
+        linker tool for 'CXX': /usr/bin/lld-link
+        implicit libs: []
+        implicit objs: []
+        implicit dirs: []
+        implicit fwks: []
+      
+      
+  -
+    kind: "message-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/Internal/CMakeDetermineLinkerId.cmake:38 (message)"
+      - "/usr/share/cmake/Modules/CMakeDetermineCompilerABI.cmake:299 (cmake_determine_linker_id)"
+      - "/usr/share/cmake/Modules/CMakeTestCXXCompiler.cmake:26 (CMAKE_DETERMINE_COMPILER_ABI)"
+      - "CMakeLists.txt:3 (project)"
+    message: |
+      Running the CXX compiler's linker: "/usr/bin/lld-link" "-v"
+      lld-link: warning: ignoring unknown argument '-v'
+      lld-link: error: no input files
+  -
+    kind: "message-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/Internal/CMakeDetermineLinkerId.cmake:38 (message)"
+      - "/usr/share/cmake/Modules/CMakeDetermineCompilerABI.cmake:299 (cmake_determine_linker_id)"
+      - "/usr/share/cmake/Modules/CMakeTestCXXCompiler.cmake:26 (CMAKE_DETERMINE_COMPILER_ABI)"
+      - "CMakeLists.txt:3 (project)"
+    message: |
+      Running the CXX compiler's linker: "/usr/bin/lld-link" "-V"
+      lld-link: warning: ignoring unknown argument '-V'
+      lld-link: error: no input files
+  -
+    kind: "message-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/Internal/CMakeDetermineLinkerId.cmake:38 (message)"
+      - "/usr/share/cmake/Modules/CMakeDetermineCompilerABI.cmake:299 (cmake_determine_linker_id)"
+      - "/usr/share/cmake/Modules/CMakeTestCXXCompiler.cmake:26 (CMAKE_DETERMINE_COMPILER_ABI)"
+      - "CMakeLists.txt:3 (project)"
+    message: |
+      Running the CXX compiler's linker: "/usr/bin/lld-link" "--version"
+      LLD 22.1.5
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/Internal/FeatureTesting.cmake:34 (try_compile)"
+      - "/usr/share/cmake/Modules/Internal/FeatureTesting.cmake:87 (_record_compiler_features)"
+      - "/usr/share/cmake/Modules/Compiler/CMakeCommonCompilerMacros.cmake:124 (_record_compiler_features_cxx)"
+      - "/usr/share/cmake/Modules/CMakeDetermineCompilerSupport.cmake:70 (cmake_record_cxx_compile_features)"
+      - "/usr/share/cmake/Modules/CMakeTestCXXCompiler.cmake:83 (CMAKE_DETERMINE_COMPILER_SUPPORT)"
+      - "CMakeLists.txt:3 (project)"
+    checks:
+      - "Detecting CXX compile features"
+    directories:
+      source: "/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/CMakeFiles/CMakeScratch/TryCompile-HIl9pQ"
+      binary: "/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/CMakeFiles/CMakeScratch/TryCompile-HIl9pQ"
+    cmakeVariables:
+      CMAKE_CXX_COMPILER_CLANG_SCAN_DEPS: "/usr/bin/clang-scan-deps"
+      CMAKE_CXX_FLAGS: " -fexceptions -fcxx-exceptions -D_CRT_SECURE_NO_WARNINGS --target=x86_64-windows-msvc -fms-compatibility-version=19.37 -Wno-unused-command-line-argument -isystem /usr/bin/../lib/clang/22/include -isystem\"/home/d050/.local/share/Geode/cross-tools/splat/crt/include\" -isystem\"/home/d050/.local/share/Geode/cross-tools/splat/sdk/include/ucrt\" -isystem\"/home/d050/.local/share/Geode/cross-tools/splat/sdk/include/shared\" -isystem\"/home/d050/.local/share/Geode/cross-tools/splat/sdk/include/um\" -isystem\"/home/d050/.local/share/Geode/cross-tools/splat/sdk/include/winrt\" -ivfsoverlay\"/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/winsdk_vfs_overlay.yaml\""
+      CMAKE_CXX_FLAGS_DEBUG: "-O0 -g -Xclang -gcodeview"
+      CMAKE_CXX_STDLIB_MODULES_JSON: ""
+      CMAKE_EXE_LINKER_FLAGS: " -L\"/home/d050/.local/share/Geode/cross-tools/splat/crt/lib/x86_64\" -L\"/home/d050/.local/share/Geode/cross-tools/splat/sdk/lib/ucrt/x86_64\" -L\"/home/d050/.local/share/Geode/cross-tools/splat/sdk/lib/um/x86_64\" -L\"/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/winsdk_lib_symlinks\""
+    buildResult:
+      variable: "CMAKE_CXX_FEATURE_TEST"
+      cached: true
+      stdout: |
+        Change Dir: '/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/CMakeFiles/CMakeScratch/TryCompile-HIl9pQ'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/make -f Makefile cmTC_a8578/fast
+        /usr/bin/make  -f CMakeFiles/cmTC_a8578.dir/build.make CMakeFiles/cmTC_a8578.dir/build
+        make[1]: Entering directory '/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/CMakeFiles/CMakeScratch/TryCompile-HIl9pQ'
+        Building CXX object CMakeFiles/cmTC_a8578.dir/feature_tests.cxx.obj
+        /usr/bin/clang++ -D_MBCS  -fexceptions -fcxx-exceptions -D_CRT_SECURE_NO_WARNINGS --target=x86_64-windows-msvc -fms-compatibility-version=19.37 -Wno-unused-command-line-argument -isystem /usr/bin/../lib/clang/22/include -isystem"/home/d050/.local/share/Geode/cross-tools/splat/crt/include" -isystem"/home/d050/.local/share/Geode/cross-tools/splat/sdk/include/ucrt" -isystem"/home/d050/.local/share/Geode/cross-tools/splat/sdk/include/shared" -isystem"/home/d050/.local/share/Geode/cross-tools/splat/sdk/include/um" -isystem"/home/d050/.local/share/Geode/cross-tools/splat/sdk/include/winrt" -ivfsoverlay"/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/winsdk_vfs_overlay.yaml"  -O0 -g -Xclang -gcodeview -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd   -std=c++14 -MD -MT CMakeFiles/cmTC_a8578.dir/feature_tests.cxx.obj -MF CMakeFiles/cmTC_a8578.dir/feature_tests.cxx.obj.d -o CMakeFiles/cmTC_a8578.dir/feature_tests.cxx.obj -c "/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/CMakeFiles/CMakeScratch/TryCompile-HIl9pQ/feature_tests.cxx"
+        Linking CXX executable cmTC_a8578.exe
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_a8578.dir/link.txt --verbose=1
+        /usr/bin/clang++ -nostartfiles -nostdlib  -fexceptions -fcxx-exceptions -D_CRT_SECURE_NO_WARNINGS --target=x86_64-windows-msvc -fms-compatibility-version=19.37 -Wno-unused-command-line-argument -isystem /usr/bin/../lib/clang/22/include -isystem"/home/d050/.local/share/Geode/cross-tools/splat/crt/include" -isystem"/home/d050/.local/share/Geode/cross-tools/splat/sdk/include/ucrt" -isystem"/home/d050/.local/share/Geode/cross-tools/splat/sdk/include/shared" -isystem"/home/d050/.local/share/Geode/cross-tools/splat/sdk/include/um" -isystem"/home/d050/.local/share/Geode/cross-tools/splat/sdk/include/winrt" -ivfsoverlay"/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/winsdk_vfs_overlay.yaml"  -O0 -g -Xclang -gcodeview -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd  -L"/home/d050/.local/share/Geode/cross-tools/splat/crt/lib/x86_64" -L"/home/d050/.local/share/Geode/cross-tools/splat/sdk/lib/ucrt/x86_64" -L"/home/d050/.local/share/Geode/cross-tools/splat/sdk/lib/um/x86_64" -L"/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/winsdk_lib_symlinks"  -Xlinker /subsystem:console -fuse-ld=lld-link @CMakeFiles/cmTC_a8578.dir/objects1.rsp -o cmTC_a8578.exe -Xlinker /MANIFEST:EMBED -Xlinker /implib:cmTC_a8578.lib -Xlinker /pdb:"/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/CMakeFiles/CMakeScratch/TryCompile-HIl9pQ/cmTC_a8578.pdb" -Xlinker /version:0.0  @CMakeFiles/cmTC_a8578.dir/linkLibs.rsp
+        make[1]: Leaving directory '/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/CMakeFiles/CMakeScratch/TryCompile-HIl9pQ'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/Internal/FeatureTesting.cmake:34 (try_compile)"
+      - "/usr/share/cmake/Modules/Internal/FeatureTesting.cmake:87 (_record_compiler_features)"
+      - "/usr/share/cmake/Modules/Compiler/CMakeCommonCompilerMacros.cmake:132 (_record_compiler_features_cxx)"
+      - "/usr/share/cmake/Modules/CMakeDetermineCompilerSupport.cmake:70 (cmake_record_cxx_compile_features)"
+      - "/usr/share/cmake/Modules/CMakeTestCXXCompiler.cmake:83 (CMAKE_DETERMINE_COMPILER_SUPPORT)"
+      - "CMakeLists.txt:3 (project)"
+    checks:
+      - "Detecting CXX compile features"
+    directories:
+      source: "/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/CMakeFiles/CMakeScratch/TryCompile-cfDYhE"
+      binary: "/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/CMakeFiles/CMakeScratch/TryCompile-cfDYhE"
+    cmakeVariables:
+      CMAKE_CXX_COMPILER_CLANG_SCAN_DEPS: "/usr/bin/clang-scan-deps"
+      CMAKE_CXX_FLAGS: " -fexceptions -fcxx-exceptions -D_CRT_SECURE_NO_WARNINGS --target=x86_64-windows-msvc -fms-compatibility-version=19.37 -Wno-unused-command-line-argument -isystem /usr/bin/../lib/clang/22/include -isystem\"/home/d050/.local/share/Geode/cross-tools/splat/crt/include\" -isystem\"/home/d050/.local/share/Geode/cross-tools/splat/sdk/include/ucrt\" -isystem\"/home/d050/.local/share/Geode/cross-tools/splat/sdk/include/shared\" -isystem\"/home/d050/.local/share/Geode/cross-tools/splat/sdk/include/um\" -isystem\"/home/d050/.local/share/Geode/cross-tools/splat/sdk/include/winrt\" -ivfsoverlay\"/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/winsdk_vfs_overlay.yaml\""
+      CMAKE_CXX_FLAGS_DEBUG: "-O0 -g -Xclang -gcodeview"
+      CMAKE_CXX_STDLIB_MODULES_JSON: ""
+      CMAKE_EXE_LINKER_FLAGS: " -L\"/home/d050/.local/share/Geode/cross-tools/splat/crt/lib/x86_64\" -L\"/home/d050/.local/share/Geode/cross-tools/splat/sdk/lib/ucrt/x86_64\" -L\"/home/d050/.local/share/Geode/cross-tools/splat/sdk/lib/um/x86_64\" -L\"/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/winsdk_lib_symlinks\""
+    buildResult:
+      variable: "CMAKE_CXX_FEATURE_TEST"
+      cached: true
+      stdout: |
+        Change Dir: '/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/CMakeFiles/CMakeScratch/TryCompile-cfDYhE'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/make -f Makefile cmTC_c38ba/fast
+        /usr/bin/make  -f CMakeFiles/cmTC_c38ba.dir/build.make CMakeFiles/cmTC_c38ba.dir/build
+        make[1]: Entering directory '/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/CMakeFiles/CMakeScratch/TryCompile-cfDYhE'
+        Building CXX object CMakeFiles/cmTC_c38ba.dir/feature_tests.cxx.obj
+        /usr/bin/clang++ -D_MBCS  -fexceptions -fcxx-exceptions -D_CRT_SECURE_NO_WARNINGS --target=x86_64-windows-msvc -fms-compatibility-version=19.37 -Wno-unused-command-line-argument -isystem /usr/bin/../lib/clang/22/include -isystem"/home/d050/.local/share/Geode/cross-tools/splat/crt/include" -isystem"/home/d050/.local/share/Geode/cross-tools/splat/sdk/include/ucrt" -isystem"/home/d050/.local/share/Geode/cross-tools/splat/sdk/include/shared" -isystem"/home/d050/.local/share/Geode/cross-tools/splat/sdk/include/um" -isystem"/home/d050/.local/share/Geode/cross-tools/splat/sdk/include/winrt" -ivfsoverlay"/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/winsdk_vfs_overlay.yaml"  -O0 -g -Xclang -gcodeview -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd   -std=c++14 -MD -MT CMakeFiles/cmTC_c38ba.dir/feature_tests.cxx.obj -MF CMakeFiles/cmTC_c38ba.dir/feature_tests.cxx.obj.d -o CMakeFiles/cmTC_c38ba.dir/feature_tests.cxx.obj -c "/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/CMakeFiles/CMakeScratch/TryCompile-cfDYhE/feature_tests.cxx"
+        Linking CXX executable cmTC_c38ba.exe
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_c38ba.dir/link.txt --verbose=1
+        /usr/bin/clang++ -nostartfiles -nostdlib  -fexceptions -fcxx-exceptions -D_CRT_SECURE_NO_WARNINGS --target=x86_64-windows-msvc -fms-compatibility-version=19.37 -Wno-unused-command-line-argument -isystem /usr/bin/../lib/clang/22/include -isystem"/home/d050/.local/share/Geode/cross-tools/splat/crt/include" -isystem"/home/d050/.local/share/Geode/cross-tools/splat/sdk/include/ucrt" -isystem"/home/d050/.local/share/Geode/cross-tools/splat/sdk/include/shared" -isystem"/home/d050/.local/share/Geode/cross-tools/splat/sdk/include/um" -isystem"/home/d050/.local/share/Geode/cross-tools/splat/sdk/include/winrt" -ivfsoverlay"/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/winsdk_vfs_overlay.yaml"  -O0 -g -Xclang -gcodeview -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd  -L"/home/d050/.local/share/Geode/cross-tools/splat/crt/lib/x86_64" -L"/home/d050/.local/share/Geode/cross-tools/splat/sdk/lib/ucrt/x86_64" -L"/home/d050/.local/share/Geode/cross-tools/splat/sdk/lib/um/x86_64" -L"/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/winsdk_lib_symlinks"  -Xlinker /subsystem:console -fuse-ld=lld-link @CMakeFiles/cmTC_c38ba.dir/objects1.rsp -o cmTC_c38ba.exe -Xlinker /MANIFEST:EMBED -Xlinker /implib:cmTC_c38ba.lib -Xlinker /pdb:"/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/CMakeFiles/CMakeScratch/TryCompile-cfDYhE/cmTC_c38ba.pdb" -Xlinker /version:0.0  @CMakeFiles/cmTC_c38ba.dir/linkLibs.rsp
+        make[1]: Leaving directory '/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/CMakeFiles/CMakeScratch/TryCompile-cfDYhE'
+        
+      exitCode: 0
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/FindGit.cmake:111 (find_program)"
+      - "/usr/share/cmake/Modules/FetchContent.cmake:1887 (find_package)"
+      - "/usr/share/cmake/Modules/FetchContent.cmake:1622 (__FetchContent_populateSubbuild)"
+      - "/usr/share/cmake/Modules/FetchContent.cmake:2158:EVAL:2 (__FetchContent_doPopulation)"
+      - "/usr/share/cmake/Modules/FetchContent.cmake:2158 (cmake_language)"
+      - "/usr/share/cmake/Modules/FetchContent.cmake:2399 (__FetchContent_Populate)"
+      - "CMakeLists.txt:23 (FetchContent_MakeAvailable)"
+    mode: "program"
+    variable: "GIT_EXECUTABLE"
+    description: "Git command line client"
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: true
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "git"
+    candidate_directories:
+      - "/usr/local/sbin/"
+      - "/usr/local/bin/"
+      - "/usr/bin/"
+      - "/opt/android-sdk/cmdline-tools/latest/bin/"
+      - "/opt/android-sdk/platform-tools/"
+      - "/opt/android-sdk/tools/"
+      - "/opt/android-sdk/tools/bin/"
+      - "/var/lib/flatpak/exports/bin/"
+      - "/usr/lib/jvm/default/bin/"
+      - "/usr/bin/site_perl/"
+      - "/usr/bin/vendor_perl/"
+      - "/usr/bin/core_perl/"
+      - "/usr/bin/"
+      - "/usr/sbin/"
+      - "/usr/"
+      - "/usr/local/bin/"
+      - "/usr/local/sbin/"
+      - "/usr/local/"
+      - "/bin/"
+      - "/sbin/"
+    searched_directories:
+      - "/usr/local/sbin/git"
+      - "/usr/local/bin/git"
+    found: "/usr/bin/git"
+    search_context:
+      ENV{PATH}:
+        - "/usr/local/sbin"
+        - "/usr/local/bin"
+        - "/usr/bin"
+        - "/opt/android-sdk/cmdline-tools/latest/bin"
+        - "/opt/android-sdk/platform-tools"
+        - "/opt/android-sdk/tools"
+        - "/opt/android-sdk/tools/bin"
+        - "/var/lib/flatpak/exports/bin"
+        - "/usr/lib/jvm/default/bin"
+        - "/usr/bin/site_perl"
+        - "/usr/bin/vendor_perl"
+        - "/usr/bin/core_perl"
+      CMAKE_INSTALL_PREFIX: "/usr/local"
+      CMAKE_SYSTEM_PREFIX_PATH:
+        - "/usr"
+        - "/usr/local"
+        - "/"
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/Internal/CheckSourceCompiles.cmake:104 (try_compile)"
+      - "/usr/share/cmake/Modules/CheckCSourceCompiles.cmake:103 (cmake_check_source_compiles)"
+      - "/usr/share/cmake/Modules/FindThreads.cmake:160 (check_c_source_compiles)"
+      - "/usr/share/cmake/Modules/FindThreads.cmake:226 (_threads_check_libc)"
+      - "build-win/_deps/spdlog-src/CMakeLists.txt:115 (find_package)"
+    checks:
+      - "Performing Test CMAKE_HAVE_LIBC_PTHREAD"
+    directories:
+      source: "/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/CMakeFiles/CMakeScratch/TryCompile-goqJGl"
+      binary: "/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/CMakeFiles/CMakeScratch/TryCompile-goqJGl"
+    cmakeVariables:
+      CMAKE_CXX_COMPILER_CLANG_SCAN_DEPS: "/usr/bin/clang-scan-deps"
+      CMAKE_CXX_STDLIB_MODULES_JSON: ""
+      CMAKE_C_FLAGS: " -fexceptions -fcxx-exceptions -D_CRT_SECURE_NO_WARNINGS --target=x86_64-windows-msvc -fms-compatibility-version=19.37 -Wno-unused-command-line-argument -isystem /usr/bin/../lib/clang/22/include -isystem\"/home/d050/.local/share/Geode/cross-tools/splat/crt/include\" -isystem\"/home/d050/.local/share/Geode/cross-tools/splat/sdk/include/ucrt\" -isystem\"/home/d050/.local/share/Geode/cross-tools/splat/sdk/include/shared\" -isystem\"/home/d050/.local/share/Geode/cross-tools/splat/sdk/include/um\" -isystem\"/home/d050/.local/share/Geode/cross-tools/splat/sdk/include/winrt\" -ivfsoverlay\"/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/winsdk_vfs_overlay.yaml\""
+      CMAKE_C_FLAGS_DEBUG: "-O0 -g -Xclang -gcodeview"
+      CMAKE_EXE_LINKER_FLAGS: " -L\"/home/d050/.local/share/Geode/cross-tools/splat/crt/lib/x86_64\" -L\"/home/d050/.local/share/Geode/cross-tools/splat/sdk/lib/ucrt/x86_64\" -L\"/home/d050/.local/share/Geode/cross-tools/splat/sdk/lib/um/x86_64\" -L\"/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/winsdk_lib_symlinks\""
+      CMAKE_MODULE_PATH: "/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/_deps/ixwebsocket-src/CMake;"
+    buildResult:
+      variable: "CMAKE_HAVE_LIBC_PTHREAD"
+      cached: true
+      stdout: |
+        Change Dir: '/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/CMakeFiles/CMakeScratch/TryCompile-goqJGl'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/make -f Makefile cmTC_d9053/fast
+        /usr/bin/make  -f CMakeFiles/cmTC_d9053.dir/build.make CMakeFiles/cmTC_d9053.dir/build
+        make[1]: Entering directory '/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/CMakeFiles/CMakeScratch/TryCompile-goqJGl'
+        Building C object CMakeFiles/cmTC_d9053.dir/src.c.obj
+        /usr/bin/clang -DCMAKE_HAVE_LIBC_PTHREAD -D_MBCS  -fexceptions -fcxx-exceptions -D_CRT_SECURE_NO_WARNINGS --target=x86_64-windows-msvc -fms-compatibility-version=19.37 -Wno-unused-command-line-argument -isystem /usr/bin/../lib/clang/22/include -isystem"/home/d050/.local/share/Geode/cross-tools/splat/crt/include" -isystem"/home/d050/.local/share/Geode/cross-tools/splat/sdk/include/ucrt" -isystem"/home/d050/.local/share/Geode/cross-tools/splat/sdk/include/shared" -isystem"/home/d050/.local/share/Geode/cross-tools/splat/sdk/include/um" -isystem"/home/d050/.local/share/Geode/cross-tools/splat/sdk/include/winrt" -ivfsoverlay"/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/winsdk_vfs_overlay.yaml"  -O0 -g -Xclang -gcodeview -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -MD -MT CMakeFiles/cmTC_d9053.dir/src.c.obj -MF CMakeFiles/cmTC_d9053.dir/src.c.obj.d -o CMakeFiles/cmTC_d9053.dir/src.c.obj -c "/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/CMakeFiles/CMakeScratch/TryCompile-goqJGl/src.c"
+        /home/d050/Coding/Me Coding/MultiplayerEdit/build-win/CMakeFiles/CMakeScratch/TryCompile-goqJGl/src.c:1:10: fatal error: 'pthread.h' file not found
+            1 | #include <pthread.h>
+              |          ^~~~~~~~~~~
+        1 error generated.
+        make[1]: *** [CMakeFiles/cmTC_d9053.dir/build.make:82: CMakeFiles/cmTC_d9053.dir/src.c.obj] Error 1
+        make[1]: Leaving directory '/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/CMakeFiles/CMakeScratch/TryCompile-goqJGl'
+        make: *** [Makefile:134: cmTC_d9053/fast] Error 2
+        
+      exitCode: 2
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CheckLibraryExists.cmake:154 (try_compile)"
+      - "/usr/share/cmake/Modules/FindThreads.cmake:175 (check_library_exists)"
+      - "/usr/share/cmake/Modules/FindThreads.cmake:238 (_threads_check_lib)"
+      - "build-win/_deps/spdlog-src/CMakeLists.txt:115 (find_package)"
+    checks:
+      - "Looking for pthread_create in pthreads"
+    directories:
+      source: "/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/CMakeFiles/CMakeScratch/TryCompile-62Bhbh"
+      binary: "/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/CMakeFiles/CMakeScratch/TryCompile-62Bhbh"
+    cmakeVariables:
+      CMAKE_CXX_COMPILER_CLANG_SCAN_DEPS: "/usr/bin/clang-scan-deps"
+      CMAKE_CXX_STDLIB_MODULES_JSON: ""
+      CMAKE_C_FLAGS: " -fexceptions -fcxx-exceptions -D_CRT_SECURE_NO_WARNINGS --target=x86_64-windows-msvc -fms-compatibility-version=19.37 -Wno-unused-command-line-argument -isystem /usr/bin/../lib/clang/22/include -isystem\"/home/d050/.local/share/Geode/cross-tools/splat/crt/include\" -isystem\"/home/d050/.local/share/Geode/cross-tools/splat/sdk/include/ucrt\" -isystem\"/home/d050/.local/share/Geode/cross-tools/splat/sdk/include/shared\" -isystem\"/home/d050/.local/share/Geode/cross-tools/splat/sdk/include/um\" -isystem\"/home/d050/.local/share/Geode/cross-tools/splat/sdk/include/winrt\" -ivfsoverlay\"/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/winsdk_vfs_overlay.yaml\""
+      CMAKE_C_FLAGS_DEBUG: "-O0 -g -Xclang -gcodeview"
+      CMAKE_EXE_LINKER_FLAGS: " -L\"/home/d050/.local/share/Geode/cross-tools/splat/crt/lib/x86_64\" -L\"/home/d050/.local/share/Geode/cross-tools/splat/sdk/lib/ucrt/x86_64\" -L\"/home/d050/.local/share/Geode/cross-tools/splat/sdk/lib/um/x86_64\" -L\"/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/winsdk_lib_symlinks\""
+      CMAKE_MODULE_PATH: "/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/_deps/ixwebsocket-src/CMake;"
+    buildResult:
+      variable: "CMAKE_HAVE_PTHREADS_CREATE"
+      cached: true
+      stdout: |
+        Change Dir: '/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/CMakeFiles/CMakeScratch/TryCompile-62Bhbh'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/make -f Makefile cmTC_d69c8/fast
+        /usr/bin/make  -f CMakeFiles/cmTC_d69c8.dir/build.make CMakeFiles/cmTC_d69c8.dir/build
+        make[1]: Entering directory '/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/CMakeFiles/CMakeScratch/TryCompile-62Bhbh'
+        Building C object CMakeFiles/cmTC_d69c8.dir/CheckFunctionExists.c.obj
+        /usr/bin/clang -D_MBCS  -fexceptions -fcxx-exceptions -D_CRT_SECURE_NO_WARNINGS --target=x86_64-windows-msvc -fms-compatibility-version=19.37 -Wno-unused-command-line-argument -isystem /usr/bin/../lib/clang/22/include -isystem"/home/d050/.local/share/Geode/cross-tools/splat/crt/include" -isystem"/home/d050/.local/share/Geode/cross-tools/splat/sdk/include/ucrt" -isystem"/home/d050/.local/share/Geode/cross-tools/splat/sdk/include/shared" -isystem"/home/d050/.local/share/Geode/cross-tools/splat/sdk/include/um" -isystem"/home/d050/.local/share/Geode/cross-tools/splat/sdk/include/winrt" -ivfsoverlay"/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/winsdk_vfs_overlay.yaml" -DCHECK_FUNCTION_EXISTS=pthread_create -O0 -g -Xclang -gcodeview -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -MD -MT CMakeFiles/cmTC_d69c8.dir/CheckFunctionExists.c.obj -MF CMakeFiles/cmTC_d69c8.dir/CheckFunctionExists.c.obj.d -o CMakeFiles/cmTC_d69c8.dir/CheckFunctionExists.c.obj -c "/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/CMakeFiles/CMakeScratch/TryCompile-62Bhbh/CheckFunctionExists.c"
+        Linking C executable cmTC_d69c8.exe
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_d69c8.dir/link.txt --verbose=1
+        lld-link: error: could not open 'pthreads.lib': No such file or directory
+        clang: error: linker command failed with exit code 1 (use -v to see invocation)
+        /usr/bin/clang -nostartfiles -nostdlib  -fexceptions -fcxx-exceptions -D_CRT_SECURE_NO_WARNINGS --target=x86_64-windows-msvc -fms-compatibility-version=19.37 -Wno-unused-command-line-argument -isystem /usr/bin/../lib/clang/22/include -isystem"/home/d050/.local/share/Geode/cross-tools/splat/crt/include" -isystem"/home/d050/.local/share/Geode/cross-tools/splat/sdk/include/ucrt" -isystem"/home/d050/.local/share/Geode/cross-tools/splat/sdk/include/shared" -isystem"/home/d050/.local/share/Geode/cross-tools/splat/sdk/include/um" -isystem"/home/d050/.local/share/Geode/cross-tools/splat/sdk/include/winrt" -ivfsoverlay"/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/winsdk_vfs_overlay.yaml" -DCHECK_FUNCTION_EXISTS=pthread_create -O0 -g -Xclang -gcodeview -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd  -L"/home/d050/.local/share/Geode/cross-tools/splat/crt/lib/x86_64" -L"/home/d050/.local/share/Geode/cross-tools/splat/sdk/lib/ucrt/x86_64" -L"/home/d050/.local/share/Geode/cross-tools/splat/sdk/lib/um/x86_64" -L"/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/winsdk_lib_symlinks"  -Xlinker /subsystem:console -fuse-ld=lld-link @CMakeFiles/cmTC_d69c8.dir/objects1.rsp -o cmTC_d69c8.exe -Xlinker /MANIFEST:EMBED -Xlinker /implib:cmTC_d69c8.lib -Xlinker /pdb:"/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/CMakeFiles/CMakeScratch/TryCompile-62Bhbh/cmTC_d69c8.pdb" -Xlinker /version:0.0  @CMakeFiles/cmTC_d69c8.dir/linkLibs.rsp
+        make[1]: *** [CMakeFiles/cmTC_d69c8.dir/build.make:105: cmTC_d69c8.exe] Error 1
+        make[1]: Leaving directory '/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/CMakeFiles/CMakeScratch/TryCompile-62Bhbh'
+        make: *** [Makefile:134: cmTC_d69c8/fast] Error 2
+        
+      exitCode: 2
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CheckLibraryExists.cmake:154 (try_compile)"
+      - "/usr/share/cmake/Modules/FindThreads.cmake:175 (check_library_exists)"
+      - "/usr/share/cmake/Modules/FindThreads.cmake:239 (_threads_check_lib)"
+      - "build-win/_deps/spdlog-src/CMakeLists.txt:115 (find_package)"
+    checks:
+      - "Looking for pthread_create in pthread"
+    directories:
+      source: "/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/CMakeFiles/CMakeScratch/TryCompile-CVrEMR"
+      binary: "/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/CMakeFiles/CMakeScratch/TryCompile-CVrEMR"
+    cmakeVariables:
+      CMAKE_CXX_COMPILER_CLANG_SCAN_DEPS: "/usr/bin/clang-scan-deps"
+      CMAKE_CXX_STDLIB_MODULES_JSON: ""
+      CMAKE_C_FLAGS: " -fexceptions -fcxx-exceptions -D_CRT_SECURE_NO_WARNINGS --target=x86_64-windows-msvc -fms-compatibility-version=19.37 -Wno-unused-command-line-argument -isystem /usr/bin/../lib/clang/22/include -isystem\"/home/d050/.local/share/Geode/cross-tools/splat/crt/include\" -isystem\"/home/d050/.local/share/Geode/cross-tools/splat/sdk/include/ucrt\" -isystem\"/home/d050/.local/share/Geode/cross-tools/splat/sdk/include/shared\" -isystem\"/home/d050/.local/share/Geode/cross-tools/splat/sdk/include/um\" -isystem\"/home/d050/.local/share/Geode/cross-tools/splat/sdk/include/winrt\" -ivfsoverlay\"/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/winsdk_vfs_overlay.yaml\""
+      CMAKE_C_FLAGS_DEBUG: "-O0 -g -Xclang -gcodeview"
+      CMAKE_EXE_LINKER_FLAGS: " -L\"/home/d050/.local/share/Geode/cross-tools/splat/crt/lib/x86_64\" -L\"/home/d050/.local/share/Geode/cross-tools/splat/sdk/lib/ucrt/x86_64\" -L\"/home/d050/.local/share/Geode/cross-tools/splat/sdk/lib/um/x86_64\" -L\"/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/winsdk_lib_symlinks\""
+      CMAKE_MODULE_PATH: "/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/_deps/ixwebsocket-src/CMake;"
+    buildResult:
+      variable: "CMAKE_HAVE_PTHREAD_CREATE"
+      cached: true
+      stdout: |
+        Change Dir: '/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/CMakeFiles/CMakeScratch/TryCompile-CVrEMR'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/make -f Makefile cmTC_44e37/fast
+        /usr/bin/make  -f CMakeFiles/cmTC_44e37.dir/build.make CMakeFiles/cmTC_44e37.dir/build
+        make[1]: Entering directory '/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/CMakeFiles/CMakeScratch/TryCompile-CVrEMR'
+        Building C object CMakeFiles/cmTC_44e37.dir/CheckFunctionExists.c.obj
+        /usr/bin/clang -D_MBCS  -fexceptions -fcxx-exceptions -D_CRT_SECURE_NO_WARNINGS --target=x86_64-windows-msvc -fms-compatibility-version=19.37 -Wno-unused-command-line-argument -isystem /usr/bin/../lib/clang/22/include -isystem"/home/d050/.local/share/Geode/cross-tools/splat/crt/include" -isystem"/home/d050/.local/share/Geode/cross-tools/splat/sdk/include/ucrt" -isystem"/home/d050/.local/share/Geode/cross-tools/splat/sdk/include/shared" -isystem"/home/d050/.local/share/Geode/cross-tools/splat/sdk/include/um" -isystem"/home/d050/.local/share/Geode/cross-tools/splat/sdk/include/winrt" -ivfsoverlay"/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/winsdk_vfs_overlay.yaml" -DCHECK_FUNCTION_EXISTS=pthread_create -O0 -g -Xclang -gcodeview -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -MD -MT CMakeFiles/cmTC_44e37.dir/CheckFunctionExists.c.obj -MF CMakeFiles/cmTC_44e37.dir/CheckFunctionExists.c.obj.d -o CMakeFiles/cmTC_44e37.dir/CheckFunctionExists.c.obj -c "/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/CMakeFiles/CMakeScratch/TryCompile-CVrEMR/CheckFunctionExists.c"
+        Linking C executable cmTC_44e37.exe
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_44e37.dir/link.txt --verbose=1
+        lld-link: error: could not open 'pthread.lib': No such file or directory
+        clang: error: linker command failed with exit code 1 (use -v to see invocation)
+        /usr/bin/clang -nostartfiles -nostdlib  -fexceptions -fcxx-exceptions -D_CRT_SECURE_NO_WARNINGS --target=x86_64-windows-msvc -fms-compatibility-version=19.37 -Wno-unused-command-line-argument -isystem /usr/bin/../lib/clang/22/include -isystem"/home/d050/.local/share/Geode/cross-tools/splat/crt/include" -isystem"/home/d050/.local/share/Geode/cross-tools/splat/sdk/include/ucrt" -isystem"/home/d050/.local/share/Geode/cross-tools/splat/sdk/include/shared" -isystem"/home/d050/.local/share/Geode/cross-tools/splat/sdk/include/um" -isystem"/home/d050/.local/share/Geode/cross-tools/splat/sdk/include/winrt" -ivfsoverlay"/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/winsdk_vfs_overlay.yaml" -DCHECK_FUNCTION_EXISTS=pthread_create -O0 -g -Xclang -gcodeview -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd  -L"/home/d050/.local/share/Geode/cross-tools/splat/crt/lib/x86_64" -L"/home/d050/.local/share/Geode/cross-tools/splat/sdk/lib/ucrt/x86_64" -L"/home/d050/.local/share/Geode/cross-tools/splat/sdk/lib/um/x86_64" -L"/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/winsdk_lib_symlinks"  -Xlinker /subsystem:console -fuse-ld=lld-link @CMakeFiles/cmTC_44e37.dir/objects1.rsp -o cmTC_44e37.exe -Xlinker /MANIFEST:EMBED -Xlinker /implib:cmTC_44e37.lib -Xlinker /pdb:"/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/CMakeFiles/CMakeScratch/TryCompile-CVrEMR/cmTC_44e37.pdb" -Xlinker /version:0.0  @CMakeFiles/cmTC_44e37.dir/linkLibs.rsp
+        make[1]: *** [CMakeFiles/cmTC_44e37.dir/build.make:105: cmTC_44e37.exe] Error 1
+        make[1]: Leaving directory '/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/CMakeFiles/CMakeScratch/TryCompile-CVrEMR'
+        make: *** [Makefile:134: cmTC_44e37/fast] Error 2
+        
+      exitCode: 2
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/FindThreads.cmake:199 (try_compile)"
+      - "/usr/share/cmake/Modules/FindThreads.cmake:242 (_threads_check_flag_pthread)"
+      - "build-win/_deps/spdlog-src/CMakeLists.txt:115 (find_package)"
+    checks:
+      - "Check if compiler accepts -pthread"
+    directories:
+      source: "/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/CMakeFiles/CMakeScratch/TryCompile-Tx5ypV"
+      binary: "/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/CMakeFiles/CMakeScratch/TryCompile-Tx5ypV"
+    cmakeVariables:
+      CMAKE_CXX_COMPILER_CLANG_SCAN_DEPS: "/usr/bin/clang-scan-deps"
+      CMAKE_CXX_STDLIB_MODULES_JSON: ""
+      CMAKE_C_FLAGS: " -fexceptions -fcxx-exceptions -D_CRT_SECURE_NO_WARNINGS --target=x86_64-windows-msvc -fms-compatibility-version=19.37 -Wno-unused-command-line-argument -isystem /usr/bin/../lib/clang/22/include -isystem\"/home/d050/.local/share/Geode/cross-tools/splat/crt/include\" -isystem\"/home/d050/.local/share/Geode/cross-tools/splat/sdk/include/ucrt\" -isystem\"/home/d050/.local/share/Geode/cross-tools/splat/sdk/include/shared\" -isystem\"/home/d050/.local/share/Geode/cross-tools/splat/sdk/include/um\" -isystem\"/home/d050/.local/share/Geode/cross-tools/splat/sdk/include/winrt\" -ivfsoverlay\"/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/winsdk_vfs_overlay.yaml\""
+      CMAKE_C_FLAGS_DEBUG: "-O0 -g -Xclang -gcodeview"
+      CMAKE_EXE_LINKER_FLAGS: " -L\"/home/d050/.local/share/Geode/cross-tools/splat/crt/lib/x86_64\" -L\"/home/d050/.local/share/Geode/cross-tools/splat/sdk/lib/ucrt/x86_64\" -L\"/home/d050/.local/share/Geode/cross-tools/splat/sdk/lib/um/x86_64\" -L\"/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/winsdk_lib_symlinks\""
+      CMAKE_MODULE_PATH: "/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/_deps/ixwebsocket-src/CMake;"
+    buildResult:
+      variable: "THREADS_HAVE_PTHREAD_ARG"
+      cached: true
+      stdout: |
+        Change Dir: '/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/CMakeFiles/CMakeScratch/TryCompile-Tx5ypV'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/make -f Makefile cmTC_1369a/fast
+        /usr/bin/make  -f CMakeFiles/cmTC_1369a.dir/build.make CMakeFiles/cmTC_1369a.dir/build
+        make[1]: Entering directory '/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/CMakeFiles/CMakeScratch/TryCompile-Tx5ypV'
+        Building C object CMakeFiles/cmTC_1369a.dir/CheckForPthreads.c.obj
+        /usr/bin/clang -D_MBCS  -fexceptions -fcxx-exceptions -D_CRT_SECURE_NO_WARNINGS --target=x86_64-windows-msvc -fms-compatibility-version=19.37 -Wno-unused-command-line-argument -isystem /usr/bin/../lib/clang/22/include -isystem"/home/d050/.local/share/Geode/cross-tools/splat/crt/include" -isystem"/home/d050/.local/share/Geode/cross-tools/splat/sdk/include/ucrt" -isystem"/home/d050/.local/share/Geode/cross-tools/splat/sdk/include/shared" -isystem"/home/d050/.local/share/Geode/cross-tools/splat/sdk/include/um" -isystem"/home/d050/.local/share/Geode/cross-tools/splat/sdk/include/winrt" -ivfsoverlay"/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/winsdk_vfs_overlay.yaml"  -O0 -g -Xclang -gcodeview -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -MD -MT CMakeFiles/cmTC_1369a.dir/CheckForPthreads.c.obj -MF CMakeFiles/cmTC_1369a.dir/CheckForPthreads.c.obj.d -o CMakeFiles/cmTC_1369a.dir/CheckForPthreads.c.obj -c "/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/CMakeFiles/CMakeScratch/TryCompile-Tx5ypV/CheckForPthreads.c"
+        /home/d050/Coding/Me Coding/MultiplayerEdit/build-win/CMakeFiles/CMakeScratch/TryCompile-Tx5ypV/CheckForPthreads.c:1:10: fatal error: 'pthread.h' file not found
+            1 | #include <pthread.h>
+              |          ^~~~~~~~~~~
+        1 error generated.
+        make[1]: *** [CMakeFiles/cmTC_1369a.dir/build.make:82: CMakeFiles/cmTC_1369a.dir/CheckForPthreads.c.obj] Error 1
+        make[1]: Leaving directory '/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/CMakeFiles/CMakeScratch/TryCompile-Tx5ypV'
+        make: *** [Makefile:134: cmTC_1369a/fast] Error 2
+        
+      exitCode: 2
+  -
+    kind: "find-v1"
+    backtrace:
+      - "geode-main/CMakeLists.txt:120 (find_program)"
+    mode: "program"
+    variable: "GEODE_CCACHE"
+    description: "Path to a program."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: true
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "sccache"
+      - "ccache"
+    candidate_directories:
+      - "/usr/local/sbin/"
+      - "/usr/local/bin/"
+      - "/usr/bin/"
+      - "/opt/android-sdk/cmdline-tools/latest/bin/"
+      - "/opt/android-sdk/platform-tools/"
+      - "/opt/android-sdk/tools/"
+      - "/opt/android-sdk/tools/bin/"
+      - "/var/lib/flatpak/exports/bin/"
+      - "/usr/lib/jvm/default/bin/"
+      - "/usr/bin/site_perl/"
+      - "/usr/bin/vendor_perl/"
+      - "/usr/bin/core_perl/"
+      - "/usr/bin/"
+      - "/usr/sbin/"
+      - "/usr/"
+      - "/usr/local/bin/"
+      - "/usr/local/sbin/"
+      - "/usr/local/"
+      - "/bin/"
+      - "/sbin/"
+    searched_directories:
+      - "/usr/local/sbin/sccache"
+      - "/usr/local/bin/sccache"
+      - "/usr/bin/sccache"
+      - "/opt/android-sdk/cmdline-tools/latest/bin/sccache"
+      - "/opt/android-sdk/platform-tools/sccache"
+      - "/opt/android-sdk/tools/sccache"
+      - "/opt/android-sdk/tools/bin/sccache"
+      - "/var/lib/flatpak/exports/bin/sccache"
+      - "/usr/lib/jvm/default/bin/sccache"
+      - "/usr/bin/site_perl/sccache"
+      - "/usr/bin/vendor_perl/sccache"
+      - "/usr/bin/core_perl/sccache"
+      - "/usr/bin/sccache"
+      - "/usr/sbin/sccache"
+      - "/usr/sccache"
+      - "/usr/local/bin/sccache"
+      - "/usr/local/sbin/sccache"
+      - "/usr/local/sccache"
+      - "/bin/sccache"
+      - "/sbin/sccache"
+      - "/usr/local/sbin/ccache"
+      - "/usr/local/bin/ccache"
+      - "/usr/bin/ccache"
+      - "/opt/android-sdk/cmdline-tools/latest/bin/ccache"
+      - "/opt/android-sdk/platform-tools/ccache"
+      - "/opt/android-sdk/tools/ccache"
+      - "/opt/android-sdk/tools/bin/ccache"
+      - "/var/lib/flatpak/exports/bin/ccache"
+      - "/usr/lib/jvm/default/bin/ccache"
+      - "/usr/bin/site_perl/ccache"
+      - "/usr/bin/vendor_perl/ccache"
+      - "/usr/bin/core_perl/ccache"
+      - "/usr/bin/ccache"
+      - "/usr/sbin/ccache"
+      - "/usr/ccache"
+      - "/usr/local/bin/ccache"
+      - "/usr/local/sbin/ccache"
+      - "/usr/local/ccache"
+      - "/bin/ccache"
+      - "/sbin/ccache"
+    found: false
+    search_context:
+      ENV{PATH}:
+        - "/usr/local/sbin"
+        - "/usr/local/bin"
+        - "/usr/bin"
+        - "/opt/android-sdk/cmdline-tools/latest/bin"
+        - "/opt/android-sdk/platform-tools"
+        - "/opt/android-sdk/tools"
+        - "/opt/android-sdk/tools/bin"
+        - "/var/lib/flatpak/exports/bin"
+        - "/usr/lib/jvm/default/bin"
+        - "/usr/bin/site_perl"
+        - "/usr/bin/vendor_perl"
+        - "/usr/bin/core_perl"
+      CMAKE_INSTALL_PREFIX: "/usr/local"
+      CMAKE_SYSTEM_PREFIX_PATH:
+        - "/usr"
+        - "/usr/local"
+        - "/"
+  -
+    kind: "find-v1"
+    backtrace:
+      - "geode-main/cmake/GeodeFile.cmake:5 (find_program)"
+      - "geode-main/CMakeLists.txt:197 (include)"
+    mode: "program"
+    variable: "GEODE_CLI"
+    description: "Path to a program."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: true
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "geode.exe"
+      - "geode-cli.exe"
+      - "geode"
+      - "geode-cli"
+    candidate_directories:
+      - "/usr/local/sbin/"
+      - "/usr/local/bin/"
+      - "/usr/bin/"
+      - "/opt/android-sdk/cmdline-tools/latest/bin/"
+      - "/opt/android-sdk/platform-tools/"
+      - "/opt/android-sdk/tools/"
+      - "/opt/android-sdk/tools/bin/"
+      - "/var/lib/flatpak/exports/bin/"
+      - "/usr/lib/jvm/default/bin/"
+      - "/usr/bin/site_perl/"
+      - "/usr/bin/vendor_perl/"
+      - "/usr/bin/core_perl/"
+      - "/usr/bin/"
+      - "/usr/sbin/"
+      - "/usr/"
+      - "/usr/local/bin/"
+      - "/usr/local/sbin/"
+      - "/usr/local/"
+      - "/bin/"
+      - "/sbin/"
+    searched_directories:
+      - "/usr/local/sbin/geode.exe"
+      - "/usr/local/bin/geode.exe"
+      - "/usr/bin/geode.exe"
+      - "/opt/android-sdk/cmdline-tools/latest/bin/geode.exe"
+      - "/opt/android-sdk/platform-tools/geode.exe"
+      - "/opt/android-sdk/tools/geode.exe"
+      - "/opt/android-sdk/tools/bin/geode.exe"
+      - "/var/lib/flatpak/exports/bin/geode.exe"
+      - "/usr/lib/jvm/default/bin/geode.exe"
+      - "/usr/bin/site_perl/geode.exe"
+      - "/usr/bin/vendor_perl/geode.exe"
+      - "/usr/bin/core_perl/geode.exe"
+      - "/usr/bin/geode.exe"
+      - "/usr/sbin/geode.exe"
+      - "/usr/geode.exe"
+      - "/usr/local/bin/geode.exe"
+      - "/usr/local/sbin/geode.exe"
+      - "/usr/local/geode.exe"
+      - "/bin/geode.exe"
+      - "/sbin/geode.exe"
+      - "/usr/local/sbin/geode-cli.exe"
+      - "/usr/local/bin/geode-cli.exe"
+      - "/usr/bin/geode-cli.exe"
+      - "/opt/android-sdk/cmdline-tools/latest/bin/geode-cli.exe"
+      - "/opt/android-sdk/platform-tools/geode-cli.exe"
+      - "/opt/android-sdk/tools/geode-cli.exe"
+      - "/opt/android-sdk/tools/bin/geode-cli.exe"
+      - "/var/lib/flatpak/exports/bin/geode-cli.exe"
+      - "/usr/lib/jvm/default/bin/geode-cli.exe"
+      - "/usr/bin/site_perl/geode-cli.exe"
+      - "/usr/bin/vendor_perl/geode-cli.exe"
+      - "/usr/bin/core_perl/geode-cli.exe"
+      - "/usr/bin/geode-cli.exe"
+      - "/usr/sbin/geode-cli.exe"
+      - "/usr/geode-cli.exe"
+      - "/usr/local/bin/geode-cli.exe"
+      - "/usr/local/sbin/geode-cli.exe"
+      - "/usr/local/geode-cli.exe"
+      - "/bin/geode-cli.exe"
+      - "/sbin/geode-cli.exe"
+      - "/usr/local/sbin/geode"
+    found: "/usr/local/bin/geode"
+    search_context:
+      ENV{PATH}:
+        - "/usr/local/sbin"
+        - "/usr/local/bin"
+        - "/usr/bin"
+        - "/opt/android-sdk/cmdline-tools/latest/bin"
+        - "/opt/android-sdk/platform-tools"
+        - "/opt/android-sdk/tools"
+        - "/opt/android-sdk/tools/bin"
+        - "/var/lib/flatpak/exports/bin"
+        - "/usr/lib/jvm/default/bin"
+        - "/usr/bin/site_perl"
+        - "/usr/bin/vendor_perl"
+        - "/usr/bin/core_perl"
+      CMAKE_INSTALL_PREFIX: "/usr/local"
+      CMAKE_SYSTEM_PREFIX_PATH:
+        - "/usr"
+        - "/usr/local"
+        - "/"
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CTest.cmake:171 (find_program)"
+      - "build-win/_deps/nontype_functional-src/CMakeLists.txt:22 (include)"
+    mode: "program"
+    variable: "GITCOMMAND"
+    description: "Path to a program."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: true
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "git"
+    candidate_directories:
+      - "/usr/local/sbin/"
+      - "/usr/local/bin/"
+      - "/usr/bin/"
+      - "/opt/android-sdk/cmdline-tools/latest/bin/"
+      - "/opt/android-sdk/platform-tools/"
+      - "/opt/android-sdk/tools/"
+      - "/opt/android-sdk/tools/bin/"
+      - "/var/lib/flatpak/exports/bin/"
+      - "/usr/lib/jvm/default/bin/"
+      - "/usr/bin/site_perl/"
+      - "/usr/bin/vendor_perl/"
+      - "/usr/bin/core_perl/"
+      - "/usr/bin/"
+      - "/usr/sbin/"
+      - "/usr/"
+      - "/usr/local/bin/"
+      - "/usr/local/sbin/"
+      - "/usr/local/"
+      - "/bin/"
+      - "/sbin/"
+    searched_directories:
+      - "/usr/local/sbin/git"
+      - "/usr/local/bin/git"
+    found: "/usr/bin/git"
+    search_context:
+      ENV{PATH}:
+        - "/usr/local/sbin"
+        - "/usr/local/bin"
+        - "/usr/bin"
+        - "/opt/android-sdk/cmdline-tools/latest/bin"
+        - "/opt/android-sdk/platform-tools"
+        - "/opt/android-sdk/tools"
+        - "/opt/android-sdk/tools/bin"
+        - "/var/lib/flatpak/exports/bin"
+        - "/usr/lib/jvm/default/bin"
+        - "/usr/bin/site_perl"
+        - "/usr/bin/vendor_perl"
+        - "/usr/bin/core_perl"
+      CMAKE_INSTALL_PREFIX: "/usr/local"
+      CMAKE_SYSTEM_PREFIX_PATH:
+        - "/usr"
+        - "/usr/local"
+        - "/"
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CTest.cmake:188 (find_program)"
+      - "build-win/_deps/nontype_functional-src/CMakeLists.txt:22 (include)"
+    mode: "program"
+    variable: "MEMORYCHECK_COMMAND"
+    description: "Path to the memory checking command, used for memory error detection."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: true
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "purify"
+      - "valgrind"
+      - "boundscheck"
+      - "drmemory"
+      - "cuda-memcheck"
+      - "compute-sanitizer"
+    candidate_directories:
+      - "/usr/local/sbin/"
+      - "/usr/local/bin/"
+      - "/usr/bin/"
+      - "/opt/android-sdk/cmdline-tools/latest/bin/"
+      - "/opt/android-sdk/platform-tools/"
+      - "/opt/android-sdk/tools/"
+      - "/opt/android-sdk/tools/bin/"
+      - "/var/lib/flatpak/exports/bin/"
+      - "/usr/lib/jvm/default/bin/"
+      - "/usr/bin/site_perl/"
+      - "/usr/bin/vendor_perl/"
+      - "/usr/bin/core_perl/"
+      - "/usr/bin/"
+      - "/usr/sbin/"
+      - "/usr/"
+      - "/usr/local/bin/"
+      - "/usr/local/sbin/"
+      - "/usr/local/"
+      - "/bin/"
+      - "/sbin/"
+    searched_directories:
+      - "/usr/local/sbin/purify"
+      - "/usr/local/bin/purify"
+      - "/usr/bin/purify"
+      - "/opt/android-sdk/cmdline-tools/latest/bin/purify"
+      - "/opt/android-sdk/platform-tools/purify"
+      - "/opt/android-sdk/tools/purify"
+      - "/opt/android-sdk/tools/bin/purify"
+      - "/var/lib/flatpak/exports/bin/purify"
+      - "/usr/lib/jvm/default/bin/purify"
+      - "/usr/bin/site_perl/purify"
+      - "/usr/bin/vendor_perl/purify"
+      - "/usr/bin/core_perl/purify"
+      - "/usr/bin/purify"
+      - "/usr/sbin/purify"
+      - "/usr/purify"
+      - "/usr/local/bin/purify"
+      - "/usr/local/sbin/purify"
+      - "/usr/local/purify"
+      - "/bin/purify"
+      - "/sbin/purify"
+      - "/usr/local/sbin/valgrind"
+      - "/usr/local/bin/valgrind"
+      - "/usr/bin/valgrind"
+      - "/opt/android-sdk/cmdline-tools/latest/bin/valgrind"
+      - "/opt/android-sdk/platform-tools/valgrind"
+      - "/opt/android-sdk/tools/valgrind"
+      - "/opt/android-sdk/tools/bin/valgrind"
+      - "/var/lib/flatpak/exports/bin/valgrind"
+      - "/usr/lib/jvm/default/bin/valgrind"
+      - "/usr/bin/site_perl/valgrind"
+      - "/usr/bin/vendor_perl/valgrind"
+      - "/usr/bin/core_perl/valgrind"
+      - "/usr/bin/valgrind"
+      - "/usr/sbin/valgrind"
+      - "/usr/valgrind"
+      - "/usr/local/bin/valgrind"
+      - "/usr/local/sbin/valgrind"
+      - "/usr/local/valgrind"
+      - "/bin/valgrind"
+      - "/sbin/valgrind"
+      - "/usr/local/sbin/boundscheck"
+      - "/usr/local/bin/boundscheck"
+      - "/usr/bin/boundscheck"
+      - "/opt/android-sdk/cmdline-tools/latest/bin/boundscheck"
+      - "/opt/android-sdk/platform-tools/boundscheck"
+      - "/opt/android-sdk/tools/boundscheck"
+      - "/opt/android-sdk/tools/bin/boundscheck"
+      - "/var/lib/flatpak/exports/bin/boundscheck"
+      - "/usr/lib/jvm/default/bin/boundscheck"
+      - "/usr/bin/site_perl/boundscheck"
+      - "/usr/bin/vendor_perl/boundscheck"
+      - "/usr/bin/core_perl/boundscheck"
+      - "/usr/bin/boundscheck"
+      - "/usr/sbin/boundscheck"
+      - "/usr/boundscheck"
+      - "/usr/local/bin/boundscheck"
+      - "/usr/local/sbin/boundscheck"
+      - "/usr/local/boundscheck"
+      - "/bin/boundscheck"
+      - "/sbin/boundscheck"
+      - "/usr/local/sbin/drmemory"
+      - "/usr/local/bin/drmemory"
+      - "/usr/bin/drmemory"
+      - "/opt/android-sdk/cmdline-tools/latest/bin/drmemory"
+      - "/opt/android-sdk/platform-tools/drmemory"
+      - "/opt/android-sdk/tools/drmemory"
+      - "/opt/android-sdk/tools/bin/drmemory"
+      - "/var/lib/flatpak/exports/bin/drmemory"
+      - "/usr/lib/jvm/default/bin/drmemory"
+      - "/usr/bin/site_perl/drmemory"
+      - "/usr/bin/vendor_perl/drmemory"
+      - "/usr/bin/core_perl/drmemory"
+      - "/usr/bin/drmemory"
+      - "/usr/sbin/drmemory"
+      - "/usr/drmemory"
+      - "/usr/local/bin/drmemory"
+      - "/usr/local/sbin/drmemory"
+      - "/usr/local/drmemory"
+      - "/bin/drmemory"
+      - "/sbin/drmemory"
+      - "/usr/local/sbin/cuda-memcheck"
+      - "/usr/local/bin/cuda-memcheck"
+      - "/usr/bin/cuda-memcheck"
+      - "/opt/android-sdk/cmdline-tools/latest/bin/cuda-memcheck"
+      - "/opt/android-sdk/platform-tools/cuda-memcheck"
+      - "/opt/android-sdk/tools/cuda-memcheck"
+      - "/opt/android-sdk/tools/bin/cuda-memcheck"
+      - "/var/lib/flatpak/exports/bin/cuda-memcheck"
+      - "/usr/lib/jvm/default/bin/cuda-memcheck"
+      - "/usr/bin/site_perl/cuda-memcheck"
+      - "/usr/bin/vendor_perl/cuda-memcheck"
+      - "/usr/bin/core_perl/cuda-memcheck"
+      - "/usr/bin/cuda-memcheck"
+      - "/usr/sbin/cuda-memcheck"
+      - "/usr/cuda-memcheck"
+      - "/usr/local/bin/cuda-memcheck"
+      - "/usr/local/sbin/cuda-memcheck"
+      - "/usr/local/cuda-memcheck"
+      - "/bin/cuda-memcheck"
+      - "/sbin/cuda-memcheck"
+      - "/usr/local/sbin/compute-sanitizer"
+      - "/usr/local/bin/compute-sanitizer"
+      - "/usr/bin/compute-sanitizer"
+      - "/opt/android-sdk/cmdline-tools/latest/bin/compute-sanitizer"
+      - "/opt/android-sdk/platform-tools/compute-sanitizer"
+      - "/opt/android-sdk/tools/compute-sanitizer"
+      - "/opt/android-sdk/tools/bin/compute-sanitizer"
+      - "/var/lib/flatpak/exports/bin/compute-sanitizer"
+      - "/usr/lib/jvm/default/bin/compute-sanitizer"
+      - "/usr/bin/site_perl/compute-sanitizer"
+      - "/usr/bin/vendor_perl/compute-sanitizer"
+      - "/usr/bin/core_perl/compute-sanitizer"
+      - "/usr/bin/compute-sanitizer"
+      - "/usr/sbin/compute-sanitizer"
+      - "/usr/compute-sanitizer"
+      - "/usr/local/bin/compute-sanitizer"
+      - "/usr/local/sbin/compute-sanitizer"
+      - "/usr/local/compute-sanitizer"
+      - "/bin/compute-sanitizer"
+      - "/sbin/compute-sanitizer"
+    found: false
+    search_context:
+      ENV{PATH}:
+        - "/usr/local/sbin"
+        - "/usr/local/bin"
+        - "/usr/bin"
+        - "/opt/android-sdk/cmdline-tools/latest/bin"
+        - "/opt/android-sdk/platform-tools"
+        - "/opt/android-sdk/tools"
+        - "/opt/android-sdk/tools/bin"
+        - "/var/lib/flatpak/exports/bin"
+        - "/usr/lib/jvm/default/bin"
+        - "/usr/bin/site_perl"
+        - "/usr/bin/vendor_perl"
+        - "/usr/bin/core_perl"
+      CMAKE_INSTALL_PREFIX: "/usr/local"
+      CMAKE_SYSTEM_PREFIX_PATH:
+        - "/usr"
+        - "/usr/local"
+        - "/"
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CTest.cmake:196 (find_program)"
+      - "build-win/_deps/nontype_functional-src/CMakeLists.txt:22 (include)"
+    mode: "program"
+    variable: "COVERAGE_COMMAND"
+    description: "Path to the coverage program that CTest uses for performing coverage inspection"
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: true
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "gcov"
+    candidate_directories:
+      - "/usr/local/sbin/"
+      - "/usr/local/bin/"
+      - "/usr/bin/"
+      - "/opt/android-sdk/cmdline-tools/latest/bin/"
+      - "/opt/android-sdk/platform-tools/"
+      - "/opt/android-sdk/tools/"
+      - "/opt/android-sdk/tools/bin/"
+      - "/var/lib/flatpak/exports/bin/"
+      - "/usr/lib/jvm/default/bin/"
+      - "/usr/bin/site_perl/"
+      - "/usr/bin/vendor_perl/"
+      - "/usr/bin/core_perl/"
+      - "/usr/bin/"
+      - "/usr/sbin/"
+      - "/usr/"
+      - "/usr/local/bin/"
+      - "/usr/local/sbin/"
+      - "/usr/local/"
+      - "/bin/"
+      - "/sbin/"
+    searched_directories:
+      - "/usr/local/sbin/gcov"
+      - "/usr/local/bin/gcov"
+    found: "/usr/bin/gcov"
+    search_context:
+      ENV{PATH}:
+        - "/usr/local/sbin"
+        - "/usr/local/bin"
+        - "/usr/bin"
+        - "/opt/android-sdk/cmdline-tools/latest/bin"
+        - "/opt/android-sdk/platform-tools"
+        - "/opt/android-sdk/tools"
+        - "/opt/android-sdk/tools/bin"
+        - "/var/lib/flatpak/exports/bin"
+        - "/usr/lib/jvm/default/bin"
+        - "/usr/bin/site_perl"
+        - "/usr/bin/vendor_perl"
+        - "/usr/bin/core_perl"
+      CMAKE_INSTALL_PREFIX: "/usr/local"
+      CMAKE_SYSTEM_PREFIX_PATH:
+        - "/usr"
+        - "/usr/local"
+        - "/"
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/Internal/CheckSourceCompiles.cmake:104 (try_compile)"
+      - "/usr/share/cmake/Modules/Internal/CheckCompilerFlag.cmake:18 (cmake_check_source_compiles)"
+      - "/usr/share/cmake/Modules/CheckCXXCompilerFlag.cmake:103 (cmake_check_compiler_flag)"
+      - "build-win/_deps/fmt-src/CMakeLists.txt:260 (check_cxx_compiler_flag)"
+    checks:
+      - "Performing Test HAS_NULLPTR_WARNING"
+    directories:
+      source: "/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/CMakeFiles/CMakeScratch/TryCompile-BdtSVP"
+      binary: "/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/CMakeFiles/CMakeScratch/TryCompile-BdtSVP"
+    cmakeVariables:
+      CMAKE_CXX_COMPILER_CLANG_SCAN_DEPS: "/usr/bin/clang-scan-deps"
+      CMAKE_CXX_FLAGS: " -fexceptions -fcxx-exceptions -D_CRT_SECURE_NO_WARNINGS --target=x86_64-windows-msvc -fms-compatibility-version=19.37 -Wno-unused-command-line-argument -isystem /usr/bin/../lib/clang/22/include -isystem\"/home/d050/.local/share/Geode/cross-tools/splat/crt/include\" -isystem\"/home/d050/.local/share/Geode/cross-tools/splat/sdk/include/ucrt\" -isystem\"/home/d050/.local/share/Geode/cross-tools/splat/sdk/include/shared\" -isystem\"/home/d050/.local/share/Geode/cross-tools/splat/sdk/include/um\" -isystem\"/home/d050/.local/share/Geode/cross-tools/splat/sdk/include/winrt\" -ivfsoverlay\"/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/winsdk_vfs_overlay.yaml\""
+      CMAKE_CXX_FLAGS_DEBUG: "-O0 -g -Xclang -gcodeview"
+      CMAKE_CXX_STDLIB_MODULES_JSON: ""
+      CMAKE_EXE_LINKER_FLAGS: " -L\"/home/d050/.local/share/Geode/cross-tools/splat/crt/lib/x86_64\" -L\"/home/d050/.local/share/Geode/cross-tools/splat/sdk/lib/ucrt/x86_64\" -L\"/home/d050/.local/share/Geode/cross-tools/splat/sdk/lib/um/x86_64\" -L\"/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/winsdk_lib_symlinks\""
+      CMAKE_MODULE_PATH: "/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/_deps/fmt-src/support/cmake"
+      CMAKE_MSVC_DEBUG_INFORMATION_FORMAT: "Embedded"
+    buildResult:
+      variable: "HAS_NULLPTR_WARNING"
+      cached: true
+      stdout: |
+        Change Dir: '/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/CMakeFiles/CMakeScratch/TryCompile-BdtSVP'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/make -f Makefile cmTC_512fc/fast
+        /usr/bin/make  -f CMakeFiles/cmTC_512fc.dir/build.make CMakeFiles/cmTC_512fc.dir/build
+        make[1]: Entering directory '/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/CMakeFiles/CMakeScratch/TryCompile-BdtSVP'
+        Building CXX object CMakeFiles/cmTC_512fc.dir/src.cxx.obj
+        /usr/bin/clang++ -DHAS_NULLPTR_WARNING -D_MBCS  -fexceptions -fcxx-exceptions -D_CRT_SECURE_NO_WARNINGS --target=x86_64-windows-msvc -fms-compatibility-version=19.37 -Wno-unused-command-line-argument -isystem /usr/bin/../lib/clang/22/include -isystem"/home/d050/.local/share/Geode/cross-tools/splat/crt/include" -isystem"/home/d050/.local/share/Geode/cross-tools/splat/sdk/include/ucrt" -isystem"/home/d050/.local/share/Geode/cross-tools/splat/sdk/include/shared" -isystem"/home/d050/.local/share/Geode/cross-tools/splat/sdk/include/um" -isystem"/home/d050/.local/share/Geode/cross-tools/splat/sdk/include/winrt" -ivfsoverlay"/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/winsdk_vfs_overlay.yaml"  -O0 -g -Xclang -gcodeview -std=gnu++23 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd   -Wzero-as-null-pointer-constant -MD -MT CMakeFiles/cmTC_512fc.dir/src.cxx.obj -MF CMakeFiles/cmTC_512fc.dir/src.cxx.obj.d -o CMakeFiles/cmTC_512fc.dir/src.cxx.obj -c "/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/CMakeFiles/CMakeScratch/TryCompile-BdtSVP/src.cxx"
+        Linking CXX executable cmTC_512fc.exe
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_512fc.dir/link.txt --verbose=1
+        /usr/bin/clang++ -nostartfiles -nostdlib  -fexceptions -fcxx-exceptions -D_CRT_SECURE_NO_WARNINGS --target=x86_64-windows-msvc -fms-compatibility-version=19.37 -Wno-unused-command-line-argument -isystem /usr/bin/../lib/clang/22/include -isystem"/home/d050/.local/share/Geode/cross-tools/splat/crt/include" -isystem"/home/d050/.local/share/Geode/cross-tools/splat/sdk/include/ucrt" -isystem"/home/d050/.local/share/Geode/cross-tools/splat/sdk/include/shared" -isystem"/home/d050/.local/share/Geode/cross-tools/splat/sdk/include/um" -isystem"/home/d050/.local/share/Geode/cross-tools/splat/sdk/include/winrt" -ivfsoverlay"/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/winsdk_vfs_overlay.yaml"  -O0 -g -Xclang -gcodeview -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd  -L"/home/d050/.local/share/Geode/cross-tools/splat/crt/lib/x86_64" -L"/home/d050/.local/share/Geode/cross-tools/splat/sdk/lib/ucrt/x86_64" -L"/home/d050/.local/share/Geode/cross-tools/splat/sdk/lib/um/x86_64" -L"/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/winsdk_lib_symlinks"  -Xlinker /subsystem:console -fuse-ld=lld-link @CMakeFiles/cmTC_512fc.dir/objects1.rsp -o cmTC_512fc.exe -Xlinker /MANIFEST:EMBED -Xlinker /implib:cmTC_512fc.lib -Xlinker /pdb:"/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/CMakeFiles/CMakeScratch/TryCompile-BdtSVP/cmTC_512fc.pdb" -Xlinker /version:0.0  @CMakeFiles/cmTC_512fc.dir/linkLibs.rsp
+        make[1]: Leaving directory '/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/CMakeFiles/CMakeScratch/TryCompile-BdtSVP'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/Internal/CheckSourceCompiles.cmake:104 (try_compile)"
+      - "/usr/share/cmake/Modules/Internal/CheckCompilerFlag.cmake:18 (cmake_check_source_compiles)"
+      - "/usr/share/cmake/Modules/CheckCXXCompilerFlag.cmake:103 (cmake_check_compiler_flag)"
+      - "geode-main/CMakeLists.txt:332 (check_cxx_compiler_flag)"
+    checks:
+      - "Performing Test SUPPORTS_W_NO_EVERYTHING"
+    directories:
+      source: "/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/CMakeFiles/CMakeScratch/TryCompile-vYDCu1"
+      binary: "/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/CMakeFiles/CMakeScratch/TryCompile-vYDCu1"
+    cmakeVariables:
+      CMAKE_CXX_COMPILER_CLANG_SCAN_DEPS: "/usr/bin/clang-scan-deps"
+      CMAKE_CXX_FLAGS: " -fexceptions -fcxx-exceptions -D_CRT_SECURE_NO_WARNINGS --target=x86_64-windows-msvc -fms-compatibility-version=19.37 -Wno-unused-command-line-argument -isystem /usr/bin/../lib/clang/22/include -isystem\"/home/d050/.local/share/Geode/cross-tools/splat/crt/include\" -isystem\"/home/d050/.local/share/Geode/cross-tools/splat/sdk/include/ucrt\" -isystem\"/home/d050/.local/share/Geode/cross-tools/splat/sdk/include/shared\" -isystem\"/home/d050/.local/share/Geode/cross-tools/splat/sdk/include/um\" -isystem\"/home/d050/.local/share/Geode/cross-tools/splat/sdk/include/winrt\" -ivfsoverlay\"/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/winsdk_vfs_overlay.yaml\""
+      CMAKE_CXX_FLAGS_DEBUG: "-O0 -g -Xclang -gcodeview"
+      CMAKE_CXX_STDLIB_MODULES_JSON: ""
+      CMAKE_EXE_LINKER_FLAGS: " -L\"/home/d050/.local/share/Geode/cross-tools/splat/crt/lib/x86_64\" -L\"/home/d050/.local/share/Geode/cross-tools/splat/sdk/lib/ucrt/x86_64\" -L\"/home/d050/.local/share/Geode/cross-tools/splat/sdk/lib/um/x86_64\" -L\"/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/winsdk_lib_symlinks\""
+      CMAKE_MSVC_DEBUG_INFORMATION_FORMAT: "Embedded"
+      CMAKE_WARN_DEPRECATED: "ON"
+    buildResult:
+      variable: "SUPPORTS_W_NO_EVERYTHING"
+      cached: true
+      stdout: |
+        Change Dir: '/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/CMakeFiles/CMakeScratch/TryCompile-vYDCu1'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/make -f Makefile cmTC_c02fc/fast
+        /usr/bin/make  -f CMakeFiles/cmTC_c02fc.dir/build.make CMakeFiles/cmTC_c02fc.dir/build
+        make[1]: Entering directory '/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/CMakeFiles/CMakeScratch/TryCompile-vYDCu1'
+        Building CXX object CMakeFiles/cmTC_c02fc.dir/src.cxx.obj
+        /usr/bin/clang++ -DSUPPORTS_W_NO_EVERYTHING -D_MBCS  -fexceptions -fcxx-exceptions -D_CRT_SECURE_NO_WARNINGS --target=x86_64-windows-msvc -fms-compatibility-version=19.37 -Wno-unused-command-line-argument -isystem /usr/bin/../lib/clang/22/include -isystem"/home/d050/.local/share/Geode/cross-tools/splat/crt/include" -isystem"/home/d050/.local/share/Geode/cross-tools/splat/sdk/include/ucrt" -isystem"/home/d050/.local/share/Geode/cross-tools/splat/sdk/include/shared" -isystem"/home/d050/.local/share/Geode/cross-tools/splat/sdk/include/um" -isystem"/home/d050/.local/share/Geode/cross-tools/splat/sdk/include/winrt" -ivfsoverlay"/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/winsdk_vfs_overlay.yaml"  -O0 -g -Xclang -gcodeview -std=gnu++23 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd   -Wno-everything -MD -MT CMakeFiles/cmTC_c02fc.dir/src.cxx.obj -MF CMakeFiles/cmTC_c02fc.dir/src.cxx.obj.d -o CMakeFiles/cmTC_c02fc.dir/src.cxx.obj -c "/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/CMakeFiles/CMakeScratch/TryCompile-vYDCu1/src.cxx"
+        Linking CXX executable cmTC_c02fc.exe
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_c02fc.dir/link.txt --verbose=1
+        /usr/bin/clang++ -nostartfiles -nostdlib  -fexceptions -fcxx-exceptions -D_CRT_SECURE_NO_WARNINGS --target=x86_64-windows-msvc -fms-compatibility-version=19.37 -Wno-unused-command-line-argument -isystem /usr/bin/../lib/clang/22/include -isystem"/home/d050/.local/share/Geode/cross-tools/splat/crt/include" -isystem"/home/d050/.local/share/Geode/cross-tools/splat/sdk/include/ucrt" -isystem"/home/d050/.local/share/Geode/cross-tools/splat/sdk/include/shared" -isystem"/home/d050/.local/share/Geode/cross-tools/splat/sdk/include/um" -isystem"/home/d050/.local/share/Geode/cross-tools/splat/sdk/include/winrt" -ivfsoverlay"/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/winsdk_vfs_overlay.yaml"  -O0 -g -Xclang -gcodeview -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd  -L"/home/d050/.local/share/Geode/cross-tools/splat/crt/lib/x86_64" -L"/home/d050/.local/share/Geode/cross-tools/splat/sdk/lib/ucrt/x86_64" -L"/home/d050/.local/share/Geode/cross-tools/splat/sdk/lib/um/x86_64" -L"/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/winsdk_lib_symlinks"  -Xlinker /subsystem:console -fuse-ld=lld-link @CMakeFiles/cmTC_c02fc.dir/objects1.rsp -o cmTC_c02fc.exe -Xlinker /MANIFEST:EMBED -Xlinker /implib:cmTC_c02fc.lib -Xlinker /pdb:"/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/CMakeFiles/CMakeScratch/TryCompile-vYDCu1/cmTC_c02fc.pdb" -Xlinker /version:0.0  @CMakeFiles/cmTC_c02fc.dir/linkLibs.rsp
+        make[1]: Leaving directory '/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/CMakeFiles/CMakeScratch/TryCompile-vYDCu1'
+        
+      exitCode: 0
+...
+
+---
+events:
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/Platform/Windows-Clang.cmake:210 (find_program)"
+      - "/usr/share/cmake/Modules/Platform/Windows-Clang-C.cmake:1 (include)"
+      - "/usr/share/cmake/Modules/CMakeCInformation.cmake:48 (include)"
+      - "CMakeLists.txt:3 (project)"
+    mode: "program"
+    variable: "__RC_COMPILER_PATH"
+    description: "Path to a program."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: true
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "rc"
+    candidate_directories:
+      - "/usr/local/sbin/"
+      - "/usr/local/bin/"
+      - "/usr/bin/"
+      - "/opt/android-sdk/cmdline-tools/latest/bin/"
+      - "/opt/android-sdk/platform-tools/"
+      - "/opt/android-sdk/tools/"
+      - "/opt/android-sdk/tools/bin/"
+      - "/var/lib/flatpak/exports/bin/"
+      - "/usr/lib/jvm/default/bin/"
+      - "/usr/bin/site_perl/"
+      - "/usr/bin/vendor_perl/"
+      - "/usr/bin/core_perl/"
+      - "/usr/bin/"
+      - "/usr/sbin/"
+      - "/usr/"
+      - "/usr/local/bin/"
+      - "/usr/local/sbin/"
+      - "/usr/local/"
+      - "/bin/"
+      - "/sbin/"
+    searched_directories:
+      - "/usr/local/sbin/rc"
+      - "/usr/local/bin/rc"
+      - "/usr/bin/rc"
+      - "/opt/android-sdk/cmdline-tools/latest/bin/rc"
+      - "/opt/android-sdk/platform-tools/rc"
+      - "/opt/android-sdk/tools/rc"
+      - "/opt/android-sdk/tools/bin/rc"
+      - "/var/lib/flatpak/exports/bin/rc"
+      - "/usr/lib/jvm/default/bin/rc"
+      - "/usr/bin/site_perl/rc"
+      - "/usr/bin/vendor_perl/rc"
+      - "/usr/bin/core_perl/rc"
+      - "/usr/bin/rc"
+      - "/usr/sbin/rc"
+      - "/usr/rc"
+      - "/usr/local/bin/rc"
+      - "/usr/local/sbin/rc"
+      - "/usr/local/rc"
+      - "/bin/rc"
+      - "/sbin/rc"
+    found: false
+    search_context:
+      ENV{PATH}:
+        - "/usr/local/sbin"
+        - "/usr/local/bin"
+        - "/usr/bin"
+        - "/opt/android-sdk/cmdline-tools/latest/bin"
+        - "/opt/android-sdk/platform-tools"
+        - "/opt/android-sdk/tools"
+        - "/opt/android-sdk/tools/bin"
+        - "/var/lib/flatpak/exports/bin"
+        - "/usr/lib/jvm/default/bin"
+        - "/usr/bin/site_perl"
+        - "/usr/bin/vendor_perl"
+        - "/usr/bin/core_perl"
+      CMAKE_INSTALL_PREFIX: "/usr/local"
+      CMAKE_SYSTEM_PREFIX_PATH:
+        - "/usr"
+        - "/usr/local"
+        - "/"
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/Platform/Windows-Clang.cmake:216 (find_program)"
+      - "/usr/share/cmake/Modules/Platform/Windows-Clang-C.cmake:1 (include)"
+      - "/usr/share/cmake/Modules/CMakeCInformation.cmake:48 (include)"
+      - "CMakeLists.txt:3 (project)"
+    mode: "program"
+    variable: "__RC_COMPILER_PATH"
+    description: "Path to a program."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: true
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "llvm-rc"
+    candidate_directories:
+      - "/usr/local/sbin/"
+      - "/usr/local/bin/"
+      - "/usr/bin/"
+      - "/opt/android-sdk/cmdline-tools/latest/bin/"
+      - "/opt/android-sdk/platform-tools/"
+      - "/opt/android-sdk/tools/"
+      - "/opt/android-sdk/tools/bin/"
+      - "/var/lib/flatpak/exports/bin/"
+      - "/usr/lib/jvm/default/bin/"
+      - "/usr/bin/site_perl/"
+      - "/usr/bin/vendor_perl/"
+      - "/usr/bin/core_perl/"
+      - "/usr/bin/"
+      - "/usr/sbin/"
+      - "/usr/"
+      - "/usr/local/bin/"
+      - "/usr/local/sbin/"
+      - "/usr/local/"
+      - "/bin/"
+      - "/sbin/"
+    searched_directories:
+      - "/usr/local/sbin/llvm-rc"
+      - "/usr/local/bin/llvm-rc"
+    found: "/usr/bin/llvm-rc"
+    search_context:
+      ENV{PATH}:
+        - "/usr/local/sbin"
+        - "/usr/local/bin"
+        - "/usr/bin"
+        - "/opt/android-sdk/cmdline-tools/latest/bin"
+        - "/opt/android-sdk/platform-tools"
+        - "/opt/android-sdk/tools"
+        - "/opt/android-sdk/tools/bin"
+        - "/var/lib/flatpak/exports/bin"
+        - "/usr/lib/jvm/default/bin"
+        - "/usr/bin/site_perl"
+        - "/usr/bin/vendor_perl"
+        - "/usr/bin/core_perl"
+      CMAKE_INSTALL_PREFIX: "/usr/local"
+      CMAKE_SYSTEM_PREFIX_PATH:
+        - "/usr"
+        - "/usr/local"
+        - "/"
+...
+
+---
+events:
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/Platform/Windows-Clang.cmake:210 (find_program)"
+      - "/usr/share/cmake/Modules/Platform/Windows-Clang-C.cmake:1 (include)"
+      - "/usr/share/cmake/Modules/CMakeCInformation.cmake:48 (include)"
+      - "CMakeLists.txt:3 (project)"
+    mode: "program"
+    variable: "__RC_COMPILER_PATH"
+    description: "Path to a program."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: true
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "rc"
+    candidate_directories:
+      - "/usr/local/sbin/"
+      - "/usr/local/bin/"
+      - "/usr/bin/"
+      - "/opt/android-sdk/cmdline-tools/latest/bin/"
+      - "/opt/android-sdk/platform-tools/"
+      - "/opt/android-sdk/tools/"
+      - "/opt/android-sdk/tools/bin/"
+      - "/var/lib/flatpak/exports/bin/"
+      - "/usr/lib/jvm/default/bin/"
+      - "/usr/bin/site_perl/"
+      - "/usr/bin/vendor_perl/"
+      - "/usr/bin/core_perl/"
+      - "/usr/bin/"
+      - "/usr/sbin/"
+      - "/usr/"
+      - "/usr/local/bin/"
+      - "/usr/local/sbin/"
+      - "/usr/local/"
+      - "/bin/"
+      - "/sbin/"
+    searched_directories:
+      - "/usr/local/sbin/rc"
+      - "/usr/local/bin/rc"
+      - "/usr/bin/rc"
+      - "/opt/android-sdk/cmdline-tools/latest/bin/rc"
+      - "/opt/android-sdk/platform-tools/rc"
+      - "/opt/android-sdk/tools/rc"
+      - "/opt/android-sdk/tools/bin/rc"
+      - "/var/lib/flatpak/exports/bin/rc"
+      - "/usr/lib/jvm/default/bin/rc"
+      - "/usr/bin/site_perl/rc"
+      - "/usr/bin/vendor_perl/rc"
+      - "/usr/bin/core_perl/rc"
+      - "/usr/bin/rc"
+      - "/usr/sbin/rc"
+      - "/usr/rc"
+      - "/usr/local/bin/rc"
+      - "/usr/local/sbin/rc"
+      - "/usr/local/rc"
+      - "/bin/rc"
+      - "/sbin/rc"
+    found: false
+    search_context:
+      ENV{PATH}:
+        - "/usr/local/sbin"
+        - "/usr/local/bin"
+        - "/usr/bin"
+        - "/opt/android-sdk/cmdline-tools/latest/bin"
+        - "/opt/android-sdk/platform-tools"
+        - "/opt/android-sdk/tools"
+        - "/opt/android-sdk/tools/bin"
+        - "/var/lib/flatpak/exports/bin"
+        - "/usr/lib/jvm/default/bin"
+        - "/usr/bin/site_perl"
+        - "/usr/bin/vendor_perl"
+        - "/usr/bin/core_perl"
+      CMAKE_INSTALL_PREFIX: "/usr/local"
+      CMAKE_SYSTEM_PREFIX_PATH:
+        - "/usr"
+        - "/usr/local"
+        - "/"
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/Platform/Windows-Clang.cmake:216 (find_program)"
+      - "/usr/share/cmake/Modules/Platform/Windows-Clang-C.cmake:1 (include)"
+      - "/usr/share/cmake/Modules/CMakeCInformation.cmake:48 (include)"
+      - "CMakeLists.txt:3 (project)"
+    mode: "program"
+    variable: "__RC_COMPILER_PATH"
+    description: "Path to a program."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: true
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "llvm-rc"
+    candidate_directories:
+      - "/usr/local/sbin/"
+      - "/usr/local/bin/"
+      - "/usr/bin/"
+      - "/opt/android-sdk/cmdline-tools/latest/bin/"
+      - "/opt/android-sdk/platform-tools/"
+      - "/opt/android-sdk/tools/"
+      - "/opt/android-sdk/tools/bin/"
+      - "/var/lib/flatpak/exports/bin/"
+      - "/usr/lib/jvm/default/bin/"
+      - "/usr/bin/site_perl/"
+      - "/usr/bin/vendor_perl/"
+      - "/usr/bin/core_perl/"
+      - "/usr/bin/"
+      - "/usr/sbin/"
+      - "/usr/"
+      - "/usr/local/bin/"
+      - "/usr/local/sbin/"
+      - "/usr/local/"
+      - "/bin/"
+      - "/sbin/"
+    searched_directories:
+      - "/usr/local/sbin/llvm-rc"
+      - "/usr/local/bin/llvm-rc"
+    found: "/usr/bin/llvm-rc"
+    search_context:
+      ENV{PATH}:
+        - "/usr/local/sbin"
+        - "/usr/local/bin"
+        - "/usr/bin"
+        - "/opt/android-sdk/cmdline-tools/latest/bin"
+        - "/opt/android-sdk/platform-tools"
+        - "/opt/android-sdk/tools"
+        - "/opt/android-sdk/tools/bin"
+        - "/var/lib/flatpak/exports/bin"
+        - "/usr/lib/jvm/default/bin"
+        - "/usr/bin/site_perl"
+        - "/usr/bin/vendor_perl"
+        - "/usr/bin/core_perl"
+      CMAKE_INSTALL_PREFIX: "/usr/local"
+      CMAKE_SYSTEM_PREFIX_PATH:
+        - "/usr"
+        - "/usr/local"
+        - "/"
+...
+
+---
+events:
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/Platform/Windows-Clang.cmake:210 (find_program)"
+      - "/usr/share/cmake/Modules/Platform/Windows-Clang-C.cmake:1 (include)"
+      - "/usr/share/cmake/Modules/CMakeCInformation.cmake:48 (include)"
+      - "CMakeLists.txt:3 (project)"
+    mode: "program"
+    variable: "__RC_COMPILER_PATH"
+    description: "Path to a program."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: true
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "rc"
+    candidate_directories:
+      - "/usr/local/sbin/"
+      - "/usr/local/bin/"
+      - "/usr/bin/"
+      - "/opt/android-sdk/cmdline-tools/latest/bin/"
+      - "/opt/android-sdk/platform-tools/"
+      - "/opt/android-sdk/tools/"
+      - "/opt/android-sdk/tools/bin/"
+      - "/var/lib/flatpak/exports/bin/"
+      - "/usr/lib/jvm/default/bin/"
+      - "/usr/bin/site_perl/"
+      - "/usr/bin/vendor_perl/"
+      - "/usr/bin/core_perl/"
+      - "/usr/bin/"
+      - "/usr/sbin/"
+      - "/usr/"
+      - "/usr/local/bin/"
+      - "/usr/local/sbin/"
+      - "/usr/local/"
+      - "/bin/"
+      - "/sbin/"
+    searched_directories:
+      - "/usr/local/sbin/rc"
+      - "/usr/local/bin/rc"
+      - "/usr/bin/rc"
+      - "/opt/android-sdk/cmdline-tools/latest/bin/rc"
+      - "/opt/android-sdk/platform-tools/rc"
+      - "/opt/android-sdk/tools/rc"
+      - "/opt/android-sdk/tools/bin/rc"
+      - "/var/lib/flatpak/exports/bin/rc"
+      - "/usr/lib/jvm/default/bin/rc"
+      - "/usr/bin/site_perl/rc"
+      - "/usr/bin/vendor_perl/rc"
+      - "/usr/bin/core_perl/rc"
+      - "/usr/bin/rc"
+      - "/usr/sbin/rc"
+      - "/usr/rc"
+      - "/usr/local/bin/rc"
+      - "/usr/local/sbin/rc"
+      - "/usr/local/rc"
+      - "/bin/rc"
+      - "/sbin/rc"
+    found: false
+    search_context:
+      ENV{PATH}:
+        - "/usr/local/sbin"
+        - "/usr/local/bin"
+        - "/usr/bin"
+        - "/opt/android-sdk/cmdline-tools/latest/bin"
+        - "/opt/android-sdk/platform-tools"
+        - "/opt/android-sdk/tools"
+        - "/opt/android-sdk/tools/bin"
+        - "/var/lib/flatpak/exports/bin"
+        - "/usr/lib/jvm/default/bin"
+        - "/usr/bin/site_perl"
+        - "/usr/bin/vendor_perl"
+        - "/usr/bin/core_perl"
+      CMAKE_INSTALL_PREFIX: "/usr/local"
+      CMAKE_SYSTEM_PREFIX_PATH:
+        - "/usr"
+        - "/usr/local"
+        - "/"
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/Platform/Windows-Clang.cmake:216 (find_program)"
+      - "/usr/share/cmake/Modules/Platform/Windows-Clang-C.cmake:1 (include)"
+      - "/usr/share/cmake/Modules/CMakeCInformation.cmake:48 (include)"
+      - "CMakeLists.txt:3 (project)"
+    mode: "program"
+    variable: "__RC_COMPILER_PATH"
+    description: "Path to a program."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: true
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "llvm-rc"
+    candidate_directories:
+      - "/usr/local/sbin/"
+      - "/usr/local/bin/"
+      - "/usr/bin/"
+      - "/opt/android-sdk/cmdline-tools/latest/bin/"
+      - "/opt/android-sdk/platform-tools/"
+      - "/opt/android-sdk/tools/"
+      - "/opt/android-sdk/tools/bin/"
+      - "/var/lib/flatpak/exports/bin/"
+      - "/usr/lib/jvm/default/bin/"
+      - "/usr/bin/site_perl/"
+      - "/usr/bin/vendor_perl/"
+      - "/usr/bin/core_perl/"
+      - "/usr/bin/"
+      - "/usr/sbin/"
+      - "/usr/"
+      - "/usr/local/bin/"
+      - "/usr/local/sbin/"
+      - "/usr/local/"
+      - "/bin/"
+      - "/sbin/"
+    searched_directories:
+      - "/usr/local/sbin/llvm-rc"
+      - "/usr/local/bin/llvm-rc"
+    found: "/usr/bin/llvm-rc"
+    search_context:
+      ENV{PATH}:
+        - "/usr/local/sbin"
+        - "/usr/local/bin"
+        - "/usr/bin"
+        - "/opt/android-sdk/cmdline-tools/latest/bin"
+        - "/opt/android-sdk/platform-tools"
+        - "/opt/android-sdk/tools"
+        - "/opt/android-sdk/tools/bin"
+        - "/var/lib/flatpak/exports/bin"
+        - "/usr/lib/jvm/default/bin"
+        - "/usr/bin/site_perl"
+        - "/usr/bin/vendor_perl"
+        - "/usr/bin/core_perl"
+      CMAKE_INSTALL_PREFIX: "/usr/local"
+      CMAKE_SYSTEM_PREFIX_PATH:
+        - "/usr"
+        - "/usr/local"
+        - "/"
+...
+
+---
+events:
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/Platform/Windows-Clang.cmake:210 (find_program)"
+      - "/usr/share/cmake/Modules/Platform/Windows-Clang-C.cmake:1 (include)"
+      - "/usr/share/cmake/Modules/CMakeCInformation.cmake:48 (include)"
+      - "CMakeLists.txt:3 (project)"
+    mode: "program"
+    variable: "__RC_COMPILER_PATH"
+    description: "Path to a program."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: true
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "rc"
+    candidate_directories:
+      - "/usr/local/sbin/"
+      - "/usr/local/bin/"
+      - "/usr/bin/"
+      - "/opt/android-sdk/cmdline-tools/latest/bin/"
+      - "/opt/android-sdk/platform-tools/"
+      - "/opt/android-sdk/tools/"
+      - "/opt/android-sdk/tools/bin/"
+      - "/var/lib/flatpak/exports/bin/"
+      - "/usr/lib/jvm/default/bin/"
+      - "/usr/bin/site_perl/"
+      - "/usr/bin/vendor_perl/"
+      - "/usr/bin/core_perl/"
+      - "/usr/bin/"
+      - "/usr/sbin/"
+      - "/usr/"
+      - "/usr/local/bin/"
+      - "/usr/local/sbin/"
+      - "/usr/local/"
+      - "/bin/"
+      - "/sbin/"
+    searched_directories:
+      - "/usr/local/sbin/rc"
+      - "/usr/local/bin/rc"
+      - "/usr/bin/rc"
+      - "/opt/android-sdk/cmdline-tools/latest/bin/rc"
+      - "/opt/android-sdk/platform-tools/rc"
+      - "/opt/android-sdk/tools/rc"
+      - "/opt/android-sdk/tools/bin/rc"
+      - "/var/lib/flatpak/exports/bin/rc"
+      - "/usr/lib/jvm/default/bin/rc"
+      - "/usr/bin/site_perl/rc"
+      - "/usr/bin/vendor_perl/rc"
+      - "/usr/bin/core_perl/rc"
+      - "/usr/bin/rc"
+      - "/usr/sbin/rc"
+      - "/usr/rc"
+      - "/usr/local/bin/rc"
+      - "/usr/local/sbin/rc"
+      - "/usr/local/rc"
+      - "/bin/rc"
+      - "/sbin/rc"
+    found: false
+    search_context:
+      ENV{PATH}:
+        - "/usr/local/sbin"
+        - "/usr/local/bin"
+        - "/usr/bin"
+        - "/opt/android-sdk/cmdline-tools/latest/bin"
+        - "/opt/android-sdk/platform-tools"
+        - "/opt/android-sdk/tools"
+        - "/opt/android-sdk/tools/bin"
+        - "/var/lib/flatpak/exports/bin"
+        - "/usr/lib/jvm/default/bin"
+        - "/usr/bin/site_perl"
+        - "/usr/bin/vendor_perl"
+        - "/usr/bin/core_perl"
+      CMAKE_INSTALL_PREFIX: "/usr/local"
+      CMAKE_SYSTEM_PREFIX_PATH:
+        - "/usr"
+        - "/usr/local"
+        - "/"
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/Platform/Windows-Clang.cmake:216 (find_program)"
+      - "/usr/share/cmake/Modules/Platform/Windows-Clang-C.cmake:1 (include)"
+      - "/usr/share/cmake/Modules/CMakeCInformation.cmake:48 (include)"
+      - "CMakeLists.txt:3 (project)"
+    mode: "program"
+    variable: "__RC_COMPILER_PATH"
+    description: "Path to a program."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: true
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "llvm-rc"
+    candidate_directories:
+      - "/usr/local/sbin/"
+      - "/usr/local/bin/"
+      - "/usr/bin/"
+      - "/opt/android-sdk/cmdline-tools/latest/bin/"
+      - "/opt/android-sdk/platform-tools/"
+      - "/opt/android-sdk/tools/"
+      - "/opt/android-sdk/tools/bin/"
+      - "/var/lib/flatpak/exports/bin/"
+      - "/usr/lib/jvm/default/bin/"
+      - "/usr/bin/site_perl/"
+      - "/usr/bin/vendor_perl/"
+      - "/usr/bin/core_perl/"
+      - "/usr/bin/"
+      - "/usr/sbin/"
+      - "/usr/"
+      - "/usr/local/bin/"
+      - "/usr/local/sbin/"
+      - "/usr/local/"
+      - "/bin/"
+      - "/sbin/"
+    searched_directories:
+      - "/usr/local/sbin/llvm-rc"
+      - "/usr/local/bin/llvm-rc"
+    found: "/usr/bin/llvm-rc"
+    search_context:
+      ENV{PATH}:
+        - "/usr/local/sbin"
+        - "/usr/local/bin"
+        - "/usr/bin"
+        - "/opt/android-sdk/cmdline-tools/latest/bin"
+        - "/opt/android-sdk/platform-tools"
+        - "/opt/android-sdk/tools"
+        - "/opt/android-sdk/tools/bin"
+        - "/var/lib/flatpak/exports/bin"
+        - "/usr/lib/jvm/default/bin"
+        - "/usr/bin/site_perl"
+        - "/usr/bin/vendor_perl"
+        - "/usr/bin/core_perl"
+      CMAKE_INSTALL_PREFIX: "/usr/local"
+      CMAKE_SYSTEM_PREFIX_PATH:
+        - "/usr"
+        - "/usr/local"
+        - "/"
+...
+
+---
+events:
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/Platform/Windows-Clang.cmake:210 (find_program)"
+      - "/usr/share/cmake/Modules/Platform/Windows-Clang-C.cmake:1 (include)"
+      - "/usr/share/cmake/Modules/CMakeCInformation.cmake:48 (include)"
+      - "CMakeLists.txt:3 (project)"
+    mode: "program"
+    variable: "__RC_COMPILER_PATH"
+    description: "Path to a program."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: true
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "rc"
+    candidate_directories:
+      - "/usr/local/sbin/"
+      - "/usr/local/bin/"
+      - "/usr/bin/"
+      - "/opt/android-sdk/cmdline-tools/latest/bin/"
+      - "/opt/android-sdk/platform-tools/"
+      - "/opt/android-sdk/tools/"
+      - "/opt/android-sdk/tools/bin/"
+      - "/var/lib/flatpak/exports/bin/"
+      - "/usr/lib/jvm/default/bin/"
+      - "/usr/bin/site_perl/"
+      - "/usr/bin/vendor_perl/"
+      - "/usr/bin/core_perl/"
+      - "/usr/bin/"
+      - "/usr/sbin/"
+      - "/usr/"
+      - "/usr/local/bin/"
+      - "/usr/local/sbin/"
+      - "/usr/local/"
+      - "/bin/"
+      - "/sbin/"
+    searched_directories:
+      - "/usr/local/sbin/rc"
+      - "/usr/local/bin/rc"
+      - "/usr/bin/rc"
+      - "/opt/android-sdk/cmdline-tools/latest/bin/rc"
+      - "/opt/android-sdk/platform-tools/rc"
+      - "/opt/android-sdk/tools/rc"
+      - "/opt/android-sdk/tools/bin/rc"
+      - "/var/lib/flatpak/exports/bin/rc"
+      - "/usr/lib/jvm/default/bin/rc"
+      - "/usr/bin/site_perl/rc"
+      - "/usr/bin/vendor_perl/rc"
+      - "/usr/bin/core_perl/rc"
+      - "/usr/bin/rc"
+      - "/usr/sbin/rc"
+      - "/usr/rc"
+      - "/usr/local/bin/rc"
+      - "/usr/local/sbin/rc"
+      - "/usr/local/rc"
+      - "/bin/rc"
+      - "/sbin/rc"
+    found: false
+    search_context:
+      ENV{PATH}:
+        - "/usr/local/sbin"
+        - "/usr/local/bin"
+        - "/usr/bin"
+        - "/opt/android-sdk/cmdline-tools/latest/bin"
+        - "/opt/android-sdk/platform-tools"
+        - "/opt/android-sdk/tools"
+        - "/opt/android-sdk/tools/bin"
+        - "/var/lib/flatpak/exports/bin"
+        - "/usr/lib/jvm/default/bin"
+        - "/usr/bin/site_perl"
+        - "/usr/bin/vendor_perl"
+        - "/usr/bin/core_perl"
+      CMAKE_INSTALL_PREFIX: "/usr/local"
+      CMAKE_SYSTEM_PREFIX_PATH:
+        - "/usr"
+        - "/usr/local"
+        - "/"
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/Platform/Windows-Clang.cmake:216 (find_program)"
+      - "/usr/share/cmake/Modules/Platform/Windows-Clang-C.cmake:1 (include)"
+      - "/usr/share/cmake/Modules/CMakeCInformation.cmake:48 (include)"
+      - "CMakeLists.txt:3 (project)"
+    mode: "program"
+    variable: "__RC_COMPILER_PATH"
+    description: "Path to a program."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: true
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "llvm-rc"
+    candidate_directories:
+      - "/usr/local/sbin/"
+      - "/usr/local/bin/"
+      - "/usr/bin/"
+      - "/opt/android-sdk/cmdline-tools/latest/bin/"
+      - "/opt/android-sdk/platform-tools/"
+      - "/opt/android-sdk/tools/"
+      - "/opt/android-sdk/tools/bin/"
+      - "/var/lib/flatpak/exports/bin/"
+      - "/usr/lib/jvm/default/bin/"
+      - "/usr/bin/site_perl/"
+      - "/usr/bin/vendor_perl/"
+      - "/usr/bin/core_perl/"
+      - "/usr/bin/"
+      - "/usr/sbin/"
+      - "/usr/"
+      - "/usr/local/bin/"
+      - "/usr/local/sbin/"
+      - "/usr/local/"
+      - "/bin/"
+      - "/sbin/"
+    searched_directories:
+      - "/usr/local/sbin/llvm-rc"
+      - "/usr/local/bin/llvm-rc"
+    found: "/usr/bin/llvm-rc"
+    search_context:
+      ENV{PATH}:
+        - "/usr/local/sbin"
+        - "/usr/local/bin"
+        - "/usr/bin"
+        - "/opt/android-sdk/cmdline-tools/latest/bin"
+        - "/opt/android-sdk/platform-tools"
+        - "/opt/android-sdk/tools"
+        - "/opt/android-sdk/tools/bin"
+        - "/var/lib/flatpak/exports/bin"
+        - "/usr/lib/jvm/default/bin"
+        - "/usr/bin/site_perl"
+        - "/usr/bin/vendor_perl"
+        - "/usr/bin/core_perl"
+      CMAKE_INSTALL_PREFIX: "/usr/local"
+      CMAKE_SYSTEM_PREFIX_PATH:
+        - "/usr"
+        - "/usr/local"
+        - "/"
+...

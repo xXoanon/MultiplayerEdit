@@ -1,0 +1,2 @@
+/usr/bin/llvm-ar qc arc.lib CMakeFiles/arc.dir/Unity/unity_0_cxx.cxx.obj
+/usr/bin/llvm-ranlib arc.lib

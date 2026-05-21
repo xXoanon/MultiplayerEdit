@@ -1,0 +1,2 @@
+/usr/bin/llvm-ar qc asp.lib CMakeFiles/asp.dir/Unity/unity_0_cxx.cxx.obj
+/usr/bin/llvm-ranlib asp.lib

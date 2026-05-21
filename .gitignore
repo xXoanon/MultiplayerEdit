@@ -1,0 +1,30 @@
+# Geode SDK
+geode-main/
+
+# Build
+build/
+cmake-build-*/
+.cache/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Compiled
+*.o
+*.obj
+*.dll
+*.so
+*.dylib
+*.geode
+
+# Server
+server/node_modules/
+server/.env

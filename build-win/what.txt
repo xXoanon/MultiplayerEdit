@@ -1,0 +1,48 @@
+{
+    "geode": "5.7.1",
+    "gd": {
+        "win": "2.2081",
+        "android": "2.2081",
+        "mac": "2.2081"
+    },
+    "id": "xXoanon.multiplayer-edit",
+    "name": "Multiplayer Edit",
+    "version": "v0.1.0",
+    "developer": "xXoanon",
+    "description": "Collaborate with friends in real-time level editing! Host a session and build together.",
+    "tags": ["editor", "online", "multiplayer", "utility"],
+    "settings": {
+        "server-section": {
+            "type": "title",
+            "name": "Server Settings"
+        },
+        "server-url": {
+            "type": "string",
+            "name": "Server URL",
+            "description": "The WebSocket relay server URL to connect to.",
+            "default": "ws://localhost:8765"
+        },
+        "player-name": {
+            "type": "string",
+            "name": "Player Name",
+            "description": "Your display name in multiplayer sessions.",
+            "default": "Player"
+        },
+        "display-section": {
+            "type": "title",
+            "name": "Display"
+        },
+        "show-cursors": {
+            "type": "bool",
+            "name": "Show Player Cursors",
+            "description": "Display other players' cursor positions in the editor.",
+            "default": true
+        },
+        "show-notifications": {
+            "type": "bool",
+            "name": "Show Notifications",
+            "description": "Show notifications when players join/leave.",
+            "default": true
+        }
+    }
+}

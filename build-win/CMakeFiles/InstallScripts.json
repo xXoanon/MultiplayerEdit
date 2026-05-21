@@ -1,0 +1,17 @@
+{
+	"InstallScripts" : 
+	[
+		"/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/cmake_install.cmake",
+		"/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/_deps/ixwebsocket-build/cmake_install.cmake",
+		"/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/geode/cmake_install.cmake",
+		"/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/_deps/result-build/cmake_install.cmake",
+		"/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/_deps/json-build/cmake_install.cmake",
+		"/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/_deps/nontype_functional-build/cmake_install.cmake",
+		"/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/_deps/fmt-build/cmake_install.cmake",
+		"/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/_deps/asp2-build/cmake_install.cmake",
+		"/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/_deps/arc-build/cmake_install.cmake",
+		"/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/_deps/tuliphook-build/cmake_install.cmake",
+		"/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/bindings/cmake_install.cmake"
+	],
+	"Parallel" : false
+}

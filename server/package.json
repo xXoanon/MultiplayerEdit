@@ -1,0 +1,14 @@
+{
+    "name": "multiplayer-edit-server",
+    "version": "0.1.0",
+    "description": "Relay server for Multiplayer Edit Geode mod",
+    "main": "server.js",
+    "scripts": {
+        "start": "node server.js",
+        "dev": "node server.js"
+    },
+    "dependencies": {
+        "ws": "^8.18.0",
+        "express": "^4.21.0"
+    }
+}

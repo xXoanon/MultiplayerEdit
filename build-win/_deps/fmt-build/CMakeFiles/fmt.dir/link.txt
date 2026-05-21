@@ -1,0 +1,2 @@
+/usr/bin/llvm-ar qc fmt.lib CMakeFiles/fmt.dir/src/format.cc.obj CMakeFiles/fmt.dir/src/os.cc.obj
+/usr/bin/llvm-ranlib fmt.lib
