@@ -190,13 +190,30 @@ CMakeFiles/MultiplayerEdit.dir/src/main.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/MultiplayerEdit.dir/src/main.cpp.s"
 	$(CMAKE_COMMAND) -E cmake_unimplemented_variable CMAKE_CXX_CREATE_ASSEMBLY_SOURCE
 
+CMakeFiles/MultiplayerEdit.dir/src/ui/CursorNode.cpp.obj: CMakeFiles/MultiplayerEdit.dir/flags.make
+CMakeFiles/MultiplayerEdit.dir/src/ui/CursorNode.cpp.obj: CMakeFiles/MultiplayerEdit.dir/includes_CXX.rsp
+CMakeFiles/MultiplayerEdit.dir/src/ui/CursorNode.cpp.obj: /home/d050/Coding/Me\ Coding/MultiplayerEdit/src/ui/CursorNode.cpp
+CMakeFiles/MultiplayerEdit.dir/src/ui/CursorNode.cpp.obj: CMakeFiles/MultiplayerEdit.dir/cmake_pch.hxx
+CMakeFiles/MultiplayerEdit.dir/src/ui/CursorNode.cpp.obj: CMakeFiles/MultiplayerEdit.dir/cmake_pch.hxx.pch
+CMakeFiles/MultiplayerEdit.dir/src/ui/CursorNode.cpp.obj: CMakeFiles/MultiplayerEdit.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_8) "Building CXX object CMakeFiles/MultiplayerEdit.dir/src/ui/CursorNode.cpp.obj"
+	/usr/bin/clang++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -Xclang -include-pch -Xclang "/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/CMakeFiles/MultiplayerEdit.dir/cmake_pch.hxx.pch" -Xclang -include -Xclang "/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/CMakeFiles/MultiplayerEdit.dir/cmake_pch.hxx" -MD -MT CMakeFiles/MultiplayerEdit.dir/src/ui/CursorNode.cpp.obj -MF CMakeFiles/MultiplayerEdit.dir/src/ui/CursorNode.cpp.obj.d -o CMakeFiles/MultiplayerEdit.dir/src/ui/CursorNode.cpp.obj -c "/home/d050/Coding/Me Coding/MultiplayerEdit/src/ui/CursorNode.cpp"
+
+CMakeFiles/MultiplayerEdit.dir/src/ui/CursorNode.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/MultiplayerEdit.dir/src/ui/CursorNode.cpp.i"
+	$(CMAKE_COMMAND) -E cmake_unimplemented_variable CMAKE_CXX_CREATE_PREPROCESSED_SOURCE
+
+CMakeFiles/MultiplayerEdit.dir/src/ui/CursorNode.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/MultiplayerEdit.dir/src/ui/CursorNode.cpp.s"
+	$(CMAKE_COMMAND) -E cmake_unimplemented_variable CMAKE_CXX_CREATE_ASSEMBLY_SOURCE
+
 CMakeFiles/MultiplayerEdit.dir/src/ui/MultiplayerPopup.cpp.obj: CMakeFiles/MultiplayerEdit.dir/flags.make
 CMakeFiles/MultiplayerEdit.dir/src/ui/MultiplayerPopup.cpp.obj: CMakeFiles/MultiplayerEdit.dir/includes_CXX.rsp
 CMakeFiles/MultiplayerEdit.dir/src/ui/MultiplayerPopup.cpp.obj: /home/d050/Coding/Me\ Coding/MultiplayerEdit/src/ui/MultiplayerPopup.cpp
 CMakeFiles/MultiplayerEdit.dir/src/ui/MultiplayerPopup.cpp.obj: CMakeFiles/MultiplayerEdit.dir/cmake_pch.hxx
 CMakeFiles/MultiplayerEdit.dir/src/ui/MultiplayerPopup.cpp.obj: CMakeFiles/MultiplayerEdit.dir/cmake_pch.hxx.pch
 CMakeFiles/MultiplayerEdit.dir/src/ui/MultiplayerPopup.cpp.obj: CMakeFiles/MultiplayerEdit.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_8) "Building CXX object CMakeFiles/MultiplayerEdit.dir/src/ui/MultiplayerPopup.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_9) "Building CXX object CMakeFiles/MultiplayerEdit.dir/src/ui/MultiplayerPopup.cpp.obj"
 	/usr/bin/clang++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -Xclang -include-pch -Xclang "/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/CMakeFiles/MultiplayerEdit.dir/cmake_pch.hxx.pch" -Xclang -include -Xclang "/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/CMakeFiles/MultiplayerEdit.dir/cmake_pch.hxx" -MD -MT CMakeFiles/MultiplayerEdit.dir/src/ui/MultiplayerPopup.cpp.obj -MF CMakeFiles/MultiplayerEdit.dir/src/ui/MultiplayerPopup.cpp.obj.d -o CMakeFiles/MultiplayerEdit.dir/src/ui/MultiplayerPopup.cpp.obj -c "/home/d050/Coding/Me Coding/MultiplayerEdit/src/ui/MultiplayerPopup.cpp"
 
 CMakeFiles/MultiplayerEdit.dir/src/ui/MultiplayerPopup.cpp.i: cmake_force
@@ -213,7 +230,7 @@ CMakeFiles/MultiplayerEdit.dir/src/ui/PlayerListNode.cpp.obj: /home/d050/Coding/
 CMakeFiles/MultiplayerEdit.dir/src/ui/PlayerListNode.cpp.obj: CMakeFiles/MultiplayerEdit.dir/cmake_pch.hxx
 CMakeFiles/MultiplayerEdit.dir/src/ui/PlayerListNode.cpp.obj: CMakeFiles/MultiplayerEdit.dir/cmake_pch.hxx.pch
 CMakeFiles/MultiplayerEdit.dir/src/ui/PlayerListNode.cpp.obj: CMakeFiles/MultiplayerEdit.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_9) "Building CXX object CMakeFiles/MultiplayerEdit.dir/src/ui/PlayerListNode.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_10) "Building CXX object CMakeFiles/MultiplayerEdit.dir/src/ui/PlayerListNode.cpp.obj"
 	/usr/bin/clang++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -Xclang -include-pch -Xclang "/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/CMakeFiles/MultiplayerEdit.dir/cmake_pch.hxx.pch" -Xclang -include -Xclang "/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/CMakeFiles/MultiplayerEdit.dir/cmake_pch.hxx" -MD -MT CMakeFiles/MultiplayerEdit.dir/src/ui/PlayerListNode.cpp.obj -MF CMakeFiles/MultiplayerEdit.dir/src/ui/PlayerListNode.cpp.obj.d -o CMakeFiles/MultiplayerEdit.dir/src/ui/PlayerListNode.cpp.obj -c "/home/d050/Coding/Me Coding/MultiplayerEdit/src/ui/PlayerListNode.cpp"
 
 CMakeFiles/MultiplayerEdit.dir/src/ui/PlayerListNode.cpp.i: cmake_force
@@ -230,7 +247,7 @@ CMakeFiles/MultiplayerEdit.dir/src/ui/SessionStatusNode.cpp.obj: /home/d050/Codi
 CMakeFiles/MultiplayerEdit.dir/src/ui/SessionStatusNode.cpp.obj: CMakeFiles/MultiplayerEdit.dir/cmake_pch.hxx
 CMakeFiles/MultiplayerEdit.dir/src/ui/SessionStatusNode.cpp.obj: CMakeFiles/MultiplayerEdit.dir/cmake_pch.hxx.pch
 CMakeFiles/MultiplayerEdit.dir/src/ui/SessionStatusNode.cpp.obj: CMakeFiles/MultiplayerEdit.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_10) "Building CXX object CMakeFiles/MultiplayerEdit.dir/src/ui/SessionStatusNode.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_11) "Building CXX object CMakeFiles/MultiplayerEdit.dir/src/ui/SessionStatusNode.cpp.obj"
 	/usr/bin/clang++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -Xclang -include-pch -Xclang "/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/CMakeFiles/MultiplayerEdit.dir/cmake_pch.hxx.pch" -Xclang -include -Xclang "/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/CMakeFiles/MultiplayerEdit.dir/cmake_pch.hxx" -MD -MT CMakeFiles/MultiplayerEdit.dir/src/ui/SessionStatusNode.cpp.obj -MF CMakeFiles/MultiplayerEdit.dir/src/ui/SessionStatusNode.cpp.obj.d -o CMakeFiles/MultiplayerEdit.dir/src/ui/SessionStatusNode.cpp.obj -c "/home/d050/Coding/Me Coding/MultiplayerEdit/src/ui/SessionStatusNode.cpp"
 
 CMakeFiles/MultiplayerEdit.dir/src/ui/SessionStatusNode.cpp.i: cmake_force
@@ -247,7 +264,7 @@ CMakeFiles/MultiplayerEdit.dir/geode-main/entry.cpp.obj: /home/d050/Coding/Me\ C
 CMakeFiles/MultiplayerEdit.dir/geode-main/entry.cpp.obj: CMakeFiles/MultiplayerEdit.dir/cmake_pch.hxx
 CMakeFiles/MultiplayerEdit.dir/geode-main/entry.cpp.obj: CMakeFiles/MultiplayerEdit.dir/cmake_pch.hxx.pch
 CMakeFiles/MultiplayerEdit.dir/geode-main/entry.cpp.obj: CMakeFiles/MultiplayerEdit.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_11) "Building CXX object CMakeFiles/MultiplayerEdit.dir/geode-main/entry.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_12) "Building CXX object CMakeFiles/MultiplayerEdit.dir/geode-main/entry.cpp.obj"
 	/usr/bin/clang++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -Xclang -include-pch -Xclang "/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/CMakeFiles/MultiplayerEdit.dir/cmake_pch.hxx.pch" -Xclang -include -Xclang "/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/CMakeFiles/MultiplayerEdit.dir/cmake_pch.hxx" -MD -MT CMakeFiles/MultiplayerEdit.dir/geode-main/entry.cpp.obj -MF CMakeFiles/MultiplayerEdit.dir/geode-main/entry.cpp.obj.d -o CMakeFiles/MultiplayerEdit.dir/geode-main/entry.cpp.obj -c "/home/d050/Coding/Me Coding/MultiplayerEdit/geode-main/entry.cpp"
 
 CMakeFiles/MultiplayerEdit.dir/geode-main/entry.cpp.i: cmake_force
@@ -266,6 +283,7 @@ MultiplayerEdit_OBJECTS = \
 "CMakeFiles/MultiplayerEdit.dir/src/RemoteActionHandler.cpp.obj" \
 "CMakeFiles/MultiplayerEdit.dir/src/SessionManager.cpp.obj" \
 "CMakeFiles/MultiplayerEdit.dir/src/main.cpp.obj" \
+"CMakeFiles/MultiplayerEdit.dir/src/ui/CursorNode.cpp.obj" \
 "CMakeFiles/MultiplayerEdit.dir/src/ui/MultiplayerPopup.cpp.obj" \
 "CMakeFiles/MultiplayerEdit.dir/src/ui/PlayerListNode.cpp.obj" \
 "CMakeFiles/MultiplayerEdit.dir/src/ui/SessionStatusNode.cpp.obj" \
@@ -274,36 +292,37 @@ MultiplayerEdit_OBJECTS = \
 # External object files for target MultiplayerEdit
 MultiplayerEdit_EXTERNAL_OBJECTS =
 
-xXoanon.multiplayer-edit.dll: CMakeFiles/MultiplayerEdit.dir/cmake_pch.hxx.pch
-xXoanon.multiplayer-edit.dll: CMakeFiles/MultiplayerEdit.dir/src/ActionSerializer.cpp.obj
-xXoanon.multiplayer-edit.dll: CMakeFiles/MultiplayerEdit.dir/src/EditorHooks.cpp.obj
-xXoanon.multiplayer-edit.dll: CMakeFiles/MultiplayerEdit.dir/src/NetworkManager.cpp.obj
-xXoanon.multiplayer-edit.dll: CMakeFiles/MultiplayerEdit.dir/src/RemoteActionHandler.cpp.obj
-xXoanon.multiplayer-edit.dll: CMakeFiles/MultiplayerEdit.dir/src/SessionManager.cpp.obj
-xXoanon.multiplayer-edit.dll: CMakeFiles/MultiplayerEdit.dir/src/main.cpp.obj
-xXoanon.multiplayer-edit.dll: CMakeFiles/MultiplayerEdit.dir/src/ui/MultiplayerPopup.cpp.obj
-xXoanon.multiplayer-edit.dll: CMakeFiles/MultiplayerEdit.dir/src/ui/PlayerListNode.cpp.obj
-xXoanon.multiplayer-edit.dll: CMakeFiles/MultiplayerEdit.dir/src/ui/SessionStatusNode.cpp.obj
-xXoanon.multiplayer-edit.dll: CMakeFiles/MultiplayerEdit.dir/geode-main/entry.cpp.obj
-xXoanon.multiplayer-edit.dll: CMakeFiles/MultiplayerEdit.dir/build.make
-xXoanon.multiplayer-edit.dll: _deps/ixwebsocket-build/ixwebsocket.lib
-xXoanon.multiplayer-edit.dll: /home/d050/Coding/Me\ Coding/MultiplayerEdit/geode-main/loader/include/link/win64/libcocos2d.lib
-xXoanon.multiplayer-edit.dll: /home/d050/Coding/Me\ Coding/MultiplayerEdit/geode-main/loader/include/link/win64/libExtensions.lib
-xXoanon.multiplayer-edit.dll: /home/d050/Coding/Me\ Coding/MultiplayerEdit/geode-main/loader/include/link/win64/glew32.lib
-xXoanon.multiplayer-edit.dll: /home/d050/Coding/Me\ Coding/MultiplayerEdit/geode-main/loader/include/link/win64/fmod.lib
-xXoanon.multiplayer-edit.dll: bindings/GeodeBindings.lib
-xXoanon.multiplayer-edit.dll: _deps/arc-build/arc.lib
-xXoanon.multiplayer-edit.dll: _deps/asp2-build/asp.lib
-xXoanon.multiplayer-edit.dll: _deps/fmt-build/fmt.lib
-xXoanon.multiplayer-edit.dll: /home/d050/Coding/Me\ Coding/MultiplayerEdit/geode-main/bin/5.7.1/Geode.lib
-xXoanon.multiplayer-edit.dll: CMakeFiles/MultiplayerEdit.dir/linkLibs.rsp
-xXoanon.multiplayer-edit.dll: CMakeFiles/MultiplayerEdit.dir/objects1.rsp
-xXoanon.multiplayer-edit.dll: CMakeFiles/MultiplayerEdit.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir="/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_12) "Linking CXX shared library xXoanon.multiplayer-edit.dll"
+d050.multiplayeredit.dll: CMakeFiles/MultiplayerEdit.dir/cmake_pch.hxx.pch
+d050.multiplayeredit.dll: CMakeFiles/MultiplayerEdit.dir/src/ActionSerializer.cpp.obj
+d050.multiplayeredit.dll: CMakeFiles/MultiplayerEdit.dir/src/EditorHooks.cpp.obj
+d050.multiplayeredit.dll: CMakeFiles/MultiplayerEdit.dir/src/NetworkManager.cpp.obj
+d050.multiplayeredit.dll: CMakeFiles/MultiplayerEdit.dir/src/RemoteActionHandler.cpp.obj
+d050.multiplayeredit.dll: CMakeFiles/MultiplayerEdit.dir/src/SessionManager.cpp.obj
+d050.multiplayeredit.dll: CMakeFiles/MultiplayerEdit.dir/src/main.cpp.obj
+d050.multiplayeredit.dll: CMakeFiles/MultiplayerEdit.dir/src/ui/CursorNode.cpp.obj
+d050.multiplayeredit.dll: CMakeFiles/MultiplayerEdit.dir/src/ui/MultiplayerPopup.cpp.obj
+d050.multiplayeredit.dll: CMakeFiles/MultiplayerEdit.dir/src/ui/PlayerListNode.cpp.obj
+d050.multiplayeredit.dll: CMakeFiles/MultiplayerEdit.dir/src/ui/SessionStatusNode.cpp.obj
+d050.multiplayeredit.dll: CMakeFiles/MultiplayerEdit.dir/geode-main/entry.cpp.obj
+d050.multiplayeredit.dll: CMakeFiles/MultiplayerEdit.dir/build.make
+d050.multiplayeredit.dll: _deps/ixwebsocket-build/ixwebsocket.lib
+d050.multiplayeredit.dll: /home/d050/Coding/Me\ Coding/MultiplayerEdit/geode-main/loader/include/link/win64/libcocos2d.lib
+d050.multiplayeredit.dll: /home/d050/Coding/Me\ Coding/MultiplayerEdit/geode-main/loader/include/link/win64/libExtensions.lib
+d050.multiplayeredit.dll: /home/d050/Coding/Me\ Coding/MultiplayerEdit/geode-main/loader/include/link/win64/glew32.lib
+d050.multiplayeredit.dll: /home/d050/Coding/Me\ Coding/MultiplayerEdit/geode-main/loader/include/link/win64/fmod.lib
+d050.multiplayeredit.dll: bindings/GeodeBindings.lib
+d050.multiplayeredit.dll: _deps/arc-build/arc.lib
+d050.multiplayeredit.dll: _deps/asp2-build/asp.lib
+d050.multiplayeredit.dll: _deps/fmt-build/fmt.lib
+d050.multiplayeredit.dll: /home/d050/Coding/Me\ Coding/MultiplayerEdit/geode-main/bin/5.7.1/Geode.lib
+d050.multiplayeredit.dll: CMakeFiles/MultiplayerEdit.dir/linkLibs.rsp
+d050.multiplayeredit.dll: CMakeFiles/MultiplayerEdit.dir/objects1.rsp
+d050.multiplayeredit.dll: CMakeFiles/MultiplayerEdit.dir/link.txt
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir="/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_13) "Linking CXX shared library d050.multiplayeredit.dll"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/MultiplayerEdit.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.
-CMakeFiles/MultiplayerEdit.dir/build: xXoanon.multiplayer-edit.dll
+CMakeFiles/MultiplayerEdit.dir/build: d050.multiplayeredit.dll
 .PHONY : CMakeFiles/MultiplayerEdit.dir/build
 
 CMakeFiles/MultiplayerEdit.dir/clean:

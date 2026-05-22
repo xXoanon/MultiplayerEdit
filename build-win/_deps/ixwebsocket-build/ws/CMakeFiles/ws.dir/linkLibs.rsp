@@ -1,1 +1,0 @@
- -luser32.lib -lkernel32.lib -lshell32.lib -lole32.lib -lcrypt32.lib -ladvapi32.lib -ldelayimp.lib -lgdi32.lib ../ixwebsocket.lib "../../spdlog-build/spdlog.lib" -lwsock32.lib -lws2_32.lib -lshlwapi.lib -luser32.lib -lkernel32.lib -lshell32.lib -lole32.lib -lcrypt32.lib -ladvapi32.lib -ldelayimp.lib -lgdi32.lib 

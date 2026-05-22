@@ -12,6 +12,7 @@ namespace mpedit::ActionSerializer {
     matjson::Value objectDataToJson(ObjectData const& data) {
         matjson::Value obj;
         obj["uuid"] = data.uuid;
+        obj["saveString"] = data.saveString;
         obj["objectID"] = data.objectID;
         obj["x"] = data.x;
         obj["y"] = data.y;
@@ -39,6 +40,7 @@ namespace mpedit::ActionSerializer {
         ObjectData data;
 
         if (auto v = json.get<std::string>("uuid")) data.uuid = *v;
+        if (auto v = json.get<std::string>("saveString")) data.saveString = *v;
         if (auto v = json.get<int>("objectID")) data.objectID = *v;
         if (auto v = json.get<double>("x")) data.x = static_cast<float>(*v);
         if (auto v = json.get<double>("y")) data.y = static_cast<float>(*v);
@@ -74,6 +76,41 @@ namespace mpedit::ActionSerializer {
             arr.push(objectDataToJson(obj));
         }
         msg["objects"] = arr;
+        
+        return msg;
+    }
+
+    matjson::Value serializeSyncLevel(int targetPlayerId, std::vector<ObjectData> const& objects, LevelSettingsData const& settings) {
+        matjson::Value msg;
+        msg["action"] = "sync_level";
+        msg["targetPlayerId"] = targetPlayerId;
+        
+        auto arr = matjson::Value::array();
+        for (auto& obj : objects) {
+            arr.push(objectDataToJson(obj));
+        }
+        msg["objects"] = arr;
+        
+        auto settingsObj = matjson::Value::object();
+        settingsObj["saveString"] = settings.saveString;
+        settingsObj["audioTrack"] = settings.audioTrack;
+        settingsObj["songID"] = settings.songID;
+        settingsObj["levelLength"] = settings.levelLength;
+        msg["settings"] = settingsObj;
+        
+        return msg;
+    }
+
+    matjson::Value serializeUpdateSettings(LevelSettingsData const& settings) {
+        matjson::Value msg;
+        msg["action"] = "update_settings";
+        
+        auto settingsObj = matjson::Value::object();
+        settingsObj["saveString"] = settings.saveString;
+        settingsObj["audioTrack"] = settings.audioTrack;
+        settingsObj["songID"] = settings.songID;
+        settingsObj["levelLength"] = settings.levelLength;
+        msg["settings"] = settingsObj;
         
         return msg;
     }
@@ -128,11 +165,39 @@ namespace mpedit::ActionSerializer {
         return msg;
     }
 
-    matjson::Value serializeCursorUpdate(float x, float y) {
+    matjson::Value serializeUpdateObjects(std::vector<ObjectData> const& objects) {
+        matjson::Value msg;
+        msg["action"] = "update_objects";
+        
+        auto arr = matjson::Value::array();
+        for (auto& obj : objects) {
+            arr.push(objectDataToJson(obj));
+        }
+        msg["objects"] = arr;
+        
+        return msg;
+    }
+
+    matjson::Value serializeCursorUpdate(float x, float y, std::string const& status) {
         matjson::Value msg;
         msg["action"] = "cursor_update";
         msg["x"] = x;
         msg["y"] = y;
+        msg["status"] = status;
+        return msg;
+    }
+
+    matjson::Value serializeLockObjects(std::vector<std::string> const& uuids, bool locked) {
+        matjson::Value msg;
+        msg["action"] = "lock_objects";
+        msg["locked"] = locked;
+        
+        auto arr = matjson::Value::array();
+        for (auto& uuid : uuids) {
+            arr.push(uuid);
+        }
+        msg["objectKeys"] = arr;
+        
         return msg;
     }
 
@@ -205,6 +270,31 @@ namespace mpedit::ActionSerializer {
         return result;
     }
 
+    std::vector<ObjectData> deserializeUpdatedObjects(matjson::Value const& data) {
+        std::vector<ObjectData> result;
+        
+        auto arrRes = data.get("objects");
+        if (arrRes.isOk()) {
+            for (auto& item : arrRes.unwrap()) {
+                result.push_back(jsonToObjectData(item));
+            }
+        }
+        
+        return result;
+    }
+
+    LevelSettingsData deserializeLevelSettings(matjson::Value const& data) {
+        LevelSettingsData settings;
+        if (auto settingsRes = data.get("settings"); settingsRes.isOk()) {
+            auto& s = settingsRes.unwrap();
+            if (auto str = s.get<std::string>("saveString")) settings.saveString = *str;
+            if (auto t = s.get<int>("audioTrack")) settings.audioTrack = *t;
+            if (auto sID = s.get<int>("songID")) settings.songID = *sID;
+            if (auto l = s.get<double>("levelLength")) settings.levelLength = static_cast<float>(*l);
+        }
+        return settings;
+    }
+
     // ============================================================
     // GameObject Helpers
     // ============================================================
@@ -226,6 +316,7 @@ namespace mpedit::ActionSerializer {
         data.zOrder = obj->getZOrder();
         data.editorLayer = obj->m_editorLayer;
         data.editorLayer2 = obj->m_editorLayer2;
+        data.saveString = obj->getSaveString(nullptr);
 
         // Extract groups
         if (obj->m_groups && obj->m_groupCount > 0) {

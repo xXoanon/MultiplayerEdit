@@ -62,6 +62,7 @@ namespace mpedit {
         void onPlayerJoined(PlayerCallback cb);
         void onPlayerLeft(PlayerCallback cb);
         void onError(ErrorCallback cb);
+        void clearCallbacks();
 
     private:
         SessionManager() = default;

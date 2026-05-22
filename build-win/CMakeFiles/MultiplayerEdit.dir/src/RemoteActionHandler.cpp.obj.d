@@ -1451,4 +1451,5 @@ CMakeFiles/MultiplayerEdit.dir/src/RemoteActionHandler.cpp.obj: \
   /home/d050/Coding/Me\ Coding/MultiplayerEdit/build-win/_deps/ixwebsocket-src/ixwebsocket/IXWebSocketPerMessageDeflate.h \
   /home/d050/.local/share/Geode/cross-tools/splat/crt/include/queue \
   /home/d050/.local/share/Geode/cross-tools/splat/crt/include/__msvc_ranges_to.hpp \
-  /home/d050/Coding/Me\ Coding/MultiplayerEdit/src/SessionManager.hpp
+  /home/d050/Coding/Me\ Coding/MultiplayerEdit/src/SessionManager.hpp \
+  /home/d050/Coding/Me\ Coding/MultiplayerEdit/src/ui/MultiplayerPopup.hpp

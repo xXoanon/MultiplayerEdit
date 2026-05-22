@@ -21,6 +21,7 @@ namespace mpedit {
          */
         struct ObjectData {
             std::string uuid;       // Mod-assigned unique identifier
+            std::string saveString; // GD native save string (full object state)
             int objectID = 0;       // GD object type ID
             float x = 0.f;
             float y = 0.f;
@@ -37,6 +38,13 @@ namespace mpedit {
             // Color channels
             int mainColorChannel = -1;
             int secondColorChannel = -1;
+        };
+
+        struct LevelSettingsData {
+            std::string saveString;
+            int audioTrack = 0;
+            int songID = 0;
+            float levelLength = 0;
         };
 
         struct MoveData {
@@ -57,10 +65,14 @@ namespace mpedit {
         // === Serialization (local action → JSON) ===
 
         matjson::Value serializePlaceObjects(std::vector<ObjectData> const& objects);
+        matjson::Value serializeSyncLevel(int targetPlayerId, std::vector<ObjectData> const& objects, LevelSettingsData const& settings);
         matjson::Value serializeDeleteObjects(std::vector<std::string> const& uuids);
         matjson::Value serializeMoveObjects(std::vector<MoveData> const& moves);
         matjson::Value serializeTransformObjects(std::vector<TransformData> const& transforms);
-        matjson::Value serializeCursorUpdate(float x, float y);
+        matjson::Value serializeUpdateObjects(std::vector<ObjectData> const& objects);
+        matjson::Value serializeCursorUpdate(float x, float y, std::string const& status);
+        matjson::Value serializeLockObjects(std::vector<std::string> const& uuids, bool locked);
+        matjson::Value serializeUpdateSettings(LevelSettingsData const& settings);
 
         // === Deserialization (JSON → action data) ===
 
@@ -68,6 +80,8 @@ namespace mpedit {
         std::vector<std::string> deserializeDeletedObjects(matjson::Value const& data);
         std::vector<MoveData> deserializeMovedObjects(matjson::Value const& data);
         std::vector<TransformData> deserializeTransformedObjects(matjson::Value const& data);
+        std::vector<ObjectData> deserializeUpdatedObjects(matjson::Value const& data);
+        LevelSettingsData deserializeLevelSettings(matjson::Value const& data);
 
         // === GameObject helpers ===
 

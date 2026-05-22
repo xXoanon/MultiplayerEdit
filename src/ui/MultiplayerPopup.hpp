@@ -12,11 +12,13 @@ namespace mpedit {
     class MultiplayerPopup : public geode::Popup {
     protected:
         geode::TextInput* m_roomCodeInput = nullptr;
-        geode::TextInput* m_playerNameInput = nullptr;
         cocos2d::CCLabelBMFont* m_statusLabel = nullptr;
         cocos2d::CCLabelBMFont* m_roomCodeLabel = nullptr;
         cocos2d::CCMenu* m_connectMenu = nullptr;
         cocos2d::CCMenu* m_sessionMenu = nullptr;
+        cocos2d::CCNode* m_contentNode = nullptr;
+
+        ~MultiplayerPopup();
 
         bool setup();
 
@@ -29,9 +31,14 @@ namespace mpedit {
         void onJoin(cocos2d::CCObject*);
         void onLeave(cocos2d::CCObject*);
         void onCopyCode(cocos2d::CCObject*);
+        void pollNetwork(float dt);
 
     public:
+        static inline MultiplayerPopup* s_instance = nullptr;
         static MultiplayerPopup* create();
+        void forceClose() {
+            this->onClose(nullptr);
+        }
     };
 
 } // namespace mpedit

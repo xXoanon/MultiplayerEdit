@@ -170,6 +170,7 @@ set(OLD_GLOB
   "/home/d050/Coding/Me Coding/MultiplayerEdit/src/RemoteActionHandler.cpp"
   "/home/d050/Coding/Me Coding/MultiplayerEdit/src/SessionManager.cpp"
   "/home/d050/Coding/Me Coding/MultiplayerEdit/src/main.cpp"
+  "/home/d050/Coding/Me Coding/MultiplayerEdit/src/ui/CursorNode.cpp"
   "/home/d050/Coding/Me Coding/MultiplayerEdit/src/ui/MultiplayerPopup.cpp"
   "/home/d050/Coding/Me Coding/MultiplayerEdit/src/ui/PlayerListNode.cpp"
   "/home/d050/Coding/Me Coding/MultiplayerEdit/src/ui/SessionStatusNode.cpp"

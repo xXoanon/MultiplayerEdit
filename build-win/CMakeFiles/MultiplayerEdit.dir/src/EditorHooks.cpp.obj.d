@@ -1427,6 +1427,7 @@ CMakeFiles/MultiplayerEdit.dir/src/EditorHooks.cpp.obj: \
   /home/d050/Coding/Me\ Coding/MultiplayerEdit/build-win/bindings/bindings/Geode/modify/EditorPauseLayer.hpp \
   /home/d050/Coding/Me\ Coding/MultiplayerEdit/build-win/bindings/bindings/Geode/modify/LevelEditorLayer.hpp \
   /home/d050/Coding/Me\ Coding/MultiplayerEdit/build-win/bindings/bindings/Geode/modify/EditorUI.hpp \
+  /home/d050/Coding/Me\ Coding/MultiplayerEdit/build-win/bindings/bindings/Geode/modify/LevelBrowserLayer.hpp \
   /home/d050/Coding/Me\ Coding/MultiplayerEdit/src/SessionManager.hpp \
   /home/d050/Coding/Me\ Coding/MultiplayerEdit/src/NetworkManager.hpp \
   /home/d050/Coding/Me\ Coding/MultiplayerEdit/build-win/_deps/ixwebsocket-src/ixwebsocket/IXWebSocket.h \
@@ -1457,4 +1458,6 @@ CMakeFiles/MultiplayerEdit.dir/src/EditorHooks.cpp.obj: \
   /home/d050/Coding/Me\ Coding/MultiplayerEdit/src/RemoteActionHandler.hpp \
   /home/d050/Coding/Me\ Coding/MultiplayerEdit/src/ui/MultiplayerPopup.hpp \
   /home/d050/Coding/Me\ Coding/MultiplayerEdit/src/ui/SessionStatusNode.hpp \
-  /home/d050/Coding/Me\ Coding/MultiplayerEdit/geode-main/loader/include/Geode/cocos/include/cocos2d.h
+  /home/d050/Coding/Me\ Coding/MultiplayerEdit/geode-main/loader/include/Geode/cocos/include/cocos2d.h \
+  /home/d050/Coding/Me\ Coding/MultiplayerEdit/src/ui/CursorNode.hpp \
+  /home/d050/Coding/Me\ Coding/MultiplayerEdit/src/ui/../SessionManager.hpp

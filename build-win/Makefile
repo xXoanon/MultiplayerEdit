@@ -800,6 +800,30 @@ src/main.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/MultiplayerEdit.dir/build.make CMakeFiles/MultiplayerEdit.dir/src/main.cpp.s
 .PHONY : src/main.cpp.s
 
+src/ui/CursorNode.obj: src/ui/CursorNode.cpp.obj
+.PHONY : src/ui/CursorNode.obj
+
+# target to build an object file
+src/ui/CursorNode.cpp.obj:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/MultiplayerEdit.dir/build.make CMakeFiles/MultiplayerEdit.dir/src/ui/CursorNode.cpp.obj
+.PHONY : src/ui/CursorNode.cpp.obj
+
+src/ui/CursorNode.i: src/ui/CursorNode.cpp.i
+.PHONY : src/ui/CursorNode.i
+
+# target to preprocess a source file
+src/ui/CursorNode.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/MultiplayerEdit.dir/build.make CMakeFiles/MultiplayerEdit.dir/src/ui/CursorNode.cpp.i
+.PHONY : src/ui/CursorNode.cpp.i
+
+src/ui/CursorNode.s: src/ui/CursorNode.cpp.s
+.PHONY : src/ui/CursorNode.s
+
+# target to generate assembly for a file
+src/ui/CursorNode.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/MultiplayerEdit.dir/build.make CMakeFiles/MultiplayerEdit.dir/src/ui/CursorNode.cpp.s
+.PHONY : src/ui/CursorNode.cpp.s
+
 src/ui/MultiplayerPopup.obj: src/ui/MultiplayerPopup.cpp.obj
 .PHONY : src/ui/MultiplayerPopup.obj
 
@@ -943,6 +967,9 @@ help:
 	@echo "... src/main.obj"
 	@echo "... src/main.i"
 	@echo "... src/main.s"
+	@echo "... src/ui/CursorNode.obj"
+	@echo "... src/ui/CursorNode.i"
+	@echo "... src/ui/CursorNode.s"
 	@echo "... src/ui/MultiplayerPopup.obj"
 	@echo "... src/ui/MultiplayerPopup.i"
 	@echo "... src/ui/MultiplayerPopup.s"

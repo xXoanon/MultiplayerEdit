@@ -437,10 +437,6 @@ FETCHCONTENT_SOURCE_DIR_NONTYPE_FUNCTIONAL:PATH=
 FETCHCONTENT_SOURCE_DIR_RESULT:PATH=
 
 //When not empty, overrides where to find pre-populated content
-// for spdlog
-FETCHCONTENT_SOURCE_DIR_SPDLOG:PATH=
-
-//When not empty, overrides where to find pre-populated content
 // for TulipHook
 FETCHCONTENT_SOURCE_DIR_TULIPHOOK:PATH=
 
@@ -467,9 +463,6 @@ FETCHCONTENT_UPDATES_DISCONNECTED_NONTYPE_FUNCTIONAL:BOOL=OFF
 
 //Enables UPDATE_DISCONNECTED behavior just for population of result
 FETCHCONTENT_UPDATES_DISCONNECTED_RESULT:BOOL=OFF
-
-//Enables UPDATE_DISCONNECTED behavior just for population of spdlog
-FETCHCONTENT_UPDATES_DISCONNECTED_SPDLOG:BOOL=OFF
 
 //Enables UPDATE_DISCONNECTED behavior just for population of TulipHook
 FETCHCONTENT_UPDATES_DISCONNECTED_TULIPHOOK:BOOL=OFF
@@ -615,73 +608,6 @@ MultiplayerEdit_SOURCE_DIR:STATIC=/home/d050/Coding/Me Coding/MultiplayerEdit
 //Name of the computer/site where compile is being run
 SITE:STRING=d050-CachyOS
 
-//Build all artifacts
-SPDLOG_BUILD_ALL:BOOL=OFF
-
-//Build benchmarks (Requires https://github.com/google/benchmark.git
-// to be installed)
-SPDLOG_BUILD_BENCH:BOOL=OFF
-
-//Build example
-SPDLOG_BUILD_EXAMPLE:BOOL=OFF
-
-//Build header only example
-SPDLOG_BUILD_EXAMPLE_HO:BOOL=OFF
-
-//Build shared library
-SPDLOG_BUILD_SHARED:BOOL=OFF
-
-//Build tests
-SPDLOG_BUILD_TESTS:BOOL=OFF
-
-//Build tests using the header only version
-SPDLOG_BUILD_TESTS_HO:BOOL=OFF
-
-//Enable compiler warnings
-SPDLOG_BUILD_WARNINGS:BOOL=OFF
-
-//Build static or shared library using precompiled header to speed
-// up compilation time
-SPDLOG_ENABLE_PCH:BOOL=OFF
-
-//Use external fmt library instead of bundled
-SPDLOG_FMT_EXTERNAL:BOOL=OFF
-
-//Use external fmt header-only library instead of bundled
-SPDLOG_FMT_EXTERNAL_HO:BOOL=OFF
-
-//Generate the install target
-SPDLOG_INSTALL:BOOL=OFF
-
-//prevent spdlog from using of std::atomic log levels (use only
-// if your code never modifies log levels concurrently
-SPDLOG_NO_ATOMIC_LEVELS:BOOL=OFF
-
-//Compile with -fno-exceptions. Call abort() on any spdlog exceptions
-SPDLOG_NO_EXCEPTIONS:BOOL=OFF
-
-//prevent spdlog from querying the thread id on each log call if
-// thread id is not needed
-SPDLOG_NO_THREAD_ID:BOOL=OFF
-
-//prevent spdlog from using thread local storage
-SPDLOG_NO_TLS:BOOL=OFF
-
-//Prevent from child processes to inherit log file descriptors
-SPDLOG_PREVENT_CHILD_FD:BOOL=OFF
-
-//Enable address sanitizer in tests
-SPDLOG_SANITIZE_ADDRESS:BOOL=OFF
-
-//run clang-tidy
-SPDLOG_TIDY:BOOL=OFF
-
-//Support wchar filenames
-SPDLOG_WCHAR_FILENAMES:BOOL=OFF
-
-//Support wchar api
-SPDLOG_WCHAR_SUPPORT:BOOL=OFF
-
 //No help, variable specified on the command line.
 SPLAT_DIR:UNINITIALIZED=/home/d050/.local/share/Geode/cross-tools/splat
 
@@ -771,27 +697,6 @@ nontype_functional_IS_TOP_LEVEL:STATIC=OFF
 
 //Value Computed by CMake
 nontype_functional_SOURCE_DIR:STATIC=/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/_deps/nontype_functional-src
-
-//Value Computed by CMake
-spdlog_BINARY_DIR:STATIC=/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/_deps/spdlog-build
-
-//Value Computed by CMake
-spdlog_IS_TOP_LEVEL:STATIC=OFF
-
-//Dependencies for the target
-spdlog_LIB_DEPENDS:STATIC=general;user32;general;kernel32;general;shell32;general;ole32;general;crypt32;general;advapi32;general;delayimp;general;gdi32;
-
-//Value Computed by CMake
-spdlog_SOURCE_DIR:STATIC=/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/_deps/spdlog-src
-
-//Value Computed by CMake
-ws_BINARY_DIR:STATIC=/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/_deps/ixwebsocket-build/ws
-
-//Value Computed by CMake
-ws_IS_TOP_LEVEL:STATIC=OFF
-
-//Value Computed by CMake
-ws_SOURCE_DIR:STATIC=/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/_deps/ixwebsocket-src/ws
 
 
 ########################
@@ -888,12 +793,6 @@ CMAKE_GENERATOR_INSTANCE:INTERNAL=
 CMAKE_GENERATOR_PLATFORM:INTERNAL=
 //Name of generator toolset.
 CMAKE_GENERATOR_TOOLSET:INTERNAL=
-//Test CMAKE_HAVE_LIBC_PTHREAD
-CMAKE_HAVE_LIBC_PTHREAD:INTERNAL=
-//Have library pthreads
-CMAKE_HAVE_PTHREADS_CREATE:INTERNAL=
-//Have library pthread
-CMAKE_HAVE_PTHREAD_CREATE:INTERNAL=
 //Source directory with the top level CMakeLists.txt file for this
 // project
 CMAKE_HOME_DIRECTORY:INTERNAL=/home/d050/Coding/Me Coding/MultiplayerEdit
@@ -1048,8 +947,6 @@ CTEST_SUBMIT_RETRY_COUNT-ADVANCED:INTERNAL=1
 CTEST_SUBMIT_RETRY_DELAY-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: DART_TESTING_TIMEOUT
 DART_TESTING_TIMEOUT-ADVANCED:INTERNAL=1
-//Details about finding Threads
-FIND_PACKAGE_MESSAGE_DETAILS_Threads:INTERNAL=[TRUE][v()]
 //GEODE_CLI_VERSION
 GEODE_CLI_VERSION:INTERNAL=3.7.3
 //Geode Comparable GD Version
@@ -1057,7 +954,7 @@ GEODE_COMP_GD_VERSION:INTERNAL=22081
 //Geode GD Version
 GEODE_GD_VERSION:INTERNAL=2.2081
 //GEODE_MODS_BEING_BUILT
-GEODE_MODS_BEING_BUILT:INTERNAL=xXoanon.multiplayer-edit:v0.1.0
+GEODE_MODS_BEING_BUILT:INTERNAL=d050.multiplayeredit:v0.1.0
 //Geode version
 GEODE_VERSION:INTERNAL=5.7.1
 //Geode version full
@@ -1078,8 +975,6 @@ MEMORYCHECK_SUPPRESSIONS_FILE-ADVANCED:INTERNAL=1
 SITE-ADVANCED:INTERNAL=1
 //Test SUPPORTS_W_NO_EVERYTHING
 SUPPORTS_W_NO_EVERYTHING:INTERNAL=1
-//Result of TRY_COMPILE
-THREADS_HAVE_PTHREAD_ARG:INTERNAL=FALSE
 //CMAKE_INSTALL_PREFIX during last run
 _GNUInstallDirs_LAST_CMAKE_INSTALL_PREFIX:INTERNAL=/usr/local
 

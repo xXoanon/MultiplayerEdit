@@ -180,6 +180,10 @@ function handleMessage(ws, message, httpClientId = null) {
         case 'delete_objects':
         case 'move_objects':
         case 'transform_objects':
+        case 'update_objects':
+        case 'lock_objects':
+        case 'sync_level':
+        case 'update_settings':
             handleEditorAction(ws, message);
             break;
 
@@ -266,6 +270,17 @@ function handleLeave(ws) {
     if (!room) return;
 
     const playerId = ws._playerId;
+
+    if (playerId === room.hostId) {
+        room.broadcast({
+            event: 'error',
+            message: 'The host has left the session.'
+        }, playerId);
+        rooms.delete(ws._roomCode);
+        console.log(`[Room] Host left, room ${ws._roomCode} deleted`);
+        return;
+    }
+
     room.removePlayer(playerId);
 
     // Notify remaining players
@@ -294,7 +309,11 @@ function handleEditorAction(ws, message) {
         'place_objects': 'objects_placed',
         'delete_objects': 'objects_deleted',
         'move_objects': 'objects_moved',
-        'transform_objects': 'objects_transformed'
+        'transform_objects': 'objects_transformed',
+        'update_objects': 'update_objects',
+        'lock_objects': 'lock_objects',
+        'sync_level': 'sync_level',
+        'update_settings': 'update_settings'
     };
 
     const eventType = actionToEvent[message.action];
@@ -308,7 +327,14 @@ function handleEditorAction(ws, message) {
     };
     delete broadcastMsg.action;
 
-    room.broadcast(broadcastMsg, ws._playerId);
+    if (eventType === 'sync_level' && message.targetPlayerId !== undefined) {
+        const targetPlayer = room.players.get(message.targetPlayerId);
+        if (targetPlayer && targetPlayer.ws) {
+            targetPlayer.ws.send(JSON.stringify(broadcastMsg));
+        }
+    } else {
+        room.broadcast(broadcastMsg, ws._playerId);
+    }
 }
 
 function handleCursorUpdate(ws, message) {

@@ -1,6 +1,7 @@
 #include "RemoteActionHandler.hpp"
 #include "NetworkManager.hpp"
 #include "SessionManager.hpp"
+#include "ui/MultiplayerPopup.hpp"
 #include <Geode/Geode.hpp>
 #include <random>
 #include <sstream>
@@ -16,6 +17,8 @@ namespace mpedit {
     }
 
     void RemoteActionHandler::setupHandlers() {
+        MusicDownloadManager::sharedState()->addMusicDownloadDelegate(this);
+
         auto& net = NetworkManager::get();
 
         net.on("objects_placed", [this](matjson::Value const& data) {
@@ -57,16 +60,99 @@ namespace mpedit {
             auto transforms = ActionSerializer::deserializeTransformedObjects(data);
             handleRemoteTransformObjects(playerId, transforms);
         });
+
+        net.on("update_objects", [this](matjson::Value const& data) {
+            auto idRes = data.get<int>("playerId");
+            if (!idRes) return;
+            int playerId = *idRes;
+            if (playerId == SessionManager::get().getLocalPlayerId()) return;
+
+            auto updates = ActionSerializer::deserializeUpdatedObjects(data);
+            handleRemoteUpdateObjects(playerId, updates);
+        });
+
+        net.on("lock_objects", [this](matjson::Value const& data) {
+            auto idRes = data.get<int>("playerId");
+            if (!idRes) return;
+            int playerId = *idRes;
+            if (playerId == SessionManager::get().getLocalPlayerId()) return;
+
+            bool locked = data.get<bool>("locked").unwrapOr(false);
+            auto uuids = ActionSerializer::deserializeDeletedObjects(data); // uses objectKeys array
+            handleRemoteLockObjects(playerId, uuids, locked);
+        });
+
+        net.on("sync_level", [this](matjson::Value const& data) {
+            auto idRes = data.get<int>("playerId");
+            auto targetIdRes = data.get<int>("targetPlayerId");
+            if (!idRes || !targetIdRes) return;
+            
+            int targetId = *targetIdRes;
+            if (targetId != SessionManager::get().getLocalPlayerId()) return; // Not for us
+
+            auto objects = ActionSerializer::deserializePlacedObjects(data); // uses objects array
+            auto settings = ActionSerializer::deserializeLevelSettings(data);
+            handleRemoteSyncLevel(*idRes, objects, settings);
+        });
+
+        net.on("update_settings", [this](matjson::Value const& data) {
+            auto idRes = data.get<int>("playerId");
+            if (!idRes) return;
+            int playerId = *idRes;
+            if (playerId == SessionManager::get().getLocalPlayerId()) return;
+
+            auto settings = ActionSerializer::deserializeLevelSettings(data);
+            handleRemoteUpdateSettings(playerId, settings);
+        });
     }
 
     void RemoteActionHandler::clearHandlers() {
+        MusicDownloadManager::sharedState()->removeMusicDownloadDelegate(this);
+        clearMappings();
+        m_objectLocks.clear();
+        m_pendingSync.reset();
+        m_initialSyncCompleted = false;
         // Handlers are cleared via NetworkManager::clearHandlers()
     }
 
+    static LevelEditorLayer* findEditorLayer(CCNode* parent) {
+        if (!parent) return nullptr;
+        if (auto* editor = typeinfo_cast<LevelEditorLayer*>(parent)) {
+            return editor;
+        }
+        if (parent->getChildren()) {
+            for (auto* child : CCArrayExt<CCNode*>(parent->getChildren())) {
+                if (auto* editor = findEditorLayer(child)) {
+                    return editor;
+                }
+            }
+        }
+        return nullptr;
+    }
+
     LevelEditorLayer* RemoteActionHandler::getEditorLayer() const {
-        auto* scene = CCDirector::sharedDirector()->getRunningScene();
-        if (!scene) return nullptr;
-        return scene->getChildByType<LevelEditorLayer>(0);
+        if (auto* editor = LevelEditorLayer::get()) {
+            return editor;
+        }
+        auto* dir = CCDirector::sharedDirector();
+        if (auto* scene = dir->getRunningScene()) {
+            if (auto* editor = findEditorLayer(scene)) {
+                return editor;
+            }
+        }
+        if (auto* nextScene = dir->getNextScene()) {
+            if (auto* editor = findEditorLayer(nextScene)) {
+                return editor;
+            }
+        }
+        return nullptr;
+    }
+
+    void RemoteActionHandler::applyPendingSync() {
+        if (!m_pendingSync) return;
+        auto sync = m_pendingSync.value();
+        m_pendingSync.reset();
+        handleRemoteSyncLevel(sync.playerId, sync.objects, sync.settings);
     }
 
     void RemoteActionHandler::handleRemotePlaceObjects(
@@ -178,6 +264,202 @@ namespace mpedit {
         m_processingRemote = false;
     }
 
+    void RemoteActionHandler::handleRemoteUpdateObjects(
+        int playerId, 
+        std::vector<ActionSerializer::ObjectData> const& objects
+    ) {
+        auto* editor = getEditorLayer();
+        if (!editor) return;
+
+        m_processingRemote = true;
+
+        for (auto& objData : objects) {
+            auto* oldObj = getObjectByUUID(objData.uuid);
+            if (!oldObj) {
+                log::warn("RemoteActionHandler: Object to update not found (uuid={})", objData.uuid);
+                continue;
+            }
+
+            // Get selection state
+            auto* editorUI = editor->m_editorUI;
+            bool wasSelected = false;
+            if (editorUI->m_selectedObjects && editorUI->m_selectedObjects->containsObject(oldObj)) {
+                wasSelected = true;
+                editorUI->deselectObject(oldObj);
+            }
+
+            // Remove old object
+            editor->removeObject(oldObj, true);
+            unregisterObject(objData.uuid);
+
+            // Recreate object using saveString to ensure ALL properties are loaded
+            // We use createObjectsFromString because it parses the raw GD level string format
+            auto arr = editor->createObjectsFromString(objData.saveString, true, true);
+            if (arr && arr->count() > 0) {
+                auto* newObj = static_cast<GameObject*>(arr->objectAtIndex(0));
+                registerObject(objData.uuid, newObj);
+                log::debug("RemoteActionHandler: Updated object {} via saveString", objData.uuid);
+
+                if (wasSelected) {
+                    editorUI->selectObject(newObj, true);
+                }
+            } else {
+                log::error("RemoteActionHandler: Failed to create updated object from saveString");
+            }
+        }
+
+        m_processingRemote = false;
+    }
+
+    void RemoteActionHandler::handleRemoteLockObjects(
+        int playerId, 
+        std::vector<std::string> const& uuids, 
+        bool locked
+    ) {
+        if (locked) {
+            for (auto& uuid : uuids) {
+                // Set lock timeout to 3 seconds. It will be refreshed by cursor_update or explicitly released
+                m_objectLocks[uuid] = 3.0f; 
+            }
+        } else {
+            for (auto& uuid : uuids) {
+                m_objectLocks.erase(uuid);
+            }
+        }
+    }
+
+    void RemoteActionHandler::handleRemoteSyncLevel(
+        int playerId, 
+        std::vector<ActionSerializer::ObjectData> const& objects, 
+        ActionSerializer::LevelSettingsData const& settings
+    ) {
+        auto* editor = getEditorLayer();
+        if (!editor) {
+            log::info("RemoteActionHandler: Editor not ready yet, loading level string before entering editor");
+            
+            // Build the native level string
+            std::string levelString = settings.saveString;
+            std::vector<std::string> expectedUuids;
+            for (auto const& obj : objects) {
+                if (!obj.saveString.empty()) {
+                    levelString += ";" + obj.saveString;
+                    expectedUuids.push_back(obj.uuid);
+                }
+            }
+            m_expectedUuids = expectedUuids;
+
+            // Create game level
+            auto* level = GJGameLevel::create();
+            level->m_levelName = "Multiplayer Session";
+            level->m_levelType = GJLevelType::Editor;
+            level->m_levelString = levelString;
+            level->m_audioTrack = settings.audioTrack;
+            level->m_songID = settings.songID;
+            level->m_levelLength = settings.levelLength;
+
+            // Open the editor scene
+            auto* scene = LevelEditorLayer::scene(level, false);
+            cocos2d::CCDirector::sharedDirector()->pushScene(scene);
+
+            // Close MultiplayerPopup if open
+            if (MultiplayerPopup::s_instance) {
+                MultiplayerPopup::s_instance->forceClose();
+            }
+            return;
+        }
+
+        m_pendingSync.reset();
+        m_processingRemote = true;
+
+        log::info("RemoteActionHandler: Syncing level state with {} objects from player {}", objects.size(), playerId);
+
+        // Delete all existing objects
+        auto* allObjects = editor->m_objects;
+        if (allObjects) {
+            auto copy = cocos2d::CCArray::create();
+            copy->addObjectsFromArray(allObjects);
+            for (auto* obj : CCArrayExt<GameObject*>(copy)) {
+                editor->removeObject(obj, true);
+            }
+        }
+        clearMappings();
+
+        // Apply level settings
+        if (!settings.saveString.empty() && editor->m_levelSettings) {
+            auto* newSettings = LevelSettingsObject::objectFromString(settings.saveString);
+            if (newSettings) {
+                // Safely swap m_effectManager to sync level colors without crashing
+                if (newSettings->m_effectManager) {
+                    newSettings->m_effectManager->retain();
+                    if (newSettings->m_effectManager->getParent() == newSettings) {
+                        newSettings->m_effectManager->removeFromParent();
+                    }
+                    if (editor->m_levelSettings->m_effectManager) {
+                        editor->m_levelSettings->m_effectManager->release();
+                    }
+                    editor->m_levelSettings->m_effectManager = newSettings->m_effectManager;
+                }
+                
+                editor->m_levelSettings->m_startMode = newSettings->m_startMode;
+                editor->m_levelSettings->m_startSpeed = newSettings->m_startSpeed;
+                editor->m_levelSettings->m_startMini = newSettings->m_startMini;
+                editor->m_levelSettings->m_startDual = newSettings->m_startDual;
+                editor->m_levelSettings->m_twoPlayerMode = newSettings->m_twoPlayerMode;
+                editor->m_levelSettings->m_isFlipped = newSettings->m_isFlipped;
+                editor->m_levelSettings->m_songOffset = newSettings->m_songOffset;
+                
+                editor->updateOptions();
+            }
+        }
+        
+        if (editor->m_level) {
+            editor->m_level->m_audioTrack = settings.audioTrack;
+            editor->m_level->m_songID = settings.songID;
+            editor->m_level->m_levelLength = settings.levelLength;
+            
+            // Try to play the music
+            if (settings.songID > 0) {
+                if (MusicDownloadManager::sharedState()->isSongDownloaded(settings.songID)) {
+                    GameManager::get()->fadeInMusic(editor->m_level->getAudioFileName());
+                } else {
+                    geode::Notification::create("Custom song not downloaded locally.", geode::NotificationIcon::Info)->show();
+                }
+            } else {
+                // Official song
+                GameManager::get()->fadeInMusic(editor->m_level->getAudioFileName());
+            }
+        }
+        
+        // Spawn all objects
+        for (auto& objData : objects) {
+            if (objData.saveString.empty()) continue;
+            auto arr = editor->createObjectsFromString(objData.saveString, true, true);
+            if (arr && arr->count() > 0) {
+                auto* newObj = static_cast<GameObject*>(arr->objectAtIndex(0));
+                registerObject(objData.uuid, newObj);
+            }
+        }
+
+        // Force UI options update (e.g. background, ground, colors)
+        editor->levelSettingsUpdated();
+
+        geode::Notification::create("Level Synced!", geode::NotificationIcon::Success)->show();
+
+        m_initialSyncCompleted = true;
+        m_processingRemote = false;
+    }
+
+    void RemoteActionHandler::updateLocks(float dt) {
+        for (auto it = m_objectLocks.begin(); it != m_objectLocks.end(); ) {
+            it->second -= dt;
+            if (it->second <= 0.f) {
+                it = m_objectLocks.erase(it);
+            } else {
+                ++it;
+            }
+        }
+    }
+
     void RemoteActionHandler::registerObject(std::string const& uuid, GameObject* obj) {
         m_uuidToObject[uuid] = obj;
         m_objectToUuid[obj] = uuid;
@@ -201,6 +483,17 @@ namespace mpedit {
         return it != m_objectToUuid.end() ? it->second : "";
     }
 
+    std::string RemoteActionHandler::getOrCreateUUID(GameObject* obj) {
+        if (!obj) return "";
+        auto it = m_objectToUuid.find(obj);
+        if (it != m_objectToUuid.end()) {
+            return it->second;
+        }
+        auto uuid = generateUUID();
+        registerObject(uuid, obj);
+        return uuid;
+    }
+
     std::string RemoteActionHandler::generateUUID() {
         static std::mt19937 rng(std::random_device{}());
         static std::uniform_int_distribution<int> dist(0, 0xFFFF);
@@ -221,7 +514,89 @@ namespace mpedit {
     void RemoteActionHandler::clearMappings() {
         m_uuidToObject.clear();
         m_objectToUuid.clear();
+        m_objectLocks.clear();
+        m_expectedUuids.clear();
+        m_initialSyncCompleted = false;
         s_uuidCounter = 0;
+    }
+
+    bool RemoteActionHandler::isInitialSyncCompleted() const {
+        if (SessionManager::get().getRole() == SessionManager::Role::Host) {
+            return true;
+        }
+        return m_initialSyncCompleted;
+    }
+
+    void RemoteActionHandler::downloadSongFinished(int id) {
+        auto* editor = getEditorLayer();
+        if (editor && editor->m_level && editor->m_level->m_songID == id) {
+            GameManager::get()->fadeInMusic(editor->m_level->getAudioFileName());
+            geode::Notification::create("Song downloaded! Playing now.", geode::NotificationIcon::Success)->show();
+        }
+    }
+
+    void RemoteActionHandler::downloadSongFailed(int id, GJSongError error) {
+        geode::Notification::create("Failed to download custom song", geode::NotificationIcon::Error)->show();
+    }
+
+    void RemoteActionHandler::handleRemoteUpdateSettings(int playerId, ActionSerializer::LevelSettingsData const& settings) {
+        auto* editor = getEditorLayer();
+        if (!editor) return;
+
+        m_processingRemote = true;
+
+        log::info("RemoteActionHandler: Updating level settings from player {}", playerId);
+
+        // Apply level settings
+        if (!settings.saveString.empty() && editor->m_levelSettings) {
+            auto* newSettings = LevelSettingsObject::objectFromString(settings.saveString);
+            if (newSettings) {
+                // Safely swap m_effectManager to sync level colors without crashing
+                if (newSettings->m_effectManager) {
+                    newSettings->m_effectManager->retain();
+                    if (newSettings->m_effectManager->getParent() == newSettings) {
+                        newSettings->m_effectManager->removeFromParent();
+                    }
+                    if (editor->m_levelSettings->m_effectManager) {
+                        editor->m_levelSettings->m_effectManager->release();
+                    }
+                    editor->m_levelSettings->m_effectManager = newSettings->m_effectManager;
+                }
+                
+                editor->m_levelSettings->m_startMode = newSettings->m_startMode;
+                editor->m_levelSettings->m_startSpeed = newSettings->m_startSpeed;
+                editor->m_levelSettings->m_startMini = newSettings->m_startMini;
+                editor->m_levelSettings->m_startDual = newSettings->m_startDual;
+                editor->m_levelSettings->m_twoPlayerMode = newSettings->m_twoPlayerMode;
+                editor->m_levelSettings->m_isFlipped = newSettings->m_isFlipped;
+                editor->m_levelSettings->m_songOffset = newSettings->m_songOffset;
+                
+                editor->updateOptions();
+            }
+        }
+        
+        if (editor->m_level) {
+            bool songChanged = (editor->m_level->m_songID != settings.songID || editor->m_level->m_audioTrack != settings.audioTrack);
+            editor->m_level->m_audioTrack = settings.audioTrack;
+            editor->m_level->m_songID = settings.songID;
+            editor->m_level->m_levelLength = settings.levelLength;
+            
+            // Try to play the music if it changed
+            if (songChanged) {
+                if (settings.songID > 0) {
+                    if (MusicDownloadManager::sharedState()->isSongDownloaded(settings.songID)) {
+                        GameManager::get()->fadeInMusic(editor->m_level->getAudioFileName());
+                    }
+                } else {
+                    GameManager::get()->fadeInMusic(editor->m_level->getAudioFileName());
+                }
+            }
+        }
+
+        // Force UI options update (e.g. background, ground, colors)
+        editor->levelSettingsUpdated();
+
+        m_processingRemote = false;
     }
 
 } // namespace mpedit

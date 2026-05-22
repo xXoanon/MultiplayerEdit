@@ -1,5 +1,6 @@
 #include "SessionManager.hpp"
 #include "NetworkManager.hpp"
+#include "RemoteActionHandler.hpp"
 #include <Geode/loader/Log.hpp>
 #include <Geode/loader/Mod.hpp>
 
@@ -73,6 +74,8 @@ namespace mpedit {
         net.send(msg);
 
         net.disconnect();
+        
+        auto sessionEndedCallbacks = m_onSessionEnded;
         clearNetworkHandlers();
 
         m_role = Role::None;
@@ -80,7 +83,7 @@ namespace mpedit {
         m_localPlayerId = -1;
         m_players.clear();
 
-        for (auto& cb : m_onSessionEnded) {
+        for (auto& cb : sessionEndedCallbacks) {
             cb();
         }
 
@@ -148,8 +151,17 @@ namespace mpedit {
         m_onError.push_back(std::move(cb));
     }
 
+    void SessionManager::clearCallbacks() {
+        m_onSessionStarted.clear();
+        m_onSessionEnded.clear();
+        m_onPlayerJoined.clear();
+        m_onPlayerLeft.clear();
+        m_onError.clear();
+    }
+
     void SessionManager::setupNetworkHandlers() {
         auto& net = NetworkManager::get();
+        RemoteActionHandler::get().setupHandlers();
 
         net.on("room_created", [this](matjson::Value const& data) {
             handleRoomCreated(data);
@@ -173,6 +185,7 @@ namespace mpedit {
 
     void SessionManager::clearNetworkHandlers() {
         NetworkManager::get().clearHandlers();
+        RemoteActionHandler::get().clearHandlers();
         m_onSessionStarted.clear();
         m_onSessionEnded.clear();
         m_onPlayerJoined.clear();
@@ -273,7 +286,11 @@ namespace mpedit {
 
         log::error("SessionManager: Server error: {}", errorMsg);
 
-        for (auto& cb : m_onError) {
+        // Copy callbacks since leaveSession clears them
+        auto callbacks = m_onError;
+        leaveSession();
+
+        for (auto& cb : callbacks) {
             cb(errorMsg);
         }
     }

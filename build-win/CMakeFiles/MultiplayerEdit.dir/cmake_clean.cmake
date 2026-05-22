@@ -15,15 +15,17 @@ file(REMOVE_RECURSE
   "CMakeFiles/MultiplayerEdit.dir/src/SessionManager.cpp.obj.d"
   "CMakeFiles/MultiplayerEdit.dir/src/main.cpp.obj"
   "CMakeFiles/MultiplayerEdit.dir/src/main.cpp.obj.d"
+  "CMakeFiles/MultiplayerEdit.dir/src/ui/CursorNode.cpp.obj"
+  "CMakeFiles/MultiplayerEdit.dir/src/ui/CursorNode.cpp.obj.d"
   "CMakeFiles/MultiplayerEdit.dir/src/ui/MultiplayerPopup.cpp.obj"
   "CMakeFiles/MultiplayerEdit.dir/src/ui/MultiplayerPopup.cpp.obj.d"
   "CMakeFiles/MultiplayerEdit.dir/src/ui/PlayerListNode.cpp.obj"
   "CMakeFiles/MultiplayerEdit.dir/src/ui/PlayerListNode.cpp.obj.d"
   "CMakeFiles/MultiplayerEdit.dir/src/ui/SessionStatusNode.cpp.obj"
   "CMakeFiles/MultiplayerEdit.dir/src/ui/SessionStatusNode.cpp.obj.d"
-  "xXoanon.multiplayer-edit.dll"
-  "xXoanon.multiplayer-edit.lib"
-  "xXoanon.multiplayer-edit.pdb"
+  "d050.multiplayeredit.dll"
+  "d050.multiplayeredit.lib"
+  "d050.multiplayeredit.pdb"
 )
 
 # Per-language clean rules from dependency scanning.

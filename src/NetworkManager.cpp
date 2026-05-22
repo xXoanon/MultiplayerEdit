@@ -47,6 +47,10 @@ namespace mpedit {
             std::lock_guard lock(m_incomingMutex);
             while (!m_incoming.empty()) m_incoming.pop();
         }
+        {
+            std::lock_guard lock(m_pendingMutex);
+            while (!m_pendingOutgoing.empty()) m_pendingOutgoing.pop();
+        }
         
         log::info("NetworkManager: Disconnected");
     }
@@ -64,13 +68,16 @@ namespace mpedit {
     }
 
     void NetworkManager::send(matjson::Value const& message) {
-        if (m_state != State::Connected) {
-            log::warn("NetworkManager: Cannot send, not connected");
-            return;
+        if (m_state == State::Connected) {
+            std::string raw = message.dump(matjson::NO_INDENTATION);
+            m_webSocket.send(raw);
+        } else if (m_state == State::Connecting) {
+            std::lock_guard lock(m_pendingMutex);
+            m_pendingOutgoing.push(message);
+            log::info("NetworkManager: Queued message (still connecting)");
+        } else {
+            log::warn("NetworkManager: Cannot send, not connected (state={})", static_cast<int>(m_state));
         }
-
-        std::string raw = message.dump(matjson::NO_INDENTATION);
-        m_webSocket.send(raw);
     }
 
     void NetworkManager::on(std::string const& event, MessageCallback callback) {
@@ -108,6 +115,19 @@ namespace mpedit {
         if (msg->type == ix::WebSocketMessageType::Open) {
             m_state = State::Connected;
             log::info("NetworkManager: Connected to server");
+
+            // Flush any messages that were queued while connecting
+            std::queue<matjson::Value> pending;
+            {
+                std::lock_guard lock(m_pendingMutex);
+                std::swap(pending, m_pendingOutgoing);
+            }
+            while (!pending.empty()) {
+                std::string raw = pending.front().dump(matjson::NO_INDENTATION);
+                m_webSocket.send(raw);
+                log::info("NetworkManager: Flushed queued message");
+                pending.pop();
+            }
         }
         else if (msg->type == ix::WebSocketMessageType::Close) {
             m_state = State::Disconnected;

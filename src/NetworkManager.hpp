@@ -61,6 +61,9 @@ namespace mpedit {
         std::mutex m_incomingMutex;
 
         std::unordered_map<std::string, std::vector<MessageCallback>> m_handlers;
+
+        std::queue<matjson::Value> m_pendingOutgoing;
+        std::mutex m_pendingMutex;
     };
 
 } // namespace mpedit

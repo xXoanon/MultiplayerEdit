@@ -66,9 +66,9 @@ include CMakeFiles/MultiplayerEdit_PACKAGE.dir/compiler_depend.make
 # Include the progress variables for this target.
 include CMakeFiles/MultiplayerEdit_PACKAGE.dir/progress.make
 
-CMakeFiles/MultiplayerEdit_PACKAGE: xXoanon.multiplayer-edit.dll
+CMakeFiles/MultiplayerEdit_PACKAGE: d050.multiplayeredit.dll
 CMakeFiles/MultiplayerEdit_PACKAGE: /home/d050/Coding/Me\ Coding/MultiplayerEdit/mod.json
-	/usr/local/bin/geode package new "/home/d050/Coding/Me Coding/MultiplayerEdit" --binary "/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/xXoanon.multiplayer-edit.dll" --output "/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/xXoanon.multiplayer-edit.geode" --install
+	/usr/local/bin/geode package new "/home/d050/Coding/Me Coding/MultiplayerEdit" --binary "/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/d050.multiplayeredit.dll" --output "/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/d050.multiplayeredit.geode" --install
 
 CMakeFiles/MultiplayerEdit_PACKAGE.dir/codegen:
 .PHONY : CMakeFiles/MultiplayerEdit_PACKAGE.dir/codegen
