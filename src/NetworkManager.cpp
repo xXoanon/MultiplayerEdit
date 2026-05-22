@@ -1,5 +1,6 @@
 #include "NetworkManager.hpp"
 #include <ixwebsocket/IXNetSystem.h>
+#include <ixwebsocket/IXSocketTLSOptions.h>
 
 using namespace geode::prelude;
 
@@ -12,6 +13,11 @@ namespace mpedit {
 
     NetworkManager::NetworkManager() {
         ix::initNetSystem();
+        
+        // Configure TLS for wss:// connections
+        ix::SocketTLSOptions tlsOptions;
+        tlsOptions.caFile = "SYSTEM"; // Use system certificate store
+        m_webSocket.setTLSOptions(tlsOptions);
         
         m_webSocket.setOnMessageCallback([this](const ix::WebSocketMessagePtr& msg) {
             this->onMessage(msg);

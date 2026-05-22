@@ -13,14 +13,16 @@ file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS src/*.cpp)
 add_library(${PROJECT_NAME} SHARED ${SOURCES})
 target_include_directories(${PROJECT_NAME} PRIVATE src)
 
-# Add IXWebSocket
+# IXWebSocket with TLS support
+# Note: This requires building on Windows or using GitHub Actions
+# Cross-compilation from Linux has header conflicts
 include(FetchContent)
 FetchContent_Declare(
     ixwebsocket
     GIT_REPOSITORY https://github.com/machinezone/IXWebSocket.git
     GIT_TAG        v11.4.4
 )
-set(USE_TLS OFF CACHE BOOL "" FORCE)
+set(USE_TLS ON CACHE BOOL "" FORCE)
 set(USE_WS OFF CACHE BOOL "" FORCE)
 set(USE_ZLIB OFF CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(ixwebsocket)

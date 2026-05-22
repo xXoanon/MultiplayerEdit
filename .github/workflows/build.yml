@@ -1,0 +1,33 @@
+name: Build Mod
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        submodules: recursive
+    
+    - name: Install Geode CLI
+      run: |
+        Invoke-WebRequest -Uri "https://github.com/geode-sdk/cli/releases/latest/download/geode-cli-windows.exe" -OutFile "geode.exe"
+        Move-Item geode.exe C:\Windows\System32\geode.exe
+    
+    - name: Setup Geode SDK
+      run: geode sdk install
+    
+    - name: Build mod
+      run: geode build
+    
+    - name: Upload artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: MultiplayerEdit-Windows
+        path: build/**/*.geode

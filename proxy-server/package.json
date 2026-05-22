@@ -1,0 +1,16 @@
+{
+    "name": "multiplayeredit-proxy",
+    "version": "1.0.0",
+    "description": "WebSocket proxy for MultiplayerEdit - accepts ws:// and forwards to wss://",
+    "main": "proxy.js",
+    "scripts": {
+        "start": "node proxy.js"
+    },
+    "engines": {
+        "node": ">=18.0.0"
+    },
+    "dependencies": {
+        "ws": "^8.18.0",
+        "express": "^4.21.0"
+    }
+}
