@@ -73,7 +73,7 @@ namespace mpedit {
                 break;
 
             case NetworkManager::State::Error:
-                statusText = "MP: Error";
+                statusText = fmt::format("MP: Error - {}", net.getError());
                 color = {255, 100, 100}; // Red
                 break;
         }

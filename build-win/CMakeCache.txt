@@ -344,8 +344,8 @@ CMAKE_STRIP:FILEPATH=/usr/bin/llvm-strip
 //Path to a program.
 CMAKE_TAPI:FILEPATH=CMAKE_TAPI-NOTFOUND
 
-//No help, variable specified on the command line.
-CMAKE_TOOLCHAIN_FILE:UNINITIALIZED=/home/d050/.local/share/Geode/cross-tools/clang-msvc-sdk/clang-msvc.cmake
+//The CMake toolchain file
+CMAKE_TOOLCHAIN_FILE:FILEPATH=/home/d050/.local/share/Geode/cross-tools/clang-msvc-sdk/clang-msvc.cmake
 
 //If this value is on, makefiles will be generated without the
 // .SILENT directive, and all commands will be echoed to the console
@@ -590,6 +590,21 @@ LLVM_RC_PATH:FILEPATH=/usr/bin/llvm-rc
 //Command to build the project
 MAKECOMMAND:STRING=/usr/bin/cmake --build . --config "${CTEST_CONFIGURATION_TYPE}"
 
+//Path to a library.
+MBEDCRYPTO_LIBRARY:FILEPATH=/usr/lib/libmbedcrypto.a
+
+//Path to a file.
+MBEDTLS_INCLUDE_DIRS:PATH=/usr/include
+
+//Path to a library.
+MBEDTLS_LIBRARY:FILEPATH=/usr/lib/libmbedtls.a
+
+//Path to a file.
+MBEDTLS_VERSION_GREATER_THAN_3:PATH=/usr/include
+
+//Path to a library.
+MBEDX509_LIBRARY:FILEPATH=/usr/lib/libmbedx509.a
+
 //Path to the memory checking command, used for memory error detection.
 MEMORYCHECK_COMMAND:FILEPATH=MEMORYCHECK_COMMAND-NOTFOUND
 
@@ -626,8 +641,12 @@ TulipHookRoot_IS_TOP_LEVEL:STATIC=OFF
 //Value Computed by CMake
 TulipHookRoot_SOURCE_DIR:STATIC=/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/_deps/tuliphook-src
 
+USE_MBED_TLS:BOOL=ON
+
+USE_OPEN_SSL:BOOL=OFF
+
 //Enable TLS support
-USE_TLS:BOOL=OFF
+USE_TLS:BOOL=ON
 
 USE_WS:BOOL=OFF
 
@@ -714,7 +733,7 @@ CMAKE_CACHE_MAJOR_VERSION:INTERNAL=4
 //Minor version of cmake used to create the current loaded cache
 CMAKE_CACHE_MINOR_VERSION:INTERNAL=3
 //Patch version of cmake used to create the current loaded cache
-CMAKE_CACHE_PATCH_VERSION:INTERNAL=2
+CMAKE_CACHE_PATCH_VERSION:INTERNAL=3
 //ADVANCED property for variable: CMAKE_COLOR_MAKEFILE
 CMAKE_COLOR_MAKEFILE-ADVANCED:INTERNAL=1
 //Path to CMake executable.
@@ -947,6 +966,8 @@ CTEST_SUBMIT_RETRY_COUNT-ADVANCED:INTERNAL=1
 CTEST_SUBMIT_RETRY_DELAY-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: DART_TESTING_TIMEOUT
 DART_TESTING_TIMEOUT-ADVANCED:INTERNAL=1
+//Details about finding MbedTLS
+FIND_PACKAGE_MESSAGE_DETAILS_MbedTLS:INTERNAL=[/usr/include][/usr/lib/libmbedtls.a][/usr/lib/libmbedx509.a][/usr/lib/libmbedcrypto.a][v()]
 //GEODE_CLI_VERSION
 GEODE_CLI_VERSION:INTERNAL=3.7.3
 //Geode Comparable GD Version
@@ -967,6 +988,14 @@ GIT_EXECUTABLE-ADVANCED:INTERNAL=1
 HAS_NULLPTR_WARNING:INTERNAL=1
 //ADVANCED property for variable: MAKECOMMAND
 MAKECOMMAND-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: MBEDCRYPTO_LIBRARY
+MBEDCRYPTO_LIBRARY-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: MBEDTLS_INCLUDE_DIRS
+MBEDTLS_INCLUDE_DIRS-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: MBEDTLS_LIBRARY
+MBEDTLS_LIBRARY-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: MBEDX509_LIBRARY
+MBEDX509_LIBRARY-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: MEMORYCHECK_COMMAND
 MEMORYCHECK_COMMAND-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: MEMORYCHECK_SUPPRESSIONS_FILE

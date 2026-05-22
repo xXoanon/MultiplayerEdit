@@ -632,6 +632,30 @@ ixwebsocket/IXSocketFactory.cpp.s:
 	cd "/home/d050/Coding/Me Coding/MultiplayerEdit/build-win" && $(MAKE) $(MAKESILENT) -f _deps/ixwebsocket-build/CMakeFiles/ixwebsocket.dir/build.make _deps/ixwebsocket-build/CMakeFiles/ixwebsocket.dir/ixwebsocket/IXSocketFactory.cpp.s
 .PHONY : ixwebsocket/IXSocketFactory.cpp.s
 
+ixwebsocket/IXSocketMbedTLS.obj: ixwebsocket/IXSocketMbedTLS.cpp.obj
+.PHONY : ixwebsocket/IXSocketMbedTLS.obj
+
+# target to build an object file
+ixwebsocket/IXSocketMbedTLS.cpp.obj:
+	cd "/home/d050/Coding/Me Coding/MultiplayerEdit/build-win" && $(MAKE) $(MAKESILENT) -f _deps/ixwebsocket-build/CMakeFiles/ixwebsocket.dir/build.make _deps/ixwebsocket-build/CMakeFiles/ixwebsocket.dir/ixwebsocket/IXSocketMbedTLS.cpp.obj
+.PHONY : ixwebsocket/IXSocketMbedTLS.cpp.obj
+
+ixwebsocket/IXSocketMbedTLS.i: ixwebsocket/IXSocketMbedTLS.cpp.i
+.PHONY : ixwebsocket/IXSocketMbedTLS.i
+
+# target to preprocess a source file
+ixwebsocket/IXSocketMbedTLS.cpp.i:
+	cd "/home/d050/Coding/Me Coding/MultiplayerEdit/build-win" && $(MAKE) $(MAKESILENT) -f _deps/ixwebsocket-build/CMakeFiles/ixwebsocket.dir/build.make _deps/ixwebsocket-build/CMakeFiles/ixwebsocket.dir/ixwebsocket/IXSocketMbedTLS.cpp.i
+.PHONY : ixwebsocket/IXSocketMbedTLS.cpp.i
+
+ixwebsocket/IXSocketMbedTLS.s: ixwebsocket/IXSocketMbedTLS.cpp.s
+.PHONY : ixwebsocket/IXSocketMbedTLS.s
+
+# target to generate assembly for a file
+ixwebsocket/IXSocketMbedTLS.cpp.s:
+	cd "/home/d050/Coding/Me Coding/MultiplayerEdit/build-win" && $(MAKE) $(MAKESILENT) -f _deps/ixwebsocket-build/CMakeFiles/ixwebsocket.dir/build.make _deps/ixwebsocket-build/CMakeFiles/ixwebsocket.dir/ixwebsocket/IXSocketMbedTLS.cpp.s
+.PHONY : ixwebsocket/IXSocketMbedTLS.cpp.s
+
 ixwebsocket/IXSocketServer.obj: ixwebsocket/IXSocketServer.cpp.obj
 .PHONY : ixwebsocket/IXSocketServer.obj
 
@@ -1110,6 +1134,9 @@ help:
 	@echo "... ixwebsocket/IXSocketFactory.obj"
 	@echo "... ixwebsocket/IXSocketFactory.i"
 	@echo "... ixwebsocket/IXSocketFactory.s"
+	@echo "... ixwebsocket/IXSocketMbedTLS.obj"
+	@echo "... ixwebsocket/IXSocketMbedTLS.i"
+	@echo "... ixwebsocket/IXSocketMbedTLS.s"
 	@echo "... ixwebsocket/IXSocketServer.obj"
 	@echo "... ixwebsocket/IXSocketServer.i"
 	@echo "... ixwebsocket/IXSocketServer.s"

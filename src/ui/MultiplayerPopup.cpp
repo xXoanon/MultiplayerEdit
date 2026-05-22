@@ -236,8 +236,17 @@ namespace mpedit {
         });
 
         session.onError([this](std::string const& error) {
+            auto& net = NetworkManager::get();
+            std::string fullError = error;
+            if (net.getState() == NetworkManager::State::Error) {
+                fullError = fmt::format("{}\n\nNetwork: {}", error, net.getError());
+            }
+            
             m_statusLabel->setString(error.c_str());
             m_statusLabel->setColor({255, 100, 100});
+            
+            log::error("MultiplayerPopup: Session error - {}", fullError);
+            FLAlertLayer::create("Connection Error", fullError.c_str(), "OK")->show();
         });
 
         session.hostSession(name);
@@ -276,8 +285,17 @@ namespace mpedit {
         });
 
         session.onError([this](std::string const& error) {
+            auto& net = NetworkManager::get();
+            std::string fullError = error;
+            if (net.getState() == NetworkManager::State::Error) {
+                fullError = fmt::format("{}\n\nNetwork: {}", error, net.getError());
+            }
+            
             m_statusLabel->setString(error.c_str());
             m_statusLabel->setColor({255, 100, 100});
+            
+            log::error("MultiplayerPopup: Session error - {}", fullError);
+            FLAlertLayer::create("Connection Error", fullError.c_str(), "OK")->show();
         });
 
         session.joinSession(code, name);

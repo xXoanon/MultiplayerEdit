@@ -59,8 +59,9 @@ endif()
 add_library(ixwebsocket::ixwebsocket STATIC IMPORTED)
 
 set_target_properties(ixwebsocket::ixwebsocket PROPERTIES
+  INTERFACE_COMPILE_DEFINITIONS "IXWEBSOCKET_USE_TLS;IXWEBSOCKET_USE_MBED_TLS"
   INTERFACE_INCLUDE_DIRECTORIES "${_IMPORT_PREFIX}/include/ixwebsocket"
-  INTERFACE_LINK_LIBRARIES "user32;kernel32;shell32;ole32;crypt32;advapi32;delayimp;gdi32;\$<LINK_ONLY:wsock32>;\$<LINK_ONLY:ws2_32>;\$<LINK_ONLY:shlwapi>"
+  INTERFACE_LINK_LIBRARIES "user32;kernel32;shell32;ole32;crypt32;advapi32;delayimp;gdi32;user32;kernel32;shell32;ole32;crypt32;advapi32;delayimp;gdi32;/usr/lib/libmbedtls.a;/usr/lib/libmbedx509.a;/usr/lib/libmbedcrypto.a;\$<LINK_ONLY:wsock32>;\$<LINK_ONLY:ws2_32>;\$<LINK_ONLY:shlwapi>;\$<LINK_ONLY:Crypt32>"
 )
 
 # Load information for each installed configuration.

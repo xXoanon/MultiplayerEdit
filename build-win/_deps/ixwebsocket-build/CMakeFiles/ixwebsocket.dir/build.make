@@ -612,6 +612,21 @@ _deps/ixwebsocket-build/CMakeFiles/ixwebsocket.dir/ixwebsocket/IXWebSocketTransp
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/ixwebsocket.dir/ixwebsocket/IXWebSocketTransport.cpp.s"
 	$(CMAKE_COMMAND) -E cmake_unimplemented_variable CMAKE_CXX_CREATE_ASSEMBLY_SOURCE
 
+_deps/ixwebsocket-build/CMakeFiles/ixwebsocket.dir/ixwebsocket/IXSocketMbedTLS.cpp.obj: _deps/ixwebsocket-build/CMakeFiles/ixwebsocket.dir/flags.make
+_deps/ixwebsocket-build/CMakeFiles/ixwebsocket.dir/ixwebsocket/IXSocketMbedTLS.cpp.obj: _deps/ixwebsocket-build/CMakeFiles/ixwebsocket.dir/includes_CXX.rsp
+_deps/ixwebsocket-build/CMakeFiles/ixwebsocket.dir/ixwebsocket/IXSocketMbedTLS.cpp.obj: _deps/ixwebsocket-src/ixwebsocket/IXSocketMbedTLS.cpp
+_deps/ixwebsocket-build/CMakeFiles/ixwebsocket.dir/ixwebsocket/IXSocketMbedTLS.cpp.obj: _deps/ixwebsocket-build/CMakeFiles/ixwebsocket.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_37) "Building CXX object _deps/ixwebsocket-build/CMakeFiles/ixwebsocket.dir/ixwebsocket/IXSocketMbedTLS.cpp.obj"
+	cd "/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/_deps/ixwebsocket-build" && /usr/bin/clang++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT _deps/ixwebsocket-build/CMakeFiles/ixwebsocket.dir/ixwebsocket/IXSocketMbedTLS.cpp.obj -MF CMakeFiles/ixwebsocket.dir/ixwebsocket/IXSocketMbedTLS.cpp.obj.d -o CMakeFiles/ixwebsocket.dir/ixwebsocket/IXSocketMbedTLS.cpp.obj -c "/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/_deps/ixwebsocket-src/ixwebsocket/IXSocketMbedTLS.cpp"
+
+_deps/ixwebsocket-build/CMakeFiles/ixwebsocket.dir/ixwebsocket/IXSocketMbedTLS.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/ixwebsocket.dir/ixwebsocket/IXSocketMbedTLS.cpp.i"
+	$(CMAKE_COMMAND) -E cmake_unimplemented_variable CMAKE_CXX_CREATE_PREPROCESSED_SOURCE
+
+_deps/ixwebsocket-build/CMakeFiles/ixwebsocket.dir/ixwebsocket/IXSocketMbedTLS.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/ixwebsocket.dir/ixwebsocket/IXSocketMbedTLS.cpp.s"
+	$(CMAKE_COMMAND) -E cmake_unimplemented_variable CMAKE_CXX_CREATE_ASSEMBLY_SOURCE
+
 # Object files for target ixwebsocket
 ixwebsocket_OBJECTS = \
 "CMakeFiles/ixwebsocket.dir/ixwebsocket/IXBench.cpp.obj" \
@@ -649,7 +664,8 @@ ixwebsocket_OBJECTS = \
 "CMakeFiles/ixwebsocket.dir/ixwebsocket/IXWebSocketPerMessageDeflateOptions.cpp.obj" \
 "CMakeFiles/ixwebsocket.dir/ixwebsocket/IXWebSocketProxyServer.cpp.obj" \
 "CMakeFiles/ixwebsocket.dir/ixwebsocket/IXWebSocketServer.cpp.obj" \
-"CMakeFiles/ixwebsocket.dir/ixwebsocket/IXWebSocketTransport.cpp.obj"
+"CMakeFiles/ixwebsocket.dir/ixwebsocket/IXWebSocketTransport.cpp.obj" \
+"CMakeFiles/ixwebsocket.dir/ixwebsocket/IXSocketMbedTLS.cpp.obj"
 
 # External object files for target ixwebsocket
 ixwebsocket_EXTERNAL_OBJECTS =
@@ -690,9 +706,10 @@ _deps/ixwebsocket-build/ixwebsocket.lib: _deps/ixwebsocket-build/CMakeFiles/ixwe
 _deps/ixwebsocket-build/ixwebsocket.lib: _deps/ixwebsocket-build/CMakeFiles/ixwebsocket.dir/ixwebsocket/IXWebSocketProxyServer.cpp.obj
 _deps/ixwebsocket-build/ixwebsocket.lib: _deps/ixwebsocket-build/CMakeFiles/ixwebsocket.dir/ixwebsocket/IXWebSocketServer.cpp.obj
 _deps/ixwebsocket-build/ixwebsocket.lib: _deps/ixwebsocket-build/CMakeFiles/ixwebsocket.dir/ixwebsocket/IXWebSocketTransport.cpp.obj
+_deps/ixwebsocket-build/ixwebsocket.lib: _deps/ixwebsocket-build/CMakeFiles/ixwebsocket.dir/ixwebsocket/IXSocketMbedTLS.cpp.obj
 _deps/ixwebsocket-build/ixwebsocket.lib: _deps/ixwebsocket-build/CMakeFiles/ixwebsocket.dir/build.make
 _deps/ixwebsocket-build/ixwebsocket.lib: _deps/ixwebsocket-build/CMakeFiles/ixwebsocket.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir="/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_37) "Linking CXX static library ixwebsocket.lib"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir="/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_38) "Linking CXX static library ixwebsocket.lib"
 	cd "/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/_deps/ixwebsocket-build" && $(CMAKE_COMMAND) -P CMakeFiles/ixwebsocket.dir/cmake_clean_target.cmake
 	cd "/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/_deps/ixwebsocket-build" && $(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/ixwebsocket.dir/link.txt --verbose=$(VERBOSE)
 

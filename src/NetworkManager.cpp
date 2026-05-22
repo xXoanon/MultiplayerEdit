@@ -33,7 +33,7 @@ namespace mpedit {
         m_error.clear();
         
         m_webSocket.setUrl(url);
-        log::info("NetworkManager: Connecting to {}", url);
+        log::info("NetworkManager: Connecting to {} (TLS enabled for wss://)", url);
         m_webSocket.start();
     }
 
@@ -140,6 +140,10 @@ namespace mpedit {
             m_state = State::Error;
             m_error = msg->errorInfo.reason;
             log::error("NetworkManager: WebSocket error: {}", m_error);
+            log::error("NetworkManager: Error details - retries: {}, wait_time: {}ms, http_status: {}", 
+                msg->errorInfo.retries, 
+                msg->errorInfo.wait_time,
+                msg->errorInfo.http_status);
         }
     }
 

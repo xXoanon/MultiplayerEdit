@@ -10,7 +10,12 @@
     "version": "v0.1.0",
     "developer": "d050",
     "description": "Collaborate with friends in real-time level editing! Host a session and build together.",
-    "tags": ["editor", "online", "multiplayer", "utility"],
+    "tags": [
+        "editor",
+        "online",
+        "multiplayer",
+        "utility"
+    ],
     "settings": {
         "server-section": {
             "type": "title",
@@ -20,7 +25,8 @@
             "type": "string",
             "name": "Server URL",
             "description": "The WebSocket relay server URL to connect to.",
-            "default": "ws://localhost:8765"
+            "default": "wss://multiplayeredit.onrender.com",
+            "max-length": 100
         },
         "player-name": {
             "type": "string",

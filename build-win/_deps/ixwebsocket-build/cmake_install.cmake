@@ -93,6 +93,7 @@ if(CMAKE_INSTALL_COMPONENT STREQUAL "Unspecified" OR NOT CMAKE_INSTALL_COMPONENT
     "/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/_deps/ixwebsocket-src/ixwebsocket/IXWebSocketServer.h"
     "/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/_deps/ixwebsocket-src/ixwebsocket/IXWebSocketTransport.h"
     "/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/_deps/ixwebsocket-src/ixwebsocket/IXWebSocketVersion.h"
+    "/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/_deps/ixwebsocket-src/ixwebsocket/IXSocketMbedTLS.h"
     )
 endif()
 

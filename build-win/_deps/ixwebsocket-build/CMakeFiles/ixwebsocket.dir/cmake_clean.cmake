@@ -37,6 +37,8 @@ file(REMOVE_RECURSE
   "CMakeFiles/ixwebsocket.dir/ixwebsocket/IXSocketConnect.cpp.obj.d"
   "CMakeFiles/ixwebsocket.dir/ixwebsocket/IXSocketFactory.cpp.obj"
   "CMakeFiles/ixwebsocket.dir/ixwebsocket/IXSocketFactory.cpp.obj.d"
+  "CMakeFiles/ixwebsocket.dir/ixwebsocket/IXSocketMbedTLS.cpp.obj"
+  "CMakeFiles/ixwebsocket.dir/ixwebsocket/IXSocketMbedTLS.cpp.obj.d"
   "CMakeFiles/ixwebsocket.dir/ixwebsocket/IXSocketServer.cpp.obj"
   "CMakeFiles/ixwebsocket.dir/ixwebsocket/IXSocketServer.cpp.obj.d"
   "CMakeFiles/ixwebsocket.dir/ixwebsocket/IXSocketTLSOptions.cpp.obj"

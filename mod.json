@@ -25,7 +25,7 @@
             "type": "string",
             "name": "Server URL",
             "description": "The WebSocket relay server URL to connect to.",
-            "default": "wss://multiplayeredit.onrender.com",
+            "default": "ws://multiplayeredit.onrender.com",
             "max-length": 100
         },
         "player-name": {
