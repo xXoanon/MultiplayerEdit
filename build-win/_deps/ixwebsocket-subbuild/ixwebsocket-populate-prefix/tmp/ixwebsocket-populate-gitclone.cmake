@@ -52,13 +52,13 @@ endif()
 
 execute_process(
   COMMAND "/usr/bin/git"
-          checkout "v11.4.4" --
+          checkout "v11.4.6" --
   WORKING_DIRECTORY "/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/_deps/ixwebsocket-src"
   RESULT_VARIABLE error_code
   ${maybe_show_command}
 )
 if(error_code)
-  message(FATAL_ERROR "Failed to checkout tag: 'v11.4.4'")
+  message(FATAL_ERROR "Failed to checkout tag: 'v11.4.6'")
 endif()
 
 set(init_submodules TRUE)

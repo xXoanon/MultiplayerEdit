@@ -306,9 +306,9 @@ d050.multiplayeredit.dll: CMakeFiles/MultiplayerEdit.dir/src/ui/SessionStatusNod
 d050.multiplayeredit.dll: CMakeFiles/MultiplayerEdit.dir/geode-main/entry.cpp.obj
 d050.multiplayeredit.dll: CMakeFiles/MultiplayerEdit.dir/build.make
 d050.multiplayeredit.dll: _deps/ixwebsocket-build/ixwebsocket.lib
-d050.multiplayeredit.dll: /usr/lib/libmbedtls.a
-d050.multiplayeredit.dll: /usr/lib/libmbedx509.a
-d050.multiplayeredit.dll: /usr/lib/libmbedcrypto.a
+d050.multiplayeredit.dll: _deps/mbedtls-build/library/mbedtls.lib
+d050.multiplayeredit.dll: _deps/mbedtls-build/library/mbedx509.lib
+d050.multiplayeredit.dll: _deps/mbedtls-build/library/mbedcrypto.lib
 d050.multiplayeredit.dll: /home/d050/Coding/Me\ Coding/MultiplayerEdit/geode-main/loader/include/link/win64/libcocos2d.lib
 d050.multiplayeredit.dll: /home/d050/Coding/Me\ Coding/MultiplayerEdit/geode-main/loader/include/link/win64/libExtensions.lib
 d050.multiplayeredit.dll: /home/d050/Coding/Me\ Coding/MultiplayerEdit/geode-main/loader/include/link/win64/glew32.lib

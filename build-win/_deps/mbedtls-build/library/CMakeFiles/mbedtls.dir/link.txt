@@ -1,0 +1,2 @@
+/usr/bin/llvm-ar qc mbedtls.lib CMakeFiles/mbedtls.dir/debug.c.obj CMakeFiles/mbedtls.dir/net_sockets.c.obj CMakeFiles/mbedtls.dir/ssl_cache.c.obj CMakeFiles/mbedtls.dir/ssl_ciphersuites.c.obj CMakeFiles/mbedtls.dir/ssl_cli.c.obj CMakeFiles/mbedtls.dir/ssl_cookie.c.obj CMakeFiles/mbedtls.dir/ssl_msg.c.obj CMakeFiles/mbedtls.dir/ssl_srv.c.obj CMakeFiles/mbedtls.dir/ssl_ticket.c.obj CMakeFiles/mbedtls.dir/ssl_tls.c.obj CMakeFiles/mbedtls.dir/ssl_tls13_keys.c.obj
+/usr/bin/llvm-ranlib mbedtls.lib

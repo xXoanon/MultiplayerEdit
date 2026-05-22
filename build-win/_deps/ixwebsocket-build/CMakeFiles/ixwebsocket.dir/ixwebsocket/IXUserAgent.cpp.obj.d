@@ -122,4 +122,7 @@ _deps/ixwebsocket-build/CMakeFiles/ixwebsocket.dir/ixwebsocket/IXUserAgent.cpp.o
   /home/d050/.local/share/Geode/cross-tools/splat/crt/include/xlocinfo \
   /home/d050/.local/share/Geode/cross-tools/splat/crt/include/__msvc_xlocinfo_types.hpp \
   /home/d050/.local/share/Geode/cross-tools/splat/crt/include/clocale \
-  /home/d050/.local/share/Geode/cross-tools/splat/sdk/include/ucrt/locale.h
+  /home/d050/.local/share/Geode/cross-tools/splat/sdk/include/ucrt/locale.h \
+  /home/d050/Coding/Me\ Coding/MultiplayerEdit/build-win/_deps/mbedtls-src/include/mbedtls/version.h \
+  /home/d050/Coding/Me\ Coding/MultiplayerEdit/build-win/_deps/mbedtls-src/include/mbedtls/config.h \
+  /home/d050/Coding/Me\ Coding/MultiplayerEdit/build-win/_deps/mbedtls-src/include/mbedtls/check_config.h

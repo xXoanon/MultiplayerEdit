@@ -1,0 +1,2 @@
+/usr/bin/llvm-ar qc p256m.lib "CMakeFiles/p256m.dir/p256-m_driver_entrypoints.c.obj" "CMakeFiles/p256m.dir/p256-m/p256-m.c.obj"
+/usr/bin/llvm-ranlib p256m.lib

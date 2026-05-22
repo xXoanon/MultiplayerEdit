@@ -241,6 +241,9 @@ CMAKE_OBJCOPY:FILEPATH=/usr/bin/llvm-objcopy
 //Path to a program.
 CMAKE_OBJDUMP:FILEPATH=/usr/bin/llvm-objdump
 
+//No help, variable specified on the command line.
+CMAKE_POLICY_VERSION_MINIMUM:UNINITIALIZED=3.5
+
 //Value Computed by CMake
 CMAKE_PROJECT_COMPAT_VERSION:STATIC=
 
@@ -344,8 +347,8 @@ CMAKE_STRIP:FILEPATH=/usr/bin/llvm-strip
 //Path to a program.
 CMAKE_TAPI:FILEPATH=CMAKE_TAPI-NOTFOUND
 
-//The CMake toolchain file
-CMAKE_TOOLCHAIN_FILE:FILEPATH=/home/d050/.local/share/Geode/cross-tools/clang-msvc-sdk/clang-msvc.cmake
+//No help, variable specified on the command line.
+CMAKE_TOOLCHAIN_FILE:UNINITIALIZED=/home/d050/.local/share/Geode/cross-tools/clang-msvc-sdk/clang-msvc.cmake
 
 //If this value is on, makefiles will be generated without the
 // .SILENT directive, and all commands will be echoed to the console
@@ -398,6 +401,18 @@ CTEST_SUBMIT_RETRY_DELAY:STRING=5
 //Maximum time allowed before CTest will kill the test.
 DART_TESTING_TIMEOUT:STRING=1500
 
+//Disable package configuration, target export and installation
+DISABLE_PACKAGE_CONFIG_AND_INSTALL:BOOL=ON
+
+//Build Mbed TLS programs.
+ENABLE_PROGRAMS:BOOL=OFF
+
+//Build Mbed TLS tests.
+ENABLE_TESTING:BOOL=OFF
+
+//Build Mbed TLS with zlib library.
+ENABLE_ZLIB_SUPPORT:BOOL=OFF
+
 //Directory under which to collect all populated content
 FETCHCONTENT_BASE_DIR:PATH=/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/_deps
 
@@ -429,6 +444,10 @@ FETCHCONTENT_SOURCE_DIR_IXWEBSOCKET:PATH=
 FETCHCONTENT_SOURCE_DIR_JSON:PATH=
 
 //When not empty, overrides where to find pre-populated content
+// for mbedtls
+FETCHCONTENT_SOURCE_DIR_MBEDTLS:PATH=
+
+//When not empty, overrides where to find pre-populated content
 // for nontype_functional
 FETCHCONTENT_SOURCE_DIR_NONTYPE_FUNCTIONAL:PATH=
 
@@ -457,6 +476,9 @@ FETCHCONTENT_UPDATES_DISCONNECTED_IXWEBSOCKET:BOOL=OFF
 
 //Enables UPDATE_DISCONNECTED behavior just for population of json
 FETCHCONTENT_UPDATES_DISCONNECTED_JSON:BOOL=OFF
+
+//Enables UPDATE_DISCONNECTED behavior just for population of mbedtls
+FETCHCONTENT_UPDATES_DISCONNECTED_MBEDTLS:BOOL=OFF
 
 //Enables UPDATE_DISCONNECTED behavior just for population of nontype_functional
 FETCHCONTENT_UPDATES_DISCONNECTED_NONTYPE_FUNCTIONAL:BOOL=OFF
@@ -516,6 +538,9 @@ FMT_UNICODE:BOOL=ON
 //Halt the compilation with an error on compiler warnings.
 FMT_WERROR:BOOL=OFF
 
+//Generate the auto-generated files as needed
+GEN_FILES:BOOL=OFF
+
 GEODE_ARC_VERSION:STRING=@1.5.5
 
 GEODE_ASP_VERSION:STRING=#51d3773
@@ -569,8 +594,17 @@ GeodeResult_SOURCE_DIR:STATIC=/home/d050/Coding/Me Coding/MultiplayerEdit/build-
 //No help, variable specified on the command line.
 HOST_ARCH:UNINITIALIZED=x64
 
+//Install Mbed TLS headers.
+INSTALL_MBEDTLS_HEADERS:BOOL=ON
+
 //Install IXWebSocket
-IXWEBSOCKET_INSTALL:BOOL=ON
+IXWEBSOCKET_INSTALL:BOOL=OFF
+
+//Explicitly link Mbed TLS library to pthread.
+LINK_WITH_PTHREAD:BOOL=OFF
+
+//Explicitly link Mbed TLS library to trusted_storage.
+LINK_WITH_TRUSTED_STORAGE:BOOL=OFF
 
 //Path to a program.
 LLD_LINK_PATH:FILEPATH=/usr/bin/lld-link
@@ -593,14 +627,21 @@ MAKECOMMAND:STRING=/usr/bin/cmake --build . --config "${CTEST_CONFIGURATION_TYPE
 //Path to a library.
 MBEDCRYPTO_LIBRARY:FILEPATH=/usr/lib/libmbedcrypto.a
 
-//Path to a file.
-MBEDTLS_INCLUDE_DIRS:PATH=/usr/include
+//Mbed TLS config file (overrides default).
+MBEDTLS_CONFIG_FILE:FILEPATH=
+
+//Compiler warnings treated as errors
+MBEDTLS_FATAL_WARNINGS:BOOL=OFF
+
+MBEDTLS_FOUND:BOOL=ON
 
 //Path to a library.
 MBEDTLS_LIBRARY:FILEPATH=/usr/lib/libmbedtls.a
 
-//Path to a file.
-MBEDTLS_VERSION_GREATER_THAN_3:PATH=/usr/include
+//Mbed TLS user config file (appended to default).
+MBEDTLS_USER_CONFIG_FILE:FILEPATH=
+
+MBEDTLS_VERSION_GREATER_THAN_3:BOOL=OFF
 
 //Path to a library.
 MBEDX509_LIBRARY:FILEPATH=/usr/lib/libmbedx509.a
@@ -610,6 +651,15 @@ MEMORYCHECK_COMMAND:FILEPATH=MEMORYCHECK_COMMAND-NOTFOUND
 
 //File that contains suppressions for the memory checker
 MEMORYCHECK_SUPPRESSIONS_FILE:FILEPATH=
+
+//Value Computed by CMake
+Mbed TLS_BINARY_DIR:STATIC=/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/_deps/mbedtls-build
+
+//Value Computed by CMake
+Mbed TLS_IS_TOP_LEVEL:STATIC=OFF
+
+//Value Computed by CMake
+Mbed TLS_SOURCE_DIR:STATIC=/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/_deps/mbedtls-src
 
 //Value Computed by CMake
 MultiplayerEdit_BINARY_DIR:STATIC=/home/d050/Coding/Me Coding/MultiplayerEdit/build-win
@@ -641,9 +691,21 @@ TulipHookRoot_IS_TOP_LEVEL:STATIC=OFF
 //Value Computed by CMake
 TulipHookRoot_SOURCE_DIR:STATIC=/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/_deps/tuliphook-src
 
+//Allow unsafe builds. These builds ARE NOT SECURE.
+UNSAFE_BUILD:BOOL=OFF
+
 USE_MBED_TLS:BOOL=ON
 
 USE_OPEN_SSL:BOOL=OFF
+
+//Build Mbed TLS with the pkcs11-helper library.
+USE_PKCS11_HELPER_LIBRARY:BOOL=OFF
+
+//Build Mbed TLS shared library.
+USE_SHARED_MBEDTLS_LIBRARY:BOOL=OFF
+
+//Build Mbed TLS static library.
+USE_STATIC_MBEDTLS_LIBRARY:BOOL=ON
 
 //Enable TLS support
 USE_TLS:BOOL=ON
@@ -681,6 +743,9 @@ asp_IS_TOP_LEVEL:STATIC=OFF
 //Value Computed by CMake
 asp_SOURCE_DIR:STATIC=/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/_deps/asp2-src
 
+//Dependencies for the target
+everest_LIB_DEPENDS:STATIC=general;user32;general;kernel32;general;shell32;general;ole32;general;crypt32;general;advapi32;general;delayimp;general;gdi32;
+
 //Value Computed by CMake
 geode-sdk_BINARY_DIR:STATIC=/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/geode
 
@@ -708,6 +773,15 @@ mat-json_IS_TOP_LEVEL:STATIC=OFF
 //Value Computed by CMake
 mat-json_SOURCE_DIR:STATIC=/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/_deps/json-src
 
+//Dependencies for the target
+mbedcrypto_LIB_DEPENDS:STATIC=general;user32;general;kernel32;general;shell32;general;ole32;general;crypt32;general;advapi32;general;delayimp;general;gdi32;general;ws2_32;
+
+//Dependencies for the target
+mbedtls_LIB_DEPENDS:STATIC=general;user32;general;kernel32;general;shell32;general;ole32;general;crypt32;general;advapi32;general;delayimp;general;gdi32;general;ws2_32;general;mbedx509;
+
+//Dependencies for the target
+mbedx509_LIB_DEPENDS:STATIC=general;user32;general;kernel32;general;shell32;general;ole32;general;crypt32;general;advapi32;general;delayimp;general;gdi32;general;ws2_32;general;mbedcrypto;
+
 //Value Computed by CMake
 nontype_functional_BINARY_DIR:STATIC=/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/_deps/nontype_functional-build
 
@@ -716,6 +790,9 @@ nontype_functional_IS_TOP_LEVEL:STATIC=OFF
 
 //Value Computed by CMake
 nontype_functional_SOURCE_DIR:STATIC=/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/_deps/nontype_functional-src
+
+//Dependencies for the target
+p256m_LIB_DEPENDS:STATIC=general;user32;general;kernel32;general;shell32;general;ole32;general;crypt32;general;advapi32;general;delayimp;general;gdi32;
 
 
 ########################
@@ -812,6 +889,12 @@ CMAKE_GENERATOR_INSTANCE:INTERNAL=
 CMAKE_GENERATOR_PLATFORM:INTERNAL=
 //Name of generator toolset.
 CMAKE_GENERATOR_TOOLSET:INTERNAL=
+//Test CMAKE_HAVE_LIBC_PTHREAD
+CMAKE_HAVE_LIBC_PTHREAD:INTERNAL=
+//Have library pthreads
+CMAKE_HAVE_PTHREADS_CREATE:INTERNAL=
+//Have library pthread
+CMAKE_HAVE_PTHREAD_CREATE:INTERNAL=
 //Source directory with the top level CMakeLists.txt file for this
 // project
 CMAKE_HOME_DIRECTORY:INTERNAL=/home/d050/Coding/Me Coding/MultiplayerEdit
@@ -866,7 +949,7 @@ CMAKE_MODULE_LINKER_FLAGS_RELWITHDEBINFO-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_NM
 CMAKE_NM-ADVANCED:INTERNAL=1
 //number of local generators
-CMAKE_NUMBER_OF_MAKEFILES:INTERNAL=11
+CMAKE_NUMBER_OF_MAKEFILES:INTERNAL=17
 //ADVANCED property for variable: CMAKE_OBJCOPY
 CMAKE_OBJCOPY-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_OBJDUMP
@@ -968,6 +1051,10 @@ CTEST_SUBMIT_RETRY_DELAY-ADVANCED:INTERNAL=1
 DART_TESTING_TIMEOUT-ADVANCED:INTERNAL=1
 //Details about finding MbedTLS
 FIND_PACKAGE_MESSAGE_DETAILS_MbedTLS:INTERNAL=[/usr/include][/usr/lib/libmbedtls.a][/usr/lib/libmbedx509.a][/usr/lib/libmbedcrypto.a][v()]
+//Details about finding Python3
+FIND_PACKAGE_MESSAGE_DETAILS_Python3:INTERNAL=[/usr/bin/python3.14][found components: Interpreter ][v3.14.5()]
+//Details about finding Threads
+FIND_PACKAGE_MESSAGE_DETAILS_Threads:INTERNAL=[TRUE][v()]
 //GEODE_CLI_VERSION
 GEODE_CLI_VERSION:INTERNAL=3.7.3
 //Geode Comparable GD Version
@@ -990,8 +1077,8 @@ HAS_NULLPTR_WARNING:INTERNAL=1
 MAKECOMMAND-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: MBEDCRYPTO_LIBRARY
 MBEDCRYPTO_LIBRARY-ADVANCED:INTERNAL=1
-//ADVANCED property for variable: MBEDTLS_INCLUDE_DIRS
-MBEDTLS_INCLUDE_DIRS-ADVANCED:INTERNAL=1
+MBEDTLS_INCLUDE_DIRS:INTERNAL=/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/_deps/mbedtls-src/include/;/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/_deps/mbedtls-src/3rdparty/everest/include
+MBEDTLS_LIBRARIES:INTERNAL=mbedtls;mbedx509;mbedcrypto
 //ADVANCED property for variable: MBEDTLS_LIBRARY
 MBEDTLS_LIBRARY-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: MBEDX509_LIBRARY
@@ -1004,6 +1091,21 @@ MEMORYCHECK_SUPPRESSIONS_FILE-ADVANCED:INTERNAL=1
 SITE-ADVANCED:INTERNAL=1
 //Test SUPPORTS_W_NO_EVERYTHING
 SUPPORTS_W_NO_EVERYTHING:INTERNAL=1
+//Result of TRY_COMPILE
+THREADS_HAVE_PTHREAD_ARG:INTERNAL=FALSE
 //CMAKE_INSTALL_PREFIX during last run
 _GNUInstallDirs_LAST_CMAKE_INSTALL_PREFIX:INTERNAL=/usr/local
+//Compiler reason failure
+_Python3_Compiler_REASON_FAILURE:INTERNAL=
+//Development reason failure
+_Python3_Development_REASON_FAILURE:INTERNAL=
+//Path to a program.
+_Python3_EXECUTABLE:INTERNAL=/usr/bin/python3.14
+//Path to a program.
+_Python3_EXECUTABLE_DEBUG:INTERNAL=_Python3_EXECUTABLE_DEBUG-NOTFOUND
+//Python3 Properties
+_Python3_INTERPRETER_PROPERTIES:INTERNAL=Python;3;14;5;64;32;;;;/usr/lib/python3.14;/usr/lib/python3.14;/usr/lib/python3.14/site-packages;/usr/lib/python3.14/site-packages
+_Python3_INTERPRETER_SIGNATURE:INTERNAL=5627c5f1ff4a330fcb0b8471032ae791
+//NumPy reason failure
+_Python3_NumPy_REASON_FAILURE:INTERNAL=
 

@@ -2901,6 +2901,7 @@ _deps/ixwebsocket-build/CMakeFiles/ixwebsocket.dir/ixwebsocket/IXSocketFactory.c
   /home/d050/.local/share/Geode/cross-tools/splat/crt/include/new \
   /home/d050/.local/share/Geode/cross-tools/splat/crt/include/ratio \
   /home/d050/.local/share/Geode/cross-tools/splat/crt/include/sal.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/crt/include/stdarg.h \
   /home/d050/.local/share/Geode/cross-tools/splat/crt/include/stdexcept \
   /home/d050/.local/share/Geode/cross-tools/splat/crt/include/stdint.h \
   /home/d050/.local/share/Geode/cross-tools/splat/crt/include/string \
@@ -2970,11 +2971,45 @@ _deps/ixwebsocket-build/CMakeFiles/ixwebsocket.dir/ixwebsocket/IXSocketFactory.c
   _deps/ixwebsocket-src/ixwebsocket/IXSelectInterrupt.h \
   _deps/ixwebsocket-src/ixwebsocket/IXSocket.h \
   _deps/ixwebsocket-src/ixwebsocket/IXSocketFactory.h \
+  _deps/ixwebsocket-src/ixwebsocket/IXSocketMbedTLS.h \
   _deps/ixwebsocket-src/ixwebsocket/IXSocketTLSOptions.h \
   _deps/ixwebsocket-src/ixwebsocket/IXUniquePtr.h \
+  _deps/mbedtls-src/include/mbedtls/aes.h \
+  _deps/mbedtls-src/include/mbedtls/asn1.h \
+  _deps/mbedtls-src/include/mbedtls/bignum.h \
+  _deps/mbedtls-src/include/mbedtls/check_config.h \
+  _deps/mbedtls-src/include/mbedtls/cipher.h \
+  _deps/mbedtls-src/include/mbedtls/config.h \
+  _deps/mbedtls-src/include/mbedtls/ctr_drbg.h \
+  _deps/mbedtls-src/include/mbedtls/debug.h \
+  _deps/mbedtls-src/include/mbedtls/dhm.h \
+  _deps/mbedtls-src/include/mbedtls/ecdh.h \
+  _deps/mbedtls-src/include/mbedtls/ecdsa.h \
+  _deps/mbedtls-src/include/mbedtls/ecp.h \
+  _deps/mbedtls-src/include/mbedtls/entropy.h \
+  _deps/mbedtls-src/include/mbedtls/error.h \
+  _deps/mbedtls-src/include/mbedtls/md.h \
+  _deps/mbedtls-src/include/mbedtls/net_sockets.h \
+  _deps/mbedtls-src/include/mbedtls/pk.h \
+  _deps/mbedtls-src/include/mbedtls/platform.h \
+  _deps/mbedtls-src/include/mbedtls/platform_time.h \
+  _deps/mbedtls-src/include/mbedtls/platform_util.h \
+  _deps/mbedtls-src/include/mbedtls/rsa.h \
+  _deps/mbedtls-src/include/mbedtls/sha512.h \
+  _deps/mbedtls-src/include/mbedtls/ssl.h \
+  _deps/mbedtls-src/include/mbedtls/ssl_ciphersuites.h \
+  _deps/mbedtls-src/include/mbedtls/x509.h \
+  _deps/mbedtls-src/include/mbedtls/x509_crl.h \
+  _deps/mbedtls-src/include/mbedtls/x509_crt.h \
   /usr/lib/clang/22/include/__float_float.h \
   /usr/lib/clang/22/include/__float_header_macro.h \
   /usr/lib/clang/22/include/__float_infinity_nan.h \
+  /usr/lib/clang/22/include/__stdarg___gnuc_va_list.h \
+  /usr/lib/clang/22/include/__stdarg___va_copy.h \
+  /usr/lib/clang/22/include/__stdarg_header_macro.h \
+  /usr/lib/clang/22/include/__stdarg_va_arg.h \
+  /usr/lib/clang/22/include/__stdarg_va_copy.h \
+  /usr/lib/clang/22/include/__stdarg_va_list.h \
   /usr/lib/clang/22/include/__stddef_header_macro.h \
   /usr/lib/clang/22/include/__stddef_max_align_t.h \
   /usr/lib/clang/22/include/__stddef_null.h \
@@ -2987,6 +3022,261 @@ _deps/ixwebsocket-build/CMakeFiles/ixwebsocket.dir/ixwebsocket/IXSocketFactory.c
   /usr/lib/clang/22/include/float.h \
   /usr/lib/clang/22/include/intrin0.h \
   /usr/lib/clang/22/include/limits.h \
+  /usr/lib/clang/22/include/stdarg.h \
+  /usr/lib/clang/22/include/stddef.h \
+  /usr/lib/clang/22/include/stdint.h \
+  /usr/lib/clang/22/include/vadefs.h \
+  /usr/lib/clang/22/include/yvals_core.h
+
+_deps/ixwebsocket-build/CMakeFiles/ixwebsocket.dir/ixwebsocket/IXSocketMbedTLS.cpp.obj: _deps/ixwebsocket-src/ixwebsocket/IXSocketMbedTLS.cpp \
+  /home/d050/.local/share/Geode/cross-tools/splat/crt/include/__msvc_chrono.hpp \
+  /home/d050/.local/share/Geode/cross-tools/splat/crt/include/__msvc_iter_core.hpp \
+  /home/d050/.local/share/Geode/cross-tools/splat/crt/include/__msvc_sanitizer_annotate_container.hpp \
+  /home/d050/.local/share/Geode/cross-tools/splat/crt/include/__msvc_string_view.hpp \
+  /home/d050/.local/share/Geode/cross-tools/splat/crt/include/__msvc_system_error_abi.hpp \
+  /home/d050/.local/share/Geode/cross-tools/splat/crt/include/__msvc_threads_core.hpp \
+  /home/d050/.local/share/Geode/cross-tools/splat/crt/include/atomic \
+  /home/d050/.local/share/Geode/cross-tools/splat/crt/include/cctype \
+  /home/d050/.local/share/Geode/cross-tools/splat/crt/include/cerrno \
+  /home/d050/.local/share/Geode/cross-tools/splat/crt/include/cfloat \
+  /home/d050/.local/share/Geode/cross-tools/splat/crt/include/climits \
+  /home/d050/.local/share/Geode/cross-tools/splat/crt/include/concurrencysal.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/crt/include/crtdefs.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/crt/include/cstddef \
+  /home/d050/.local/share/Geode/cross-tools/splat/crt/include/cstdint \
+  /home/d050/.local/share/Geode/cross-tools/splat/crt/include/cstdio \
+  /home/d050/.local/share/Geode/cross-tools/splat/crt/include/cstdlib \
+  /home/d050/.local/share/Geode/cross-tools/splat/crt/include/cstring \
+  /home/d050/.local/share/Geode/cross-tools/splat/crt/include/ctime \
+  /home/d050/.local/share/Geode/cross-tools/splat/crt/include/cwchar \
+  /home/d050/.local/share/Geode/cross-tools/splat/crt/include/eh.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/crt/include/exception \
+  /home/d050/.local/share/Geode/cross-tools/splat/crt/include/excpt.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/crt/include/functional \
+  /home/d050/.local/share/Geode/cross-tools/splat/crt/include/initializer_list \
+  /home/d050/.local/share/Geode/cross-tools/splat/crt/include/iosfwd \
+  /home/d050/.local/share/Geode/cross-tools/splat/crt/include/limits \
+  /home/d050/.local/share/Geode/cross-tools/splat/crt/include/limits.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/crt/include/memory \
+  /home/d050/.local/share/Geode/cross-tools/splat/crt/include/mutex \
+  /home/d050/.local/share/Geode/cross-tools/splat/crt/include/new \
+  /home/d050/.local/share/Geode/cross-tools/splat/crt/include/ratio \
+  /home/d050/.local/share/Geode/cross-tools/splat/crt/include/sal.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/crt/include/stdarg.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/crt/include/stdexcept \
+  /home/d050/.local/share/Geode/cross-tools/splat/crt/include/stdint.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/crt/include/string \
+  /home/d050/.local/share/Geode/cross-tools/splat/crt/include/system_error \
+  /home/d050/.local/share/Geode/cross-tools/splat/crt/include/thread \
+  /home/d050/.local/share/Geode/cross-tools/splat/crt/include/tuple \
+  /home/d050/.local/share/Geode/cross-tools/splat/crt/include/type_traits \
+  /home/d050/.local/share/Geode/cross-tools/splat/crt/include/typeinfo \
+  /home/d050/.local/share/Geode/cross-tools/splat/crt/include/use_ansi.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/crt/include/utility \
+  /home/d050/.local/share/Geode/cross-tools/splat/crt/include/vadefs.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/crt/include/vcruntime.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/crt/include/vcruntime_exception.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/crt/include/vcruntime_new.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/crt/include/vcruntime_new_debug.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/crt/include/vcruntime_startup.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/crt/include/vcruntime_string.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/crt/include/vcruntime_typeinfo.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/crt/include/xatomic.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/crt/include/xcall_once.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/crt/include/xerrc.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/crt/include/xkeycheck.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/crt/include/xmemory \
+  /home/d050/.local/share/Geode/cross-tools/splat/crt/include/xstring \
+  /home/d050/.local/share/Geode/cross-tools/splat/crt/include/xthreads.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/crt/include/xtimec.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/crt/include/xtr1common \
+  /home/d050/.local/share/Geode/cross-tools/splat/crt/include/xutility \
+  /home/d050/.local/share/Geode/cross-tools/splat/crt/include/yvals.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/crt/include/yvals_core.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/sdk/include/shared/BaseTsd.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/sdk/include/shared/DriverSpecs.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/sdk/include/shared/SpecStrings.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/sdk/include/shared/WinDef.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/sdk/include/shared/apiset.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/sdk/include/shared/apisetcconv.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/sdk/include/shared/bcrypt.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/sdk/include/shared/guiddef.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/sdk/include/shared/in6addr.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/sdk/include/shared/inaddr.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/sdk/include/shared/kernelspecs.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/sdk/include/shared/ktmtypes.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/sdk/include/shared/minwindef.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/sdk/include/shared/poppack.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/sdk/include/shared/pshpack1.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/sdk/include/shared/pshpack2.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/sdk/include/shared/pshpack4.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/sdk/include/shared/pshpack8.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/sdk/include/shared/qos.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/sdk/include/shared/sdkddkver.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/sdk/include/shared/sdv_driverspecs.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/sdk/include/shared/specstrings_strict.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/sdk/include/shared/specstrings_undef.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/sdk/include/shared/stralign.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/sdk/include/shared/tvout.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/sdk/include/shared/winapifamily.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/sdk/include/shared/winerror.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/sdk/include/shared/winpackagefamily.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/sdk/include/shared/wnnc.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/sdk/include/shared/ws2def.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/sdk/include/shared/ws2ipdef.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/sdk/include/ucrt/corecrt.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/sdk/include/ucrt/corecrt_io.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/sdk/include/ucrt/corecrt_malloc.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/sdk/include/ucrt/corecrt_memcpy_s.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/sdk/include/ucrt/corecrt_memory.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/sdk/include/ucrt/corecrt_search.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/sdk/include/ucrt/corecrt_share.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/sdk/include/ucrt/corecrt_startup.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/sdk/include/ucrt/corecrt_stdio_config.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/sdk/include/ucrt/corecrt_terminate.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/sdk/include/ucrt/corecrt_wconio.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/sdk/include/ucrt/corecrt_wctype.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/sdk/include/ucrt/corecrt_wdirect.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/sdk/include/ucrt/corecrt_wio.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/sdk/include/ucrt/corecrt_wprocess.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/sdk/include/ucrt/corecrt_wstdio.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/sdk/include/ucrt/corecrt_wstdlib.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/sdk/include/ucrt/corecrt_wstring.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/sdk/include/ucrt/corecrt_wtime.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/sdk/include/ucrt/crtdbg.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/sdk/include/ucrt/ctype.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/sdk/include/ucrt/errno.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/sdk/include/ucrt/float.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/sdk/include/ucrt/io.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/sdk/include/ucrt/malloc.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/sdk/include/ucrt/math.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/sdk/include/ucrt/process.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/sdk/include/ucrt/stddef.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/sdk/include/ucrt/stdio.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/sdk/include/ucrt/stdlib.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/sdk/include/ucrt/string.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/sdk/include/ucrt/sys/stat.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/sdk/include/ucrt/sys/types.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/sdk/include/ucrt/time.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/sdk/include/ucrt/wchar.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/sdk/include/um/WS2tcpip.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/sdk/include/um/WinBase.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/sdk/include/um/WinNls.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/sdk/include/um/WinSock2.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/sdk/include/um/WinUser.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/sdk/include/um/Windows.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/sdk/include/um/apiquery2.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/sdk/include/um/consoleapi.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/sdk/include/um/consoleapi2.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/sdk/include/um/consoleapi3.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/sdk/include/um/datetimeapi.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/sdk/include/um/debugapi.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/sdk/include/um/dpapi.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/sdk/include/um/enclaveapi.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/sdk/include/um/errhandlingapi.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/sdk/include/um/fibersapi.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/sdk/include/um/fileapi.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/sdk/include/um/fileapifromapp.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/sdk/include/um/handleapi.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/sdk/include/um/heapapi.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/sdk/include/um/ime_cmodes.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/sdk/include/um/imm.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/sdk/include/um/interlockedapi.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/sdk/include/um/ioapiset.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/sdk/include/um/jobapi.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/sdk/include/um/jobapi2.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/sdk/include/um/libloaderapi.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/sdk/include/um/mcx.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/sdk/include/um/memoryapi.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/sdk/include/um/minwinbase.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/sdk/include/um/namedpipeapi.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/sdk/include/um/namespaceapi.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/sdk/include/um/ncrypt.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/sdk/include/um/processenv.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/sdk/include/um/processthreadsapi.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/sdk/include/um/processtopologyapi.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/sdk/include/um/profileapi.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/sdk/include/um/realtimeapiset.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/sdk/include/um/reason.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/sdk/include/um/securityappcontainer.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/sdk/include/um/securitybaseapi.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/sdk/include/um/stringapiset.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/sdk/include/um/synchapi.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/sdk/include/um/sysinfoapi.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/sdk/include/um/systemtopologyapi.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/sdk/include/um/threadpoolapiset.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/sdk/include/um/threadpoollegacyapiset.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/sdk/include/um/timezoneapi.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/sdk/include/um/utilapiset.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/sdk/include/um/verrsrc.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/sdk/include/um/wincon.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/sdk/include/um/wincontypes.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/sdk/include/um/wincrypt.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/sdk/include/um/wingdi.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/sdk/include/um/winnetwk.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/sdk/include/um/winnt.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/sdk/include/um/winreg.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/sdk/include/um/winsvc.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/sdk/include/um/winver.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/sdk/include/um/wow64apiset.h \
+  _deps/ixwebsocket-src/ixwebsocket/IXCancellationRequest.h \
+  _deps/ixwebsocket-src/ixwebsocket/IXNetSystem.h \
+  _deps/ixwebsocket-src/ixwebsocket/IXProgressCallback.h \
+  _deps/ixwebsocket-src/ixwebsocket/IXSelectInterrupt.h \
+  _deps/ixwebsocket-src/ixwebsocket/IXSocket.h \
+  _deps/ixwebsocket-src/ixwebsocket/IXSocketConnect.h \
+  _deps/ixwebsocket-src/ixwebsocket/IXSocketMbedTLS.h \
+  _deps/ixwebsocket-src/ixwebsocket/IXSocketTLSOptions.h \
+  _deps/mbedtls-src/include/mbedtls/aes.h \
+  _deps/mbedtls-src/include/mbedtls/asn1.h \
+  _deps/mbedtls-src/include/mbedtls/bignum.h \
+  _deps/mbedtls-src/include/mbedtls/check_config.h \
+  _deps/mbedtls-src/include/mbedtls/cipher.h \
+  _deps/mbedtls-src/include/mbedtls/config.h \
+  _deps/mbedtls-src/include/mbedtls/ctr_drbg.h \
+  _deps/mbedtls-src/include/mbedtls/debug.h \
+  _deps/mbedtls-src/include/mbedtls/dhm.h \
+  _deps/mbedtls-src/include/mbedtls/ecdh.h \
+  _deps/mbedtls-src/include/mbedtls/ecdsa.h \
+  _deps/mbedtls-src/include/mbedtls/ecp.h \
+  _deps/mbedtls-src/include/mbedtls/entropy.h \
+  _deps/mbedtls-src/include/mbedtls/error.h \
+  _deps/mbedtls-src/include/mbedtls/md.h \
+  _deps/mbedtls-src/include/mbedtls/net_sockets.h \
+  _deps/mbedtls-src/include/mbedtls/pk.h \
+  _deps/mbedtls-src/include/mbedtls/platform.h \
+  _deps/mbedtls-src/include/mbedtls/platform_time.h \
+  _deps/mbedtls-src/include/mbedtls/platform_util.h \
+  _deps/mbedtls-src/include/mbedtls/rsa.h \
+  _deps/mbedtls-src/include/mbedtls/sha512.h \
+  _deps/mbedtls-src/include/mbedtls/ssl.h \
+  _deps/mbedtls-src/include/mbedtls/ssl_ciphersuites.h \
+  _deps/mbedtls-src/include/mbedtls/version.h \
+  _deps/mbedtls-src/include/mbedtls/x509.h \
+  _deps/mbedtls-src/include/mbedtls/x509_crl.h \
+  _deps/mbedtls-src/include/mbedtls/x509_crt.h \
+  /usr/lib/clang/22/include/__float_float.h \
+  /usr/lib/clang/22/include/__float_header_macro.h \
+  /usr/lib/clang/22/include/__float_infinity_nan.h \
+  /usr/lib/clang/22/include/__stdarg___gnuc_va_list.h \
+  /usr/lib/clang/22/include/__stdarg___va_copy.h \
+  /usr/lib/clang/22/include/__stdarg_header_macro.h \
+  /usr/lib/clang/22/include/__stdarg_va_arg.h \
+  /usr/lib/clang/22/include/__stdarg_va_copy.h \
+  /usr/lib/clang/22/include/__stdarg_va_list.h \
+  /usr/lib/clang/22/include/__stddef_header_macro.h \
+  /usr/lib/clang/22/include/__stddef_max_align_t.h \
+  /usr/lib/clang/22/include/__stddef_null.h \
+  /usr/lib/clang/22/include/__stddef_nullptr_t.h \
+  /usr/lib/clang/22/include/__stddef_offsetof.h \
+  /usr/lib/clang/22/include/__stddef_ptrdiff_t.h \
+  /usr/lib/clang/22/include/__stddef_size_t.h \
+  /usr/lib/clang/22/include/__stddef_wchar_t.h \
+  /usr/lib/clang/22/include/adcintrin.h \
+  /usr/lib/clang/22/include/float.h \
+  /usr/lib/clang/22/include/intrin0.h \
+  /usr/lib/clang/22/include/limits.h \
+  /usr/lib/clang/22/include/stdarg.h \
   /usr/lib/clang/22/include/stddef.h \
   /usr/lib/clang/22/include/stdint.h \
   /usr/lib/clang/22/include/vadefs.h \
@@ -3918,6 +4208,9 @@ _deps/ixwebsocket-build/CMakeFiles/ixwebsocket.dir/ixwebsocket/IXUserAgent.cpp.o
   /home/d050/.local/share/Geode/cross-tools/splat/sdk/include/ucrt/wchar.h \
   _deps/ixwebsocket-src/ixwebsocket/IXUserAgent.h \
   _deps/ixwebsocket-src/ixwebsocket/IXWebSocketVersion.h \
+  _deps/mbedtls-src/include/mbedtls/check_config.h \
+  _deps/mbedtls-src/include/mbedtls/config.h \
+  _deps/mbedtls-src/include/mbedtls/version.h \
   /usr/lib/clang/22/include/__float_float.h \
   /usr/lib/clang/22/include/__float_header_macro.h \
   /usr/lib/clang/22/include/__float_infinity_nan.h \
@@ -5945,8 +6238,6 @@ _deps/ixwebsocket-src/ixwebsocket/IXBase64.h:
 
 _deps/ixwebsocket-src/ixwebsocket/IXUtf8Validator.h:
 
-_deps/ixwebsocket-src/ixwebsocket/IXWebSocket.cpp:
-
 _deps/ixwebsocket-src/ixwebsocket/IXUuid.h:
 
 /usr/lib/clang/22/include/cetintrin.h:
@@ -5975,6 +6266,44 @@ _deps/ixwebsocket-src/ixwebsocket/IXSocketTLSOptions.cpp:
 
 _deps/ixwebsocket-src/ixwebsocket/IXSocketServer.cpp:
 
+_deps/mbedtls-src/include/mbedtls/version.h:
+
+_deps/ixwebsocket-src/ixwebsocket/IXWebSocket.cpp:
+
+/home/d050/.local/share/Geode/cross-tools/splat/sdk/include/um/ncrypt.h:
+
+/home/d050/.local/share/Geode/cross-tools/splat/sdk/include/um/dpapi.h:
+
+_deps/mbedtls-src/include/mbedtls/ssl_ciphersuites.h:
+
+_deps/mbedtls-src/include/mbedtls/platform_util.h:
+
+_deps/mbedtls-src/include/mbedtls/platform_time.h:
+
+_deps/mbedtls-src/include/mbedtls/platform.h:
+
+_deps/mbedtls-src/include/mbedtls/pk.h:
+
+_deps/mbedtls-src/include/mbedtls/net_sockets.h:
+
+_deps/mbedtls-src/include/mbedtls/error.h:
+
+_deps/mbedtls-src/include/mbedtls/ecdsa.h:
+
+_deps/mbedtls-src/include/mbedtls/debug.h:
+
+_deps/mbedtls-src/include/mbedtls/md.h:
+
+_deps/mbedtls-src/include/mbedtls/ctr_drbg.h:
+
+_deps/mbedtls-src/include/mbedtls/check_config.h:
+
+_deps/mbedtls-src/include/mbedtls/x509_crl.h:
+
+_deps/mbedtls-src/include/mbedtls/aes.h:
+
+_deps/ixwebsocket-src/ixwebsocket/IXSocketMbedTLS.cpp:
+
 _deps/ixwebsocket-src/ixwebsocket/IXSocketFactory.cpp:
 
 /usr/lib/clang/22/include/avx512fintrin.h:
@@ -5985,6 +6314,8 @@ _deps/ixwebsocket-src/ixwebsocket/IXSocketConnect.cpp:
 
 _deps/ixwebsocket-src/ixwebsocket/IXSetThreadName.h:
 
+/home/d050/.local/share/Geode/cross-tools/splat/sdk/include/shared/bcrypt.h:
+
 _deps/ixwebsocket-src/ixwebsocket/IXSelectInterruptPipe.cpp:
 
 _deps/ixwebsocket-src/ixwebsocket/IXUniquePtr.h:
@@ -5994,6 +6325,8 @@ _deps/ixwebsocket-src/ixwebsocket/IXSelectInterruptFactory.h:
 _deps/ixwebsocket-src/ixwebsocket/IXWebSocketHandshake.cpp:
 
 _deps/ixwebsocket-src/ixwebsocket/IXSelectInterruptFactory.cpp:
+
+_deps/ixwebsocket-src/ixwebsocket/IXSocketMbedTLS.h:
 
 _deps/ixwebsocket-src/ixwebsocket/IXSelectInterruptEvent.h:
 
@@ -6079,11 +6412,15 @@ _deps/ixwebsocket-src/ixwebsocket/IXHttp.h:
 
 /home/d050/.local/share/Geode/cross-tools/splat/crt/include/unordered_map:
 
+_deps/mbedtls-src/include/mbedtls/cipher.h:
+
 /home/d050/.local/share/Geode/cross-tools/splat/crt/include/map:
 
 _deps/ixwebsocket-src/ixwebsocket/IXHttp.cpp:
 
 _deps/ixwebsocket-src/ixwebsocket/IXGzipCodec.h:
+
+_deps/mbedtls-src/include/mbedtls/ecp.h:
 
 /home/d050/.local/share/Geode/cross-tools/splat/crt/include/array:
 
@@ -6100,6 +6437,8 @@ _deps/ixwebsocket-src/ixwebsocket/IXSocket.h:
 /usr/lib/clang/22/include/__stddef_nullptr_t.h:
 
 _deps/ixwebsocket-src/ixwebsocket/IXUuid.cpp:
+
+/home/d050/.local/share/Geode/cross-tools/splat/sdk/include/um/wincrypt.h:
 
 /home/d050/.local/share/Geode/cross-tools/splat/crt/include/__msvc_threads_core.hpp:
 
@@ -6133,9 +6472,13 @@ _deps/ixwebsocket-src/ixwebsocket/IXBench.h:
 
 /home/d050/.local/share/Geode/cross-tools/splat/sdk/include/um/wincontypes.h:
 
+_deps/mbedtls-src/include/mbedtls/rsa.h:
+
 /home/d050/.local/share/Geode/cross-tools/splat/sdk/include/ucrt/stddef.h:
 
 /home/d050/.local/share/Geode/cross-tools/splat/sdk/include/ucrt/float.h:
+
+_deps/mbedtls-src/include/mbedtls/asn1.h:
 
 /home/d050/.local/share/Geode/cross-tools/splat/sdk/include/ucrt/math.h:
 
@@ -6317,9 +6660,13 @@ _deps/ixwebsocket-src/ixwebsocket/IXWebSocketCloseConstants.cpp:
 
 /usr/lib/clang/22/include/stddef.h:
 
+_deps/mbedtls-src/include/mbedtls/entropy.h:
+
 /home/d050/.local/share/Geode/cross-tools/splat/crt/include/type_traits:
 
 /usr/lib/clang/22/include/xopintrin.h:
+
+_deps/mbedtls-src/include/mbedtls/ssl.h:
 
 /home/d050/.local/share/Geode/cross-tools/splat/crt/include/new:
 
@@ -6340,6 +6687,8 @@ _deps/ixwebsocket-src/ixwebsocket/IXWebSocketCloseConstants.cpp:
 /usr/lib/clang/22/include/float.h:
 
 /home/d050/.local/share/Geode/cross-tools/splat/crt/include/typeinfo:
+
+_deps/mbedtls-src/include/mbedtls/ecdh.h:
 
 /usr/lib/clang/22/include/__stddef_offsetof.h:
 
@@ -6411,6 +6760,8 @@ _deps/ixwebsocket-src/ixwebsocket/IXConnectionState.h:
 
 /home/d050/.local/share/Geode/cross-tools/splat/crt/include/cctype:
 
+_deps/mbedtls-src/include/mbedtls/dhm.h:
+
 /home/d050/.local/share/Geode/cross-tools/splat/crt/include/concurrencysal.h:
 
 /home/d050/.local/share/Geode/cross-tools/splat/sdk/include/um/mcx.h:
@@ -6452,6 +6803,8 @@ _deps/ixwebsocket-src/ixwebsocket/IXCancellationRequest.h:
 /usr/lib/clang/22/include/prfchiintrin.h:
 
 /home/d050/.local/share/Geode/cross-tools/splat/crt/include/stdexcept:
+
+_deps/mbedtls-src/include/mbedtls/x509.h:
 
 /home/d050/.local/share/Geode/cross-tools/splat/sdk/include/um/WinBase.h:
 
@@ -6613,6 +6966,8 @@ _deps/ixwebsocket-src/ixwebsocket/IXSocket.cpp:
 
 /usr/lib/clang/22/include/__stdarg_va_copy.h:
 
+_deps/mbedtls-src/include/mbedtls/sha512.h:
+
 _deps/ixwebsocket-src/ixwebsocket/IXWebSocketHandshake.h:
 
 /home/d050/.local/share/Geode/cross-tools/splat/sdk/include/shared/winerror.h:
@@ -6630,6 +6985,8 @@ _deps/ixwebsocket-src/ixwebsocket/IXWebSocketHandshake.h:
 /home/d050/.local/share/Geode/cross-tools/splat/sdk/include/um/WS2tcpip.h:
 
 /home/d050/.local/share/Geode/cross-tools/splat/sdk/include/um/WinNls.h:
+
+_deps/mbedtls-src/include/mbedtls/x509_crt.h:
 
 /home/d050/.local/share/Geode/cross-tools/splat/sdk/include/um/WinSock2.h:
 
@@ -6689,6 +7046,8 @@ _deps/ixwebsocket-src/ixwebsocket/IXWebSocketHttpHeaders.h:
 
 /home/d050/.local/share/Geode/cross-tools/splat/sdk/include/um/namedpipeapi.h:
 
+_deps/mbedtls-src/include/mbedtls/config.h:
+
 /home/d050/.local/share/Geode/cross-tools/splat/sdk/include/um/verrsrc.h:
 
 /home/d050/.local/share/Geode/cross-tools/splat/sdk/include/um/processenv.h:
@@ -6736,6 +7095,8 @@ _deps/ixwebsocket-src/ixwebsocket/IXWebSocketHttpHeaders.h:
 /home/d050/.local/share/Geode/cross-tools/splat/sdk/include/um/winnt.h:
 
 /usr/lib/clang/22/include/clflushoptintrin.h:
+
+_deps/mbedtls-src/include/mbedtls/bignum.h:
 
 /home/d050/.local/share/Geode/cross-tools/splat/sdk/include/um/winreg.h:
 

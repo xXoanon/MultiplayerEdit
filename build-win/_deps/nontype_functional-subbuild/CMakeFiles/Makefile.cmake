@@ -10,10 +10,8 @@ set(CMAKE_MAKEFILE_DEPENDS
   "CMakeFiles/4.3.3/CMakeSystem.cmake"
   "CMakeLists.txt"
   "nontype_functional-populate-prefix/tmp/nontype_functional-populate-mkdirs.cmake"
-  "/usr/share/cmake/Modules/CMakeDetermineSystem.cmake"
   "/usr/share/cmake/Modules/CMakeGenericSystem.cmake"
   "/usr/share/cmake/Modules/CMakeInitializeConfigs.cmake"
-  "/usr/share/cmake/Modules/CMakeSystem.cmake.in"
   "/usr/share/cmake/Modules/CMakeSystemSpecificInformation.cmake"
   "/usr/share/cmake/Modules/CMakeSystemSpecificInitialize.cmake"
   "/usr/share/cmake/Modules/ExternalProject.cmake"
@@ -38,7 +36,6 @@ set(CMAKE_MAKEFILE_OUTPUTS
 
 # Byproducts of CMake generate step:
 set(CMAKE_MAKEFILE_PRODUCTS
-  "CMakeFiles/4.3.3/CMakeSystem.cmake"
   "nontype_functional-populate-prefix/tmp/nontype_functional-populate-mkdirs.cmake"
   "nontype_functional-populate-prefix/tmp/nontype_functional-populate-gitclone.cmake"
   "nontype_functional-populate-prefix/src/nontype_functional-populate-stamp/nontype_functional-populate-gitinfo.txt"

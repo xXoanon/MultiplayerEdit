@@ -96,6 +96,7 @@ _deps/ixwebsocket-build/CMakeFiles/ixwebsocket.dir/ixwebsocket/IXSocketFactory.c
   /home/d050/.local/share/Geode/cross-tools/splat/crt/include/typeinfo \
   /home/d050/.local/share/Geode/cross-tools/splat/crt/include/vcruntime_typeinfo.h \
   /home/d050/Coding/Me\ Coding/MultiplayerEdit/build-win/_deps/ixwebsocket-src/ixwebsocket/IXUniquePtr.h \
+  /home/d050/Coding/Me\ Coding/MultiplayerEdit/build-win/_deps/ixwebsocket-src/ixwebsocket/IXSocketMbedTLS.h \
   /home/d050/Coding/Me\ Coding/MultiplayerEdit/build-win/_deps/ixwebsocket-src/ixwebsocket/IXSocket.h \
   /home/d050/.local/share/Geode/cross-tools/splat/crt/include/atomic \
   /home/d050/.local/share/Geode/cross-tools/splat/crt/include/xthreads.h \
@@ -121,4 +122,39 @@ _deps/ixwebsocket-build/CMakeFiles/ixwebsocket.dir/ixwebsocket/IXSocketFactory.c
   /home/d050/.local/share/Geode/cross-tools/splat/sdk/include/shared/BaseTsd.h \
   /home/d050/Coding/Me\ Coding/MultiplayerEdit/build-win/_deps/ixwebsocket-src/ixwebsocket/IXCancellationRequest.h \
   /home/d050/Coding/Me\ Coding/MultiplayerEdit/build-win/_deps/ixwebsocket-src/ixwebsocket/IXProgressCallback.h \
-  /home/d050/Coding/Me\ Coding/MultiplayerEdit/build-win/_deps/ixwebsocket-src/ixwebsocket/IXSelectInterrupt.h
+  /home/d050/Coding/Me\ Coding/MultiplayerEdit/build-win/_deps/ixwebsocket-src/ixwebsocket/IXSelectInterrupt.h \
+  /home/d050/Coding/Me\ Coding/MultiplayerEdit/build-win/_deps/mbedtls-src/include/mbedtls/ctr_drbg.h \
+  /home/d050/Coding/Me\ Coding/MultiplayerEdit/build-win/_deps/mbedtls-src/include/mbedtls/config.h \
+  /home/d050/Coding/Me\ Coding/MultiplayerEdit/build-win/_deps/mbedtls-src/include/mbedtls/check_config.h \
+  /home/d050/Coding/Me\ Coding/MultiplayerEdit/build-win/_deps/mbedtls-src/include/mbedtls/aes.h \
+  /home/d050/Coding/Me\ Coding/MultiplayerEdit/build-win/_deps/mbedtls-src/include/mbedtls/platform_util.h \
+  /home/d050/Coding/Me\ Coding/MultiplayerEdit/build-win/_deps/mbedtls-src/include/mbedtls/platform_time.h \
+  /home/d050/Coding/Me\ Coding/MultiplayerEdit/build-win/_deps/mbedtls-src/include/mbedtls/debug.h \
+  /home/d050/Coding/Me\ Coding/MultiplayerEdit/build-win/_deps/mbedtls-src/include/mbedtls/ssl.h \
+  /home/d050/Coding/Me\ Coding/MultiplayerEdit/build-win/_deps/mbedtls-src/include/mbedtls/bignum.h \
+  /home/d050/Coding/Me\ Coding/MultiplayerEdit/build-win/_deps/mbedtls-src/include/mbedtls/ecp.h \
+  /home/d050/Coding/Me\ Coding/MultiplayerEdit/build-win/_deps/mbedtls-src/include/mbedtls/ssl_ciphersuites.h \
+  /home/d050/Coding/Me\ Coding/MultiplayerEdit/build-win/_deps/mbedtls-src/include/mbedtls/pk.h \
+  /home/d050/Coding/Me\ Coding/MultiplayerEdit/build-win/_deps/mbedtls-src/include/mbedtls/md.h \
+  /home/d050/Coding/Me\ Coding/MultiplayerEdit/build-win/_deps/mbedtls-src/include/mbedtls/rsa.h \
+  /home/d050/Coding/Me\ Coding/MultiplayerEdit/build-win/_deps/mbedtls-src/include/mbedtls/ecdsa.h \
+  /home/d050/Coding/Me\ Coding/MultiplayerEdit/build-win/_deps/mbedtls-src/include/mbedtls/cipher.h \
+  /home/d050/Coding/Me\ Coding/MultiplayerEdit/build-win/_deps/mbedtls-src/include/mbedtls/x509_crt.h \
+  /home/d050/Coding/Me\ Coding/MultiplayerEdit/build-win/_deps/mbedtls-src/include/mbedtls/x509.h \
+  /home/d050/Coding/Me\ Coding/MultiplayerEdit/build-win/_deps/mbedtls-src/include/mbedtls/asn1.h \
+  /home/d050/Coding/Me\ Coding/MultiplayerEdit/build-win/_deps/mbedtls-src/include/mbedtls/x509_crl.h \
+  /home/d050/Coding/Me\ Coding/MultiplayerEdit/build-win/_deps/mbedtls-src/include/mbedtls/dhm.h \
+  /home/d050/Coding/Me\ Coding/MultiplayerEdit/build-win/_deps/mbedtls-src/include/mbedtls/ecdh.h \
+  /home/d050/Coding/Me\ Coding/MultiplayerEdit/build-win/_deps/mbedtls-src/include/mbedtls/entropy.h \
+  /home/d050/Coding/Me\ Coding/MultiplayerEdit/build-win/_deps/mbedtls-src/include/mbedtls/sha512.h \
+  /home/d050/Coding/Me\ Coding/MultiplayerEdit/build-win/_deps/mbedtls-src/include/mbedtls/error.h \
+  /home/d050/Coding/Me\ Coding/MultiplayerEdit/build-win/_deps/mbedtls-src/include/mbedtls/net_sockets.h \
+  /home/d050/Coding/Me\ Coding/MultiplayerEdit/build-win/_deps/mbedtls-src/include/mbedtls/platform.h \
+  /usr/bin/../lib/clang/22/include/stdarg.h \
+  /home/d050/.local/share/Geode/cross-tools/splat/crt/include/stdarg.h \
+  /usr/bin/../lib/clang/22/include/__stdarg_header_macro.h \
+  /usr/bin/../lib/clang/22/include/__stdarg___gnuc_va_list.h \
+  /usr/bin/../lib/clang/22/include/__stdarg_va_list.h \
+  /usr/bin/../lib/clang/22/include/__stdarg_va_arg.h \
+  /usr/bin/../lib/clang/22/include/__stdarg___va_copy.h \
+  /usr/bin/../lib/clang/22/include/__stdarg_va_copy.h

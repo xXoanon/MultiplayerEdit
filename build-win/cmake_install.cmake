@@ -39,6 +39,11 @@ endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for the subdirectory.
+  include("/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/_deps/mbedtls-build/cmake_install.cmake")
+endif()
+
+if(NOT CMAKE_INSTALL_LOCAL_ONLY)
+  # Include the install script for the subdirectory.
   include("/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/_deps/ixwebsocket-build/cmake_install.cmake")
 endif()
 

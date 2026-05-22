@@ -189,6 +189,71 @@ MultiplayerEdit_PACKAGE/fast:
 .PHONY : MultiplayerEdit_PACKAGE/fast
 
 #=============================================================================
+# Target rules for targets named apidoc
+
+# Build rule for target.
+apidoc: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 apidoc
+.PHONY : apidoc
+
+# fast build rule for target.
+apidoc/fast:
+	$(MAKE) $(MAKESILENT) -f _deps/mbedtls-build/CMakeFiles/apidoc.dir/build.make _deps/mbedtls-build/CMakeFiles/apidoc.dir/build
+.PHONY : apidoc/fast
+
+#=============================================================================
+# Target rules for targets named mbedcrypto
+
+# Build rule for target.
+mbedcrypto: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 mbedcrypto
+.PHONY : mbedcrypto
+
+# fast build rule for target.
+mbedcrypto/fast:
+	$(MAKE) $(MAKESILENT) -f _deps/mbedtls-build/library/CMakeFiles/mbedcrypto.dir/build.make _deps/mbedtls-build/library/CMakeFiles/mbedcrypto.dir/build
+.PHONY : mbedcrypto/fast
+
+#=============================================================================
+# Target rules for targets named mbedx509
+
+# Build rule for target.
+mbedx509: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 mbedx509
+.PHONY : mbedx509
+
+# fast build rule for target.
+mbedx509/fast:
+	$(MAKE) $(MAKESILENT) -f _deps/mbedtls-build/library/CMakeFiles/mbedx509.dir/build.make _deps/mbedtls-build/library/CMakeFiles/mbedx509.dir/build
+.PHONY : mbedx509/fast
+
+#=============================================================================
+# Target rules for targets named mbedtls
+
+# Build rule for target.
+mbedtls: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 mbedtls
+.PHONY : mbedtls
+
+# fast build rule for target.
+mbedtls/fast:
+	$(MAKE) $(MAKESILENT) -f _deps/mbedtls-build/library/CMakeFiles/mbedtls.dir/build.make _deps/mbedtls-build/library/CMakeFiles/mbedtls.dir/build
+.PHONY : mbedtls/fast
+
+#=============================================================================
+# Target rules for targets named lib
+
+# Build rule for target.
+lib: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 lib
+.PHONY : lib
+
+# fast build rule for target.
+lib/fast:
+	$(MAKE) $(MAKESILENT) -f _deps/mbedtls-build/library/CMakeFiles/lib.dir/build.make _deps/mbedtls-build/library/CMakeFiles/lib.dir/build
+.PHONY : lib/fast
+
+#=============================================================================
 # Target rules for targets named ixwebsocket
 
 # Build rule for target.
@@ -937,12 +1002,17 @@ help:
 	@echo "... NightlySubmit"
 	@echo "... NightlyTest"
 	@echo "... NightlyUpdate"
+	@echo "... apidoc"
+	@echo "... lib"
 	@echo "... GeodeBindings"
 	@echo "... MultiplayerEdit"
 	@echo "... arc"
 	@echo "... asp"
 	@echo "... fmt"
 	@echo "... ixwebsocket"
+	@echo "... mbedcrypto"
+	@echo "... mbedtls"
+	@echo "... mbedx509"
 	@echo "... cmake_pch.hxx.pch"
 	@echo "... cmake_pch.hxx.i"
 	@echo "... cmake_pch.hxx.s"
