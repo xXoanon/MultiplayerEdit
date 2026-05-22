@@ -3,6 +3,8 @@
 #include "RemoteActionHandler.hpp"
 #include <Geode/loader/Log.hpp>
 #include <Geode/loader/Mod.hpp>
+#include <Geode/Geode.hpp>
+#include <Geode/ui/Notification.hpp>
 
 using namespace geode::prelude;
 
@@ -291,12 +293,44 @@ namespace mpedit {
 
         log::error("SessionManager: Server error: {}", errorMsg);
 
+        auto role = m_role;
+
         // Copy callbacks since leaveSession clears them
         auto callbacks = m_onError;
         leaveSession();
 
         for (auto& cb : callbacks) {
             cb(errorMsg);
+        }
+
+        // If client/guest encountered an error (e.g. host left or connection lost) while inside the editor, close the level and exit
+        if (role == Role::Client) {
+            if (auto* editor = LevelEditorLayer::get()) {
+                auto* director = cocos2d::CCDirector::sharedDirector();
+                if (auto* runningScene = director->getRunningScene()) {
+                    std::function<EditorPauseLayer*(cocos2d::CCNode*)> findPauseLayer = [&](cocos2d::CCNode* parent) -> EditorPauseLayer* {
+                        if (!parent) return nullptr;
+                        if (auto* pause = typeinfo_cast<EditorPauseLayer*>(parent)) {
+                            return pause;
+                        }
+                        if (parent->getChildren()) {
+                            for (auto* child : CCArrayExt<CCNode*>(parent->getChildren())) {
+                                if (auto* p = findPauseLayer(child)) return p;
+                            }
+                        }
+                        return nullptr;
+                    };
+
+                    auto* pauseLayer = findPauseLayer(runningScene);
+                    if (pauseLayer) {
+                        pauseLayer->onExitEditor(nullptr);
+                    } else {
+                        director->popScene();
+                    }
+
+                    geode::Notification::create(errorMsg, geode::NotificationIcon::Error)->show();
+                }
+            }
         }
     }
 
