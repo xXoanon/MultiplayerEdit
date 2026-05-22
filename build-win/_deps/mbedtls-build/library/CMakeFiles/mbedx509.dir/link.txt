@@ -1,2 +1,0 @@
-/usr/bin/llvm-ar qc mbedx509.lib CMakeFiles/mbedx509.dir/certs.c.obj CMakeFiles/mbedx509.dir/pkcs11.c.obj CMakeFiles/mbedx509.dir/x509.c.obj CMakeFiles/mbedx509.dir/x509_create.c.obj CMakeFiles/mbedx509.dir/x509_crl.c.obj CMakeFiles/mbedx509.dir/x509_crt.c.obj CMakeFiles/mbedx509.dir/x509_csr.c.obj CMakeFiles/mbedx509.dir/x509write_crt.c.obj CMakeFiles/mbedx509.dir/x509write_csr.c.obj
-/usr/bin/llvm-ranlib mbedx509.lib

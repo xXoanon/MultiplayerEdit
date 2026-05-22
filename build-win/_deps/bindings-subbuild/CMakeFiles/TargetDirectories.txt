@@ -1,3 +1,0 @@
-/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/_deps/bindings-subbuild/CMakeFiles/bindings-populate.dir
-/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/_deps/bindings-subbuild/CMakeFiles/edit_cache.dir
-/home/d050/Coding/Me Coding/MultiplayerEdit/build-win/_deps/bindings-subbuild/CMakeFiles/rebuild_cache.dir

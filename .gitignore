@@ -3,6 +3,7 @@ geode-main/
 
 # Build
 build/
+build-win/
 cmake-build-*/
 .cache/
 
@@ -28,3 +29,7 @@ Thumbs.db
 # Server
 server/node_modules/
 server/.env
+
+# Local docs
+geode docs/
+
