@@ -1,6 +1,7 @@
 #include "CursorNode.hpp"
 #include <Geode/Geode.hpp>
 #include "../RemoteActionHandler.hpp"
+#include <sstream>
 
 using namespace geode::prelude;
 
@@ -91,6 +92,7 @@ namespace mpedit {
                 pc.label->setScale(0.4f);
                 pc.label->setColor(color3);
                 pc.label->setOpacity(200);
+                pc.label->setAnchorPoint({0.f, 0.5f});
                 this->addChild(pc.label);
 
                 // Initial position
@@ -111,9 +113,116 @@ namespace mpedit {
                 float newY = currentPos.y + (pc.targetY - currentPos.y) * 15.f * dt;
                 
                 pc.drawNode->setPosition({newX, newY});
+                pc.label->setAnchorPoint({0.f, 0.5f});
                 pc.label->setPosition({newX + 15.f, newY - 15.f});
 
                 pc.label->setString(player.name.c_str());
+            }
+
+            auto& pc = m_cursors[player.id];
+            
+            // Rebuild toolIndicator if status changed
+            if (player.status != pc.lastStatus) {
+                pc.lastStatus = player.status;
+                if (pc.toolIndicator) {
+                    pc.toolIndicator->removeFromParent();
+                    pc.toolIndicator = nullptr;
+                }
+
+                if (!player.status.empty()) {
+                    // Parse "mode:swipe:objectId"
+                    int mode = 0;
+                    int swipe = 0;
+                    int objectId = 0;
+                    std::stringstream ss(player.status);
+                    std::string modeStr, swipeStr, objStr;
+                    if (std::getline(ss, modeStr, ':') && std::getline(ss, swipeStr, ':') && std::getline(ss, objStr, ':')) {
+                        try {
+                            mode = std::stoi(modeStr);
+                            swipe = std::stoi(swipeStr);
+                            objectId = std::stoi(objStr);
+                        } catch (...) {}
+                    }
+
+                    pc.toolIndicator = CCNode::create();
+                    
+                    ccColor4F bgColor;
+                    std::string modeText;
+                    if (mode == 0) { // Build
+                        bgColor = {0.12f, 0.56f, 1.0f, 0.9f}; // Dodger Blue
+                        modeText = "BUILD";
+                    } else if (mode == 1) { // Delete
+                        bgColor = {1.0f, 0.25f, 0.25f, 0.9f}; // Red
+                        modeText = "DELETE";
+                    } else { // Edit (mode 3)
+                        bgColor = {1.0f, 0.6f, 0.07f, 0.9f}; // Orange
+                        modeText = "EDIT";
+                    }
+
+                    if (swipe != 0) {
+                        modeText += " (SWIPE)";
+                    }
+
+                    auto* badgeLabel = CCLabelBMFont::create(modeText.c_str(), "chatFont.fnt");
+                    badgeLabel->setScale(0.35f);
+                    badgeLabel->setColor({255, 255, 255});
+                    
+                    float labelWidth = badgeLabel->getContentSize().width * badgeLabel->getScaleX();
+                    float labelHeight = badgeLabel->getContentSize().height * badgeLabel->getScaleY();
+                    
+                    float paddingX = 8.f;
+                    float paddingY = 4.f;
+                    
+                    float badgeWidth = labelWidth + paddingX * 2.f;
+                    float badgeHeight = labelHeight + paddingY * 2.f;
+
+                    GameObject* previewObj = nullptr;
+                    float previewWidth = 0.f;
+                    if (mode == 0 && objectId > 0) {
+                        auto* obj = GameObject::createWithKey(objectId);
+                        if (obj) {
+                            float maxDim = std::max(obj->getContentSize().width, obj->getContentSize().height);
+                            if (maxDim > 0.f) {
+                                float targetDim = 14.f;
+                                obj->setScale(targetDim / maxDim);
+                                previewWidth = targetDim;
+                                previewObj = obj;
+                            }
+                        }
+                    }
+
+                    if (previewObj) {
+                        badgeWidth += previewWidth + 4.f;
+                    }
+
+                    auto* bgNode = CCDrawNode::create();
+                    float radius = badgeHeight / 2.f;
+                    bgNode->drawSegment({radius, radius}, {badgeWidth - radius, radius}, radius, bgColor);
+                    pc.toolIndicator->addChild(bgNode);
+
+                    if (previewObj) {
+                        previewObj->setPosition({paddingX + previewWidth / 2.f, radius});
+                        pc.toolIndicator->addChild(previewObj);
+                        badgeLabel->setPosition({paddingX + previewWidth + 4.f + labelWidth / 2.f, radius});
+                    } else {
+                        badgeLabel->setPosition({badgeWidth / 2.f, radius});
+                    }
+                    
+                    pc.toolIndicator->addChild(badgeLabel);
+                    pc.toolIndicator->setContentSize({badgeWidth, badgeHeight});
+                    pc.toolIndicator->setAnchorPoint({0.f, 0.5f});
+                    pc.toolIndicator->ignoreAnchorPointForPosition(false);
+                    
+                    this->addChild(pc.toolIndicator);
+                }
+            }
+
+            // Update toolIndicator position
+            if (pc.toolIndicator) {
+                float labelWidth = pc.label->getContentSize().width * pc.label->getScaleX();
+                float labelX = pc.label->getPositionX();
+                float labelY = pc.label->getPositionY();
+                pc.toolIndicator->setPosition({labelX + labelWidth + 6.f, labelY});
             }
         }
 
@@ -150,8 +259,9 @@ namespace mpedit {
         // Remove disconnected players
         for (auto it = m_cursors.begin(); it != m_cursors.end();) {
             if (activeIds.find(it->first) == activeIds.end()) {
-                it->second.drawNode->removeFromParent();
-                it->second.label->removeFromParent();
+                if (it->second.drawNode) it->second.drawNode->removeFromParent();
+                if (it->second.label) it->second.label->removeFromParent();
+                if (it->second.toolIndicator) it->second.toolIndicator->removeFromParent();
                 it = m_cursors.erase(it);
             } else {
                 ++it;

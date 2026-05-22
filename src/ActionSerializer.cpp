@@ -80,7 +80,7 @@ namespace mpedit::ActionSerializer {
         return msg;
     }
 
-    matjson::Value serializeSyncLevel(int targetPlayerId, std::vector<ObjectData> const& objects, LevelSettingsData const& settings) {
+    matjson::Value serializeSyncLevel(int targetPlayerId, std::vector<ObjectData> const& objects, LevelSettingsData const& settings, std::vector<LockData> const& locks) {
         matjson::Value msg;
         msg["action"] = "sync_level";
         msg["targetPlayerId"] = targetPlayerId;
@@ -97,6 +97,16 @@ namespace mpedit::ActionSerializer {
         settingsObj["songID"] = settings.songID;
         settingsObj["levelLength"] = settings.levelLength;
         msg["settings"] = settingsObj;
+
+        auto locksArr = matjson::Value::array();
+        for (auto const& lock : locks) {
+            auto lockObj = matjson::Value::object();
+            lockObj["uuid"] = lock.uuid;
+            lockObj["playerId"] = lock.playerId;
+            lockObj["timeLeft"] = lock.timeLeft;
+            locksArr.push(lockObj);
+        }
+        msg["locks"] = locksArr;
         
         return msg;
     }
@@ -293,6 +303,21 @@ namespace mpedit::ActionSerializer {
             if (auto l = s.get<double>("levelLength")) settings.levelLength = static_cast<float>(*l);
         }
         return settings;
+    }
+
+    std::vector<LockData> deserializeSyncLevelLocks(matjson::Value const& data) {
+        std::vector<LockData> result;
+        auto locksRes = data.get("locks");
+        if (locksRes.isOk()) {
+            for (auto& item : locksRes.unwrap()) {
+                LockData ld;
+                if (auto u = item.get<std::string>("uuid")) ld.uuid = *u;
+                if (auto p = item.get<int>("playerId")) ld.playerId = *p;
+                if (auto t = item.get<double>("timeLeft")) ld.timeLeft = static_cast<float>(*t);
+                result.push_back(ld);
+            }
+        }
+        return result;
     }
 
     // ============================================================

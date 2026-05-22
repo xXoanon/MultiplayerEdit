@@ -20,6 +20,13 @@ namespace mpedit {
 
     MultiplayerPopup::~MultiplayerPopup() {
         this->unschedule(schedule_selector(MultiplayerPopup::pollNetwork));
+
+        auto& session = SessionManager::get();
+        if (session.isInSession() && session.getRole() == SessionManager::Role::Client && !LevelEditorLayer::get()) {
+            log::info("MultiplayerPopup: Leaving session because popup was closed during sync");
+            session.leaveSession();
+        }
+
         SessionManager::get().clearPopupCallbacks();
         if (s_instance == this) s_instance = nullptr;
     }
@@ -204,6 +211,62 @@ namespace mpedit {
 
         m_contentNode->addChild(m_sessionMenu);
     }
+ 
+    void MultiplayerPopup::createLoadingView(std::string const& statusText) {
+        m_contentNode->removeAllChildren();
+
+        auto center = m_mainLayer->getContentSize() / 2.f;
+
+        // Translucent dark background card
+        auto* bg = cocos2d::extension::CCScale9Sprite::create("square02b_001.png");
+        bg->setContentSize({300.f, 150.f});
+        bg->setPosition({center.width, center.height - 10.f});
+        bg->setColor({10, 15, 28});
+        bg->setOpacity(180);
+        m_contentNode->addChild(bg);
+
+        // Title: Synchronizing Level
+        auto* titleLabel = CCLabelBMFont::create("Synchronizing Level", "goldFont.fnt");
+        titleLabel->setScale(0.7f);
+        titleLabel->setPosition({center.width, center.height + 40.f});
+        titleLabel->setID("sync-title-label"_spr);
+        m_contentNode->addChild(titleLabel);
+
+        // Beautiful rotating native spinner
+        auto* spinner = cocos2d::CCSprite::create("loadingCircle.png");
+        if (spinner) {
+            spinner->setScale(0.8f);
+            spinner->setPosition({center.width, center.height + 10.f});
+            spinner->runAction(cocos2d::CCRepeatForever::create(cocos2d::CCRotateBy::create(1.0f, 360.f)));
+            spinner->setID("sync-spinner"_spr);
+            m_contentNode->addChild(spinner);
+        }
+
+        // Status description
+        m_statusLabel = CCLabelBMFont::create(statusText.c_str(), "chatFont.fnt");
+        m_statusLabel->setScale(0.55f);
+        m_statusLabel->setPosition({center.width, center.height - 45.f});
+        m_statusLabel->setColor({200, 200, 200});
+        m_statusLabel->setID("status-label"_spr);
+        m_contentNode->addChild(m_statusLabel);
+
+        // Cancel Menu and Button
+        auto* cancelMenu = CCMenu::create();
+        cancelMenu->setPosition({0, 0});
+        cancelMenu->setID("cancel-menu"_spr);
+
+        auto* cancelSprite = ButtonSprite::create(
+            "Cancel", 100, true, "bigFont.fnt", "GJ_button_06.png", 30.f, 0.6f
+        );
+        auto* cancelBtn = CCMenuItemSpriteExtra::create(
+            cancelSprite, this, menu_selector(MultiplayerPopup::onLeave)
+        );
+        cancelBtn->setPosition({center.width, 40.f});
+        cancelBtn->setID("cancel-button"_spr);
+        cancelMenu->addChild(cancelBtn);
+
+        m_contentNode->addChild(cancelMenu);
+    }
 
     void MultiplayerPopup::onHost(CCObject*) {
         std::string name = GJAccountManager::sharedState()->m_username;
@@ -218,16 +281,7 @@ namespace mpedit {
         session.onSessionStarted([this]() {
             auto& session = SessionManager::get();
             if (session.getRole() == SessionManager::Role::Client) {
-                this->onClose(nullptr);
-                
-                auto* level = GJGameLevel::create();
-                level->m_levelName = "Multiplayer Edit";
-                level->m_levelType = GJLevelType::Editor;
-                
-                auto* scene = LevelEditorLayer::scene(level, false);
-                CCDirector::sharedDirector()->pushScene(scene);
-                
-                Notification::create("Joined session!", NotificationIcon::Success)->show();
+                createLoadingView("Waiting for level sync from host...");
             } else {
                 m_contentNode->removeAllChildren();
                 createSessionView();
@@ -272,16 +326,7 @@ namespace mpedit {
         auto& session = SessionManager::get();
 
         session.onSessionStarted([this]() {
-            this->onClose(nullptr);
-            
-            auto* level = GJGameLevel::create();
-            level->m_levelName = "Multiplayer Edit";
-            level->m_levelType = GJLevelType::Editor;
-            
-            auto* scene = LevelEditorLayer::scene(level, false);
-            CCDirector::sharedDirector()->pushScene(scene);
-            
-            Notification::create("Joined session!", NotificationIcon::Success)->show();
+            createLoadingView("Waiting for level sync from host...");
         });
 
         session.onError([this](std::string const& error) {

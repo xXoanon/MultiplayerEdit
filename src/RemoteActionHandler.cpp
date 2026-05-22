@@ -92,7 +92,8 @@ namespace mpedit {
 
             auto objects = ActionSerializer::deserializePlacedObjects(data); // uses objects array
             auto settings = ActionSerializer::deserializeLevelSettings(data);
-            handleRemoteSyncLevel(*idRes, objects, settings);
+            auto locks = ActionSerializer::deserializeSyncLevelLocks(data);
+            handleRemoteSyncLevel(*idRes, objects, settings, locks);
         });
 
         net.on("update_settings", [this](matjson::Value const& data) {
@@ -152,7 +153,7 @@ namespace mpedit {
         if (!m_pendingSync) return;
         auto sync = m_pendingSync.value();
         m_pendingSync.reset();
-        handleRemoteSyncLevel(sync.playerId, sync.objects, sync.settings);
+        handleRemoteSyncLevel(sync.playerId, sync.objects, sync.settings, sync.locks, true);
     }
 
     void RemoteActionHandler::handleRemotePlaceObjects(
@@ -336,7 +337,9 @@ namespace mpedit {
     void RemoteActionHandler::handleRemoteSyncLevel(
         int playerId, 
         std::vector<ActionSerializer::ObjectData> const& objects, 
-        ActionSerializer::LevelSettingsData const& settings
+        ActionSerializer::LevelSettingsData const& settings,
+        std::vector<ActionSerializer::LockData> const& locks,
+        bool isPendingSync
     ) {
         auto* editor = getEditorLayer();
         if (!editor) {
@@ -370,10 +373,29 @@ namespace mpedit {
             if (MultiplayerPopup::s_instance) {
                 MultiplayerPopup::s_instance->forceClose();
             }
+
+            m_pendingSync = PendingSync {
+                playerId,
+                objects,
+                settings,
+                locks
+            };
             return;
         }
 
         m_pendingSync.reset();
+
+        if (isPendingSync) {
+            log::info("RemoteActionHandler: Applying pending sync locks (objects already natively loaded)");
+            // Apply locks
+            m_objectLocks.clear();
+            for (auto const& lock : locks) {
+                m_objectLocks[lock.uuid] = LockInfo { lock.playerId, lock.timeLeft };
+            }
+            m_initialSyncCompleted = true;
+            return;
+        }
+
         m_processingRemote = true;
 
         log::info("RemoteActionHandler: Syncing level state with {} objects from player {}", objects.size(), playerId);
@@ -451,6 +473,12 @@ namespace mpedit {
                 auto* newObj = static_cast<GameObject*>(arr->objectAtIndex(0));
                 registerObject(objData.uuid, newObj);
             }
+        }
+
+        // Apply locks
+        m_objectLocks.clear();
+        for (auto const& lock : locks) {
+            m_objectLocks[lock.uuid] = LockInfo { lock.playerId, lock.timeLeft };
         }
 
         // Force UI options update (e.g. background, ground, colors)

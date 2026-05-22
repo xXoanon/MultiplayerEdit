@@ -19,6 +19,7 @@ namespace mpedit {
         // Last known cursor position
         float cursorX = 0.f;
         float cursorY = 0.f;
+        std::string status;
     };
 
     /**
@@ -50,7 +51,7 @@ namespace mpedit {
         // Player management
         std::vector<PlayerInfo> const& getPlayers() const;
         PlayerInfo const* getPlayer(int id) const;
-        void updatePlayerCursor(int playerId, float x, float y);
+        void updatePlayerCursor(int playerId, float x, float y, std::string const& status);
 
         // Register callbacks for session events
         using SessionCallback = std::function<void()>;

@@ -50,11 +50,34 @@ namespace mpedit {
         
         if (!session.isInSession()) {
             this->setVisible(false);
+            m_cachedPlayers.clear();
             return;
         }
 
         this->setVisible(true);
-        refreshList();
+        
+        auto const& currentPlayers = session.getPlayers();
+        bool changed = false;
+        if (currentPlayers.size() != m_cachedPlayers.size()) {
+            changed = true;
+        } else {
+            for (size_t i = 0; i < currentPlayers.size(); i++) {
+                if (currentPlayers[i].id != m_cachedPlayers[i].id ||
+                    currentPlayers[i].name != m_cachedPlayers[i].name ||
+                    currentPlayers[i].colorIndex != m_cachedPlayers[i].colorIndex) {
+                    changed = true;
+                    break;
+                }
+            }
+        }
+
+        if (changed) {
+            m_cachedPlayers.clear();
+            for (auto const& p : currentPlayers) {
+                m_cachedPlayers.push_back({p.id, p.name, p.colorIndex});
+            }
+            refreshList();
+        }
     }
 
     void PlayerListNode::refreshList() {

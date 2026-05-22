@@ -123,11 +123,12 @@ namespace mpedit {
         return nullptr;
     }
 
-    void SessionManager::updatePlayerCursor(int playerId, float x, float y) {
+    void SessionManager::updatePlayerCursor(int playerId, float x, float y, std::string const& status) {
         for (auto& p : m_players) {
             if (p.id == playerId) {
                 p.cursorX = x;
                 p.cursorY = y;
+                p.status = status;
                 return;
             }
         }
@@ -237,6 +238,7 @@ namespace mpedit {
                 if (auto id = p.get<int>("id")) info.id = *id;
                 if (auto name = p.get<std::string>("name")) info.name = *name;
                 if (auto color = p.get<int>("colorIndex")) info.colorIndex = *color;
+                if (auto status = p.get<std::string>("status")) info.status = *status;
                 m_players.push_back(info);
             }
         }
@@ -253,6 +255,7 @@ namespace mpedit {
         if (auto id = data.get<int>("playerId")) info.id = *id;
         if (auto name = data.get<std::string>("playerName")) info.name = *name;
         if (auto color = data.get<int>("colorIndex")) info.colorIndex = *color;
+        if (auto status = data.get<std::string>("status")) info.status = *status;
 
         m_players.push_back(info);
 
@@ -338,9 +341,13 @@ namespace mpedit {
         auto idRes = data.get<int>("playerId");
         auto xRes = data.get<double>("x");
         auto yRes = data.get<double>("y");
+        std::string status = "";
+        if (auto statusVal = data.get<std::string>("status")) {
+            status = *statusVal;
+        }
 
         if (idRes && xRes && yRes) {
-            updatePlayerCursor(*idRes, static_cast<float>(*xRes), static_cast<float>(*yRes));
+            updatePlayerCursor(*idRes, static_cast<float>(*xRes), static_cast<float>(*yRes), status);
         }
     }
 

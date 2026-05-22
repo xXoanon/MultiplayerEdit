@@ -311,9 +311,13 @@ class $modify(MPLevelEditorLayer, LevelEditorLayer) {
                     settings.songID = this->m_level->m_songID;
                     settings.levelLength = this->m_level->m_levelLength;
                 }
+                std::vector<ActionSerializer::LockData> locks;
+                for (auto const& [uuid, lockInfo] : RemoteActionHandler::get().getObjectLocks()) {
+                    locks.push_back({uuid, lockInfo.playerId, lockInfo.timeLeft});
+                }
                 for (auto const& player : session.getPlayers()) {
                     if (player.id != session.getLocalPlayerId()) {
-                        auto msg = ActionSerializer::serializeSyncLevel(player.id, objects, settings);
+                        auto msg = ActionSerializer::serializeSyncLevel(player.id, objects, settings, locks);
                         NetworkManager::get().send(msg);
                         log::info("EditorHooks: Sent sync_level to existing player {}", player.id);
                     }
@@ -346,7 +350,11 @@ class $modify(MPLevelEditorLayer, LevelEditorLayer) {
                     settings.songID = this->m_level->m_songID;
                     settings.levelLength = this->m_level->m_levelLength;
                 }
-                auto msg = ActionSerializer::serializeSyncLevel(info.id, objects, settings);
+                std::vector<ActionSerializer::LockData> locks;
+                for (auto const& [uuid, lockInfo] : RemoteActionHandler::get().getObjectLocks()) {
+                    locks.push_back({uuid, lockInfo.playerId, lockInfo.timeLeft});
+                }
+                auto msg = ActionSerializer::serializeSyncLevel(info.id, objects, settings, locks);
                 NetworkManager::get().send(msg);
                 log::info("EditorHooks: Sent sync_level to new player {}", info.id);
             }
@@ -389,6 +397,7 @@ class $modify(MPLevelEditorLayer, LevelEditorLayer) {
             session.leaveSession();
             log::info("EditorHooks: Left session automatically on editor destructor");
         }
+        session.clearCallbacks();
     }
 
     // Intercept object creation to assign UUIDs and sync
@@ -627,7 +636,23 @@ class $modify(MPLevelEditorLayer, LevelEditorLayer) {
             if (this->m_objectLayer) {
                 auto mousePos = geode::cocos::getMousePos();
                 auto levelPos = this->m_objectLayer->convertToNodeSpace(mousePos);
-                auto msg = ActionSerializer::serializeCursorUpdate(levelPos.x, levelPos.y, "");
+                
+                std::string statusStr = "";
+                if (auto* ui = this->m_editorUI) {
+                    int mode = ui->m_selectedMode;
+                    int swipe = ui->m_swipeEnabled ? 1 : 0;
+                    int objectId = 0;
+                    if (mode == 0 && ui->m_createButtonArray) {
+                        if (ui->m_selectedObjectIndex >= 0 && ui->m_selectedObjectIndex < static_cast<int>(ui->m_createButtonArray->count())) {
+                            if (auto* btn = typeinfo_cast<CreateMenuItem*>(ui->m_createButtonArray->objectAtIndex(ui->m_selectedObjectIndex))) {
+                                objectId = btn->m_objectID;
+                            }
+                        }
+                    }
+                    statusStr = std::to_string(mode) + ":" + std::to_string(swipe) + ":" + std::to_string(objectId);
+                }
+                
+                auto msg = ActionSerializer::serializeCursorUpdate(levelPos.x, levelPos.y, statusStr);
                 NetworkManager::get().send(msg);
             }
         }
@@ -641,6 +666,7 @@ class $modify(MPLevelEditorLayer, LevelEditorLayer) {
 class $modify(MPEditorUI, EditorUI) {
     struct Fields {
         std::unordered_map<GameObject*, std::string> m_preSelectSaveStrings;
+        float m_lockRefreshTimer = 0.f;
     };
 
     void selectObject(GameObject* obj, bool filter) {
@@ -805,10 +831,27 @@ class $modify(MPEditorUI, EditorUI) {
         return true;
     }
 
-    void syncDeselections(float) {
+    void syncDeselections(float dt) {
         auto& handler = RemoteActionHandler::get();
         auto& session = SessionManager::get();
         if (!session.isInSession() || handler.isProcessingRemote()) return;
+
+        // selection lock refresh timer
+        m_fields->m_lockRefreshTimer += dt;
+        if (m_fields->m_lockRefreshTimer >= 1.0f) {
+            m_fields->m_lockRefreshTimer = 0.f;
+            std::vector<std::string> selectedUuids;
+            for (auto const& [obj, _] : m_fields->m_preSelectSaveStrings) {
+                auto uuid = handler.getUUIDForObject(obj);
+                if (!uuid.empty()) {
+                    selectedUuids.push_back(uuid);
+                }
+            }
+            if (!selectedUuids.empty()) {
+                auto msg = ActionSerializer::serializeLockObjects(selectedUuids, true);
+                NetworkManager::get().send(msg);
+            }
+        }
 
         std::vector<std::string> unlockUuids;
         std::vector<ActionSerializer::ObjectData> updates;

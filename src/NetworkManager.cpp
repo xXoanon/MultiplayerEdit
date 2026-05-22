@@ -30,13 +30,15 @@ namespace mpedit {
     }
 
     void NetworkManager::connect(std::string const& url) {
-        if (m_state == State::Connecting || m_state == State::Connected) {
-            log::warn("NetworkManager: Already connected or connecting");
-            return;
+        {
+            std::lock_guard lock(m_stateMutex);
+            if (m_state == State::Connecting || m_state == State::Connected) {
+                log::warn("NetworkManager: Already connected or connecting");
+                return;
+            }
+            m_state = State::Connecting;
+            m_error.clear();
         }
-
-        m_state = State::Connecting;
-        m_error.clear();
         
         m_webSocket.setUrl(url);
         log::info("NetworkManager: Connecting to {} (TLS enabled for wss://)", url);
@@ -44,10 +46,12 @@ namespace mpedit {
     }
 
     void NetworkManager::disconnect() {
-        if (m_state == State::Disconnected) return;
-        
-        m_webSocket.stop();
-        m_state = State::Disconnected;
+        {
+            std::lock_guard lock(m_stateMutex);
+            if (m_state == State::Disconnected) return;
+            m_webSocket.stop();
+            m_state = State::Disconnected;
+        }
         
         {
             std::lock_guard lock(m_incomingMutex);
@@ -62,27 +66,36 @@ namespace mpedit {
     }
 
     bool NetworkManager::isConnected() const {
+        std::lock_guard lock(m_stateMutex);
         return m_state == State::Connected;
     }
 
     NetworkManager::State NetworkManager::getState() const {
+        std::lock_guard lock(m_stateMutex);
         return m_state;
     }
 
     std::string NetworkManager::getError() const {
+        std::lock_guard lock(m_stateMutex);
         return m_error;
     }
 
     void NetworkManager::send(matjson::Value const& message) {
-        if (m_state == State::Connected) {
+        State state;
+        {
+            std::lock_guard lock(m_stateMutex);
+            state = m_state;
+        }
+
+        if (state == State::Connected) {
             std::string raw = message.dump(matjson::NO_INDENTATION);
             m_webSocket.send(raw);
-        } else if (m_state == State::Connecting) {
+        } else if (state == State::Connecting) {
             std::lock_guard lock(m_pendingMutex);
             m_pendingOutgoing.push(message);
             log::info("NetworkManager: Queued message (still connecting)");
         } else {
-            log::warn("NetworkManager: Cannot send, not connected (state={})", static_cast<int>(m_state));
+            log::warn("NetworkManager: Cannot send, not connected (state={})", static_cast<int>(state));
         }
     }
 
@@ -119,7 +132,10 @@ namespace mpedit {
 
     void NetworkManager::onMessage(const ix::WebSocketMessagePtr& msg) {
         if (msg->type == ix::WebSocketMessageType::Open) {
-            m_state = State::Connected;
+            {
+                std::lock_guard lock(m_stateMutex);
+                m_state = State::Connected;
+            }
             log::info("NetworkManager: Connected to server");
 
             // Flush any messages that were queued while connecting
@@ -136,8 +152,12 @@ namespace mpedit {
             }
         }
         else if (msg->type == ix::WebSocketMessageType::Close) {
-            bool wasConnectedOrConnecting = (m_state == State::Connected || m_state == State::Connecting);
-            m_state = State::Disconnected;
+            bool wasConnectedOrConnecting = false;
+            {
+                std::lock_guard lock(m_stateMutex);
+                wasConnectedOrConnecting = (m_state == State::Connected || m_state == State::Connecting);
+                m_state = State::Disconnected;
+            }
             log::info("NetworkManager: Connection closed");
 
             if (wasConnectedOrConnecting) {
@@ -154,9 +174,14 @@ namespace mpedit {
             processIncoming(msg->str);
         }
         else if (msg->type == ix::WebSocketMessageType::Error) {
-            m_state = State::Error;
-            m_error = msg->errorInfo.reason;
-            log::error("NetworkManager: WebSocket error: {}", m_error);
+            std::string errMsg;
+            {
+                std::lock_guard lock(m_stateMutex);
+                m_state = State::Error;
+                m_error = msg->errorInfo.reason;
+                errMsg = m_error;
+            }
+            log::error("NetworkManager: WebSocket error: {}", errMsg);
             log::error("NetworkManager: Error details - retries: {}, wait_time: {}ms, http_status: {}", 
                 msg->errorInfo.retries, 
                 msg->errorInfo.wait_time,
@@ -164,7 +189,7 @@ namespace mpedit {
 
             matjson::Value errVal;
             errVal["event"] = "error";
-            errVal["message"] = m_error.empty() ? "WebSocket connection error" : m_error;
+            errVal["message"] = errMsg.empty() ? "WebSocket connection error" : errMsg;
             {
                 std::lock_guard lock(m_incomingMutex);
                 m_incoming.push(errVal);

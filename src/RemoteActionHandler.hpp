@@ -37,7 +37,7 @@ namespace mpedit {
         void handleRemoteTransformObjects(int playerId, std::vector<ActionSerializer::TransformData> const& transforms);
         void handleRemoteUpdateObjects(int playerId, std::vector<ActionSerializer::ObjectData> const& objects);
         void handleRemoteLockObjects(int playerId, std::vector<std::string> const& uuids, bool locked);
-        void handleRemoteSyncLevel(int playerId, std::vector<ActionSerializer::ObjectData> const& objects, ActionSerializer::LevelSettingsData const& settings);
+        void handleRemoteSyncLevel(int playerId, std::vector<ActionSerializer::ObjectData> const& objects, ActionSerializer::LevelSettingsData const& settings, std::vector<ActionSerializer::LockData> const& locks, bool isPendingSync = false);
         void handleRemoteUpdateSettings(int playerId, ActionSerializer::LevelSettingsData const& settings);
 
         std::unordered_map<std::string, LockInfo> const& getObjectLocks() const { return m_objectLocks; }
@@ -103,6 +103,7 @@ namespace mpedit {
             int playerId;
             std::vector<ActionSerializer::ObjectData> objects;
             ActionSerializer::LevelSettingsData settings;
+            std::vector<ActionSerializer::LockData> locks;
         };
         std::optional<PendingSync> m_pendingSync;
         std::vector<std::string> m_expectedUuids;

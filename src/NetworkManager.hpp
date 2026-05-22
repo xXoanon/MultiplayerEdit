@@ -54,6 +54,7 @@ namespace mpedit {
 
         State m_state = State::Disconnected;
         std::string m_error;
+        mutable std::mutex m_stateMutex;
 
         ix::WebSocket m_webSocket;
 

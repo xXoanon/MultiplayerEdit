@@ -43,12 +43,33 @@ namespace mpedit {
         auto& session = SessionManager::get();
         auto& net = NetworkManager::get();
 
-        if (!session.isInSession()) {
+        bool inSession = session.isInSession();
+        auto state = net.getState();
+        size_t playerCount = session.getPlayers().size();
+        std::string roomCode = session.getRoomCode();
+        std::string errStr = net.getError();
+
+        // Check if anything has changed
+        if (inSession == m_cachedInSession &&
+            state == m_cachedState &&
+            playerCount == m_cachedPlayerCount &&
+            roomCode == m_cachedRoomCode &&
+            errStr == m_cachedError) {
+            return;
+        }
+
+        // Update cache
+        m_cachedInSession = inSession;
+        m_cachedState = state;
+        m_cachedPlayerCount = playerCount;
+        m_cachedRoomCode = roomCode;
+        m_cachedError = errStr;
+
+        if (!inSession) {
             m_statusLabel->setString("");
             return;
         }
 
-        auto state = net.getState();
         std::string statusText;
         ccColor3B color;
 
@@ -56,8 +77,8 @@ namespace mpedit {
             case NetworkManager::State::Connected:
                 statusText = fmt::format(
                     "MP: {} ({} players)",
-                    session.getRoomCode(),
-                    session.getPlayers().size()
+                    roomCode,
+                    playerCount
                 );
                 color = {100, 255, 100}; // Green
                 break;
@@ -73,7 +94,7 @@ namespace mpedit {
                 break;
 
             case NetworkManager::State::Error:
-                statusText = fmt::format("MP: Error - {}", net.getError());
+                statusText = fmt::format("MP: Error - {}", errStr);
                 color = {255, 100, 100}; // Red
                 break;
         }

@@ -66,7 +66,8 @@ class Room {
             list.push({
                 id: player.id,
                 name: player.name,
-                colorIndex: player.colorIndex
+                colorIndex: player.colorIndex,
+                status: player.status || ""
             });
         }
         return list;
@@ -357,6 +358,7 @@ function handleCursorUpdate(ws, message) {
     if (player) {
         player.cursorX = message.x || 0;
         player.cursorY = message.y || 0;
+        player.status = message.status || "";
     }
 
     // Broadcast cursor position to other players
@@ -364,7 +366,8 @@ function handleCursorUpdate(ws, message) {
         event: 'cursor_moved',
         playerId: ws._playerId,
         x: message.x || 0,
-        y: message.y || 0
+        y: message.y || 0,
+        status: message.status || ""
     }, ws._playerId);
 }
 

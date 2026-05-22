@@ -26,6 +26,8 @@ namespace mpedit {
         void createConnectView();
         // Session view (shown when connected)
         void createSessionView();
+        // Loading view (shown during synchronization)
+        void createLoadingView(std::string const& statusText);
 
         void onHost(cocos2d::CCObject*);
         void onJoin(cocos2d::CCObject*);

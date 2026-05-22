@@ -62,10 +62,16 @@ namespace mpedit {
             bool flipY = false;
         };
 
+        struct LockData {
+            std::string uuid;
+            int playerId = 0;
+            float timeLeft = 3.0f;
+        };
+
         // === Serialization (local action → JSON) ===
 
         matjson::Value serializePlaceObjects(std::vector<ObjectData> const& objects);
-        matjson::Value serializeSyncLevel(int targetPlayerId, std::vector<ObjectData> const& objects, LevelSettingsData const& settings);
+        matjson::Value serializeSyncLevel(int targetPlayerId, std::vector<ObjectData> const& objects, LevelSettingsData const& settings, std::vector<LockData> const& locks);
         matjson::Value serializeDeleteObjects(std::vector<std::string> const& uuids);
         matjson::Value serializeMoveObjects(std::vector<MoveData> const& moves);
         matjson::Value serializeTransformObjects(std::vector<TransformData> const& transforms);
@@ -82,6 +88,7 @@ namespace mpedit {
         std::vector<TransformData> deserializeTransformedObjects(matjson::Value const& data);
         std::vector<ObjectData> deserializeUpdatedObjects(matjson::Value const& data);
         LevelSettingsData deserializeLevelSettings(matjson::Value const& data);
+        std::vector<LockData> deserializeSyncLevelLocks(matjson::Value const& data);
 
         // === GameObject helpers ===
 

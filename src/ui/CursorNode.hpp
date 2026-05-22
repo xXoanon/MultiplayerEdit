@@ -11,6 +11,8 @@ namespace mpedit {
         struct PlayerCursor {
             cocos2d::CCDrawNode* drawNode = nullptr;
             cocos2d::CCLabelBMFont* label = nullptr;
+            cocos2d::CCNode* toolIndicator = nullptr;
+            std::string lastStatus;
             float targetX = 0.f;
             float targetY = 0.f;
         };
