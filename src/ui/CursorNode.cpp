@@ -122,14 +122,21 @@ namespace mpedit {
         auto& handler = RemoteActionHandler::get();
         auto const& lockedObjects = handler.getObjectLocks();
         
-        for (auto const& [uuid, timeLeft] : lockedObjects) {
+        for (auto const& [uuid, lockInfo] : lockedObjects) {
             auto* obj = handler.getObjectByUUID(uuid);
             if (!obj) continue;
             
-            // Draw a red bounding box
+            // Get locking player's color if available
+            cocos2d::ccColor3B color3 = {255, 0, 0}; // Default red
+            auto* player = session.getPlayer(lockInfo.playerId);
+            if (player) {
+                color3 = getColorForIndex(player->colorIndex);
+            }
+            
+            // Draw a bounding box
             auto rect = obj->boundingBox();
-            cocos2d::ccColor4F fill = {1.f, 0.f, 0.f, 0.2f};
-            cocos2d::ccColor4F border = {1.f, 0.f, 0.f, 0.8f};
+            cocos2d::ccColor4F fill = {color3.r / 255.f, color3.g / 255.f, color3.b / 255.f, 0.2f};
+            cocos2d::ccColor4F border = {color3.r / 255.f, color3.g / 255.f, color3.b / 255.f, 0.8f};
             
             cocos2d::CCPoint bl = {rect.getMinX(), rect.getMinY()};
             cocos2d::CCPoint tl = {rect.getMinX(), rect.getMaxY()};

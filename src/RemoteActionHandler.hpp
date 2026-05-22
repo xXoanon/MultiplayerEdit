@@ -13,6 +13,11 @@ class LevelEditorLayer;
 
 namespace mpedit {
 
+    struct LockInfo {
+        int playerId;
+        float timeLeft;
+    };
+
     /**
      * Handles incoming remote actions and applies them to the local editor.
      * Maintains a UUID-to-GameObject mapping for tracking remote objects.
@@ -35,10 +40,13 @@ namespace mpedit {
         void handleRemoteSyncLevel(int playerId, std::vector<ActionSerializer::ObjectData> const& objects, ActionSerializer::LevelSettingsData const& settings);
         void handleRemoteUpdateSettings(int playerId, ActionSerializer::LevelSettingsData const& settings);
 
-        std::unordered_map<std::string, float> const& getObjectLocks() const { return m_objectLocks; }
+        std::unordered_map<std::string, LockInfo> const& getObjectLocks() const { return m_objectLocks; }
         
         // Call this every frame to decay lock timers
         void updateLocks(float dt);
+
+        // History pruning helper
+        void pruneObjectFromHistory(LevelEditorLayer* editor, GameObject* obj);
 
         // UUID management
         void registerObject(std::string const& uuid, GameObject* obj);
@@ -85,8 +93,8 @@ namespace mpedit {
         std::unordered_map<std::string, GameObject*> m_uuidToObject;
         std::unordered_map<GameObject*, std::string> m_objectToUuid;
 
-        // UUID ↔ Lock time remaining
-        std::unordered_map<std::string, float> m_objectLocks;
+        // UUID ↔ Lock info
+        std::unordered_map<std::string, LockInfo> m_objectLocks;
 
         bool m_processingRemote = false;
         bool m_initialSyncCompleted = false;

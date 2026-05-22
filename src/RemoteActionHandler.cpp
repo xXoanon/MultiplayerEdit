@@ -205,6 +205,7 @@ namespace mpedit {
                 continue;
             }
 
+            pruneObjectFromHistory(editor, obj);
             editor->removeObject(obj, true);
             unregisterObject(uuid);
             log::debug("RemoteActionHandler: Deleted object (uuid={})", uuid);
@@ -288,6 +289,7 @@ namespace mpedit {
                 editorUI->deselectObject(oldObj);
             }
 
+            pruneObjectFromHistory(editor, oldObj);
             // Remove old object
             editor->removeObject(oldObj, true);
             unregisterObject(objData.uuid);
@@ -319,11 +321,14 @@ namespace mpedit {
         if (locked) {
             for (auto& uuid : uuids) {
                 // Set lock timeout to 3 seconds. It will be refreshed by cursor_update or explicitly released
-                m_objectLocks[uuid] = 3.0f; 
+                m_objectLocks[uuid] = LockInfo { playerId, 3.0f }; 
             }
         } else {
             for (auto& uuid : uuids) {
-                m_objectLocks.erase(uuid);
+                auto it = m_objectLocks.find(uuid);
+                if (it != m_objectLocks.end() && it->second.playerId == playerId) {
+                    m_objectLocks.erase(it);
+                }
             }
         }
     }
@@ -383,6 +388,14 @@ namespace mpedit {
             }
         }
         clearMappings();
+
+        // Clear local undo/redo lists since all objects are replaced
+        if (editor->m_undoObjects) {
+            editor->m_undoObjects->removeAllObjects();
+        }
+        if (editor->m_redoObjects) {
+            editor->m_redoObjects->removeAllObjects();
+        }
 
         // Apply level settings
         if (!settings.saveString.empty() && editor->m_levelSettings) {
@@ -451,8 +464,8 @@ namespace mpedit {
 
     void RemoteActionHandler::updateLocks(float dt) {
         for (auto it = m_objectLocks.begin(); it != m_objectLocks.end(); ) {
-            it->second -= dt;
-            if (it->second <= 0.f) {
+            it->second.timeLeft -= dt;
+            if (it->second.timeLeft <= 0.f) {
                 it = m_objectLocks.erase(it);
             } else {
                 ++it;
@@ -468,9 +481,45 @@ namespace mpedit {
     void RemoteActionHandler::unregisterObject(std::string const& uuid) {
         auto it = m_uuidToObject.find(uuid);
         if (it != m_uuidToObject.end()) {
-            m_objectToUuid.erase(it->second);
+            GameObject* obj = it->second;
+            m_objectToUuid.erase(obj);
             m_uuidToObject.erase(it);
         }
+    }
+
+    void RemoteActionHandler::pruneObjectFromHistory(LevelEditorLayer* editor, GameObject* obj) {
+        if (!editor || !obj) return;
+
+        auto pruneList = [](cocos2d::CCArray* list, GameObject* target) {
+            if (!list) return;
+            std::vector<cocos2d::CCObject*> toRemove;
+            for (auto* item : geode::cocos::CCArrayExt<UndoObject*>(list)) {
+                if (!item) continue;
+                
+                // Check m_objects array
+                if (item->m_objects) {
+                    if (item->m_objects->containsObject(target)) {
+                        item->m_objects->removeObject(target);
+                    }
+                    if (item->m_objects->count() == 0) {
+                        toRemove.push_back(item);
+                        continue;
+                    }
+                }
+                
+                // Check m_objectCopy
+                if (item->m_objectCopy && item->m_objectCopy->m_object == target) {
+                    toRemove.push_back(item);
+                    continue;
+                }
+            }
+            for (auto* item : toRemove) {
+                list->removeObject(item);
+            }
+        };
+
+        pruneList(editor->m_undoObjects, obj);
+        pruneList(editor->m_redoObjects, obj);
     }
 
     GameObject* RemoteActionHandler::getObjectByUUID(std::string const& uuid) const {

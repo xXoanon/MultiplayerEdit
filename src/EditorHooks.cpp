@@ -424,8 +424,21 @@ class $modify(MPLevelEditorLayer, LevelEditorLayer) {
         auto& handler = RemoteActionHandler::get();
         auto& session = SessionManager::get();
 
+        if (session.isInSession() && !handler.isProcessingRemote() && obj) {
+            auto uuid = handler.getUUIDForObject(obj);
+            if (!uuid.empty()) {
+                auto const& locks = handler.getObjectLocks();
+                auto it = locks.find(uuid);
+                if (it != locks.end() && it->second.playerId != session.getLocalPlayerId()) {
+                    // Locked by another player! Do not delete.
+                    log::info("EditorHooks: Blocked removal of locked object (uuid={})", uuid);
+                    return;
+                }
+            }
+        }
+
         // If we're in a session and this isn't a remote action
-        if (session.isInSession() && !handler.isProcessingRemote()) {
+        if (session.isInSession() && !handler.isProcessingRemote() && obj) {
             auto uuid = handler.getUUIDForObject(obj);
             if (!uuid.empty()) {
                 auto msg = ActionSerializer::serializeDeleteObjects({uuid});
@@ -437,6 +450,163 @@ class $modify(MPLevelEditorLayer, LevelEditorLayer) {
         }
 
         LevelEditorLayer::removeObject(obj, undo);
+    }
+
+    // Hook handleAction to block locked undo/redo actions and synchronize local history updates
+    void handleAction(bool undo, cocos2d::CCArray* undoObjects) {
+        auto& handler = RemoteActionHandler::get();
+        auto& session = SessionManager::get();
+
+        if (!session.isInSession() || handler.isProcessingRemote() || !undoObjects) {
+            LevelEditorLayer::handleAction(undo, undoObjects);
+            return;
+        }
+
+        // 1. Verify that no objects in the undoObjects are locked by other players
+        for (auto* item : CCArrayExt<UndoObject*>(undoObjects)) {
+            if (!item) continue;
+            
+            auto checkLocked = [&](GameObject* gObj) -> bool {
+                if (!gObj) return false;
+                auto uuid = handler.getUUIDForObject(gObj);
+                if (!uuid.empty()) {
+                    auto const& locks = handler.getObjectLocks();
+                    auto it = locks.find(uuid);
+                    if (it != locks.end() && it->second.playerId != session.getLocalPlayerId()) {
+                        return true; // Locked by someone else!
+                    }
+                }
+                return false;
+            };
+            
+            if (item->m_objects) {
+                for (auto* gObj : CCArrayExt<GameObject*>(item->m_objects)) {
+                    if (checkLocked(gObj)) {
+                        log::info("EditorHooks: Blocked undo/redo of locked object");
+                        return;
+                    }
+                }
+            }
+            if (item->m_objectCopy && item->m_objectCopy->m_object) {
+                if (checkLocked(item->m_objectCopy->m_object)) {
+                    log::info("EditorHooks: Blocked undo/redo of locked object");
+                    return;
+                }
+            }
+        }
+
+        // 2. Gather affected object states before running handleAction
+        struct ObjectState {
+            GameObject* obj;
+            std::string uuid;
+            bool existedBefore;
+            cocos2d::CCPoint pos;
+            float rot;
+            float scaleX;
+            float scaleY;
+            bool flipX;
+            bool flipY;
+            std::string saveString;
+        };
+        
+        std::vector<ObjectState> affectedStates;
+        
+        auto recordObjectState = [&](GameObject* obj) {
+            if (!obj) return;
+            for (auto const& state : affectedStates) {
+                if (state.obj == obj) return;
+            }
+            
+            ObjectState state;
+            state.obj = obj;
+            state.uuid = handler.getUUIDForObject(obj);
+            state.existedBefore = (this->m_objects->containsObject(obj));
+            state.pos = obj->getPosition();
+            state.rot = obj->getRotation();
+            state.scaleX = obj->getScaleX();
+            state.scaleY = obj->getScaleY();
+            state.flipX = obj->isFlipX();
+            state.flipY = obj->isFlipY();
+            state.saveString = obj->getSaveString(nullptr);
+            
+            affectedStates.push_back(state);
+        };
+
+        for (auto* item : CCArrayExt<UndoObject*>(undoObjects)) {
+            if (!item) continue;
+            if (item->m_objects) {
+                for (auto* gObj : CCArrayExt<GameObject*>(item->m_objects)) {
+                    recordObjectState(gObj);
+                }
+            }
+            if (item->m_objectCopy && item->m_objectCopy->m_object) {
+                recordObjectState(item->m_objectCopy->m_object);
+            }
+        }
+
+        // 3. Execute base handleAction
+        LevelEditorLayer::handleAction(undo, undoObjects);
+
+        // 4. Compare states and send sync messages
+        std::vector<ActionSerializer::ObjectData> placedObjects;
+        std::vector<std::string> deletedUuids;
+        std::vector<ActionSerializer::MoveData> movedObjects;
+        std::vector<ActionSerializer::ObjectData> updatedObjects;
+
+        for (auto& state : affectedStates) {
+            GameObject* obj = state.obj;
+            bool existedAfter = (this->m_objects->containsObject(obj));
+
+            if (state.existedBefore && !existedAfter) {
+                if (!state.uuid.empty()) {
+                    deletedUuids.push_back(state.uuid);
+                    handler.unregisterObject(state.uuid);
+                }
+            } else if (!state.existedBefore && existedAfter) {
+                std::string uuid = state.uuid;
+                if (uuid.empty()) {
+                    uuid = RemoteActionHandler::generateUUID();
+                    handler.registerObject(uuid, obj);
+                }
+                placedObjects.push_back(ActionSerializer::extractObjectData(obj, uuid));
+            } else if (state.existedBefore && existedAfter) {
+                std::string uuid = state.uuid;
+                if (uuid.empty()) {
+                    uuid = RemoteActionHandler::generateUUID();
+                    handler.registerObject(uuid, obj);
+                }
+
+                std::string newSave = obj->getSaveString(nullptr);
+                if (state.saveString != newSave) {
+                    if (!typeinfo_cast<StartPosObject*>(obj)) {
+                        updatedObjects.push_back(ActionSerializer::extractObjectData(obj, uuid));
+                    }
+                } else if (state.pos.x != obj->getPositionX() || state.pos.y != obj->getPositionY()) {
+                    ActionSerializer::MoveData md;
+                    md.uuid = uuid;
+                    md.dx = obj->getPositionX() - state.pos.x;
+                    md.dy = obj->getPositionY() - state.pos.y;
+                    movedObjects.push_back(md);
+                }
+            }
+        }
+
+        if (!placedObjects.empty()) {
+            auto msg = ActionSerializer::serializePlaceObjects(placedObjects);
+            NetworkManager::get().send(msg);
+        }
+        if (!deletedUuids.empty()) {
+            auto msg = ActionSerializer::serializeDeleteObjects(deletedUuids);
+            NetworkManager::get().send(msg);
+        }
+        if (!movedObjects.empty()) {
+            auto msg = ActionSerializer::serializeMoveObjects(movedObjects);
+            NetworkManager::get().send(msg);
+        }
+        if (!updatedObjects.empty()) {
+            auto msg = ActionSerializer::serializeUpdateObjects(updatedObjects);
+            NetworkManager::get().send(msg);
+        }
     }
 
     void networkUpdate(float dt) {
@@ -474,10 +644,22 @@ class $modify(MPEditorUI, EditorUI) {
     };
 
     void selectObject(GameObject* obj, bool filter) {
-        EditorUI::selectObject(obj, filter);
-
         auto& handler = RemoteActionHandler::get();
         auto& session = SessionManager::get();
+
+        if (session.isInSession() && !handler.isProcessingRemote() && obj) {
+            auto uuid = handler.getUUIDForObject(obj);
+            if (!uuid.empty()) {
+                auto const& locks = handler.getObjectLocks();
+                auto it = locks.find(uuid);
+                if (it != locks.end() && it->second.playerId != session.getLocalPlayerId()) {
+                    // Locked by another player! Do not select.
+                    return;
+                }
+            }
+        }
+
+        EditorUI::selectObject(obj, filter);
 
         if (session.isInSession() && !handler.isProcessingRemote() && obj) {
             auto uuid = handler.getOrCreateUUID(obj);
@@ -556,15 +738,53 @@ class $modify(MPEditorUI, EditorUI) {
         EditorUI::onDeleteSelected(sender);
     }
 
-    void selectObjects(cocos2d::CCArray* objects, bool filter) {
-        EditorUI::selectObjects(objects, filter);
-
+    bool shouldDeleteObject(GameObject* obj) {
         auto& handler = RemoteActionHandler::get();
         auto& session = SessionManager::get();
 
+        if (session.isInSession() && !handler.isProcessingRemote() && obj) {
+            auto uuid = handler.getUUIDForObject(obj);
+            if (!uuid.empty()) {
+                auto const& locks = handler.getObjectLocks();
+                auto it = locks.find(uuid);
+                if (it != locks.end() && it->second.playerId != session.getLocalPlayerId()) {
+                    // Locked by another player! Do not delete.
+                    return false;
+                }
+            }
+        }
+        return EditorUI::shouldDeleteObject(obj);
+    }
+
+    void selectObjects(cocos2d::CCArray* objects, bool filter) {
+        auto& handler = RemoteActionHandler::get();
+        auto& session = SessionManager::get();
+
+        cocos2d::CCArray* filteredObjects = objects;
         if (session.isInSession() && !handler.isProcessingRemote() && objects) {
-            std::vector<std::string> uuids;
+            filteredObjects = cocos2d::CCArray::create();
+            auto const& locks = handler.getObjectLocks();
+            int localId = session.getLocalPlayerId();
             for (auto* obj : CCArrayExt<GameObject*>(objects)) {
+                auto uuid = handler.getUUIDForObject(obj);
+                bool isLockedByOther = false;
+                if (!uuid.empty()) {
+                    auto it = locks.find(uuid);
+                    if (it != locks.end() && it->second.playerId != localId) {
+                        isLockedByOther = true;
+                    }
+                }
+                if (!isLockedByOther) {
+                    filteredObjects->addObject(obj);
+                }
+            }
+        }
+
+        EditorUI::selectObjects(filteredObjects, filter);
+
+        if (session.isInSession() && !handler.isProcessingRemote() && filteredObjects) {
+            std::vector<std::string> uuids;
+            for (auto* obj : CCArrayExt<GameObject*>(filteredObjects)) {
                 auto uuid = handler.getOrCreateUUID(obj);
                 if (m_fields->m_preSelectSaveStrings.find(obj) == m_fields->m_preSelectSaveStrings.end()) {
                     m_fields->m_preSelectSaveStrings[obj] = obj->getSaveString(nullptr);
@@ -641,6 +861,18 @@ class $modify(MPEditorUI, EditorUI) {
     void moveObject(GameObject* obj, CCPoint position) {
         auto& handler = RemoteActionHandler::get();
         auto& session = SessionManager::get();
+
+        if (session.isInSession() && !handler.isProcessingRemote() && obj) {
+            auto uuid = handler.getUUIDForObject(obj);
+            if (!uuid.empty()) {
+                auto const& locks = handler.getObjectLocks();
+                auto it = locks.find(uuid);
+                if (it != locks.end() && it->second.playerId != session.getLocalPlayerId()) {
+                    // Locked by another player! Do not move.
+                    return;
+                }
+            }
+        }
 
         CCPoint oldPos = obj->getPosition();
 
