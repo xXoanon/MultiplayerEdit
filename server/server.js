@@ -48,8 +48,10 @@ class Room {
             cursorY: 0
         });
 
-        ws._playerId = id;
-        ws._roomCode = this.code;
+        if (ws) {
+            ws._playerId = id;
+            ws._roomCode = this.code;
+        }
 
         return id;
     }

@@ -136,8 +136,19 @@ namespace mpedit {
             }
         }
         else if (msg->type == ix::WebSocketMessageType::Close) {
+            bool wasConnectedOrConnecting = (m_state == State::Connected || m_state == State::Connecting);
             m_state = State::Disconnected;
             log::info("NetworkManager: Connection closed");
+
+            if (wasConnectedOrConnecting) {
+                matjson::Value errVal;
+                errVal["event"] = "error";
+                errVal["message"] = "Connection to server lost";
+                {
+                    std::lock_guard lock(m_incomingMutex);
+                    m_incoming.push(errVal);
+                }
+            }
         }
         else if (msg->type == ix::WebSocketMessageType::Message) {
             processIncoming(msg->str);
@@ -150,6 +161,14 @@ namespace mpedit {
                 msg->errorInfo.retries, 
                 msg->errorInfo.wait_time,
                 msg->errorInfo.http_status);
+
+            matjson::Value errVal;
+            errVal["event"] = "error";
+            errVal["message"] = m_error.empty() ? "WebSocket connection error" : m_error;
+            {
+                std::lock_guard lock(m_incomingMutex);
+                m_incoming.push(errVal);
+            }
         }
     }
 

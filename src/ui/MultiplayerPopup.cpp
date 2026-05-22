@@ -20,7 +20,7 @@ namespace mpedit {
 
     MultiplayerPopup::~MultiplayerPopup() {
         this->unschedule(schedule_selector(MultiplayerPopup::pollNetwork));
-        SessionManager::get().clearCallbacks();
+        SessionManager::get().clearPopupCallbacks();
         if (s_instance == this) s_instance = nullptr;
     }
 

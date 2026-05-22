@@ -17403,3 +17403,165 @@ events:
         - "/usr/local"
         - "/"
 ...
+
+---
+events:
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/Platform/Windows-Clang.cmake:210 (find_program)"
+      - "/usr/share/cmake/Modules/Platform/Windows-Clang-C.cmake:1 (include)"
+      - "/usr/share/cmake/Modules/CMakeCInformation.cmake:48 (include)"
+      - "CMakeLists.txt:3 (project)"
+    mode: "program"
+    variable: "__RC_COMPILER_PATH"
+    description: "Path to a program."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: true
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "rc"
+    candidate_directories:
+      - "/home/d050/.gemini/antigravity/bin/"
+      - "/home/d050/.config/Antigravity/bin/"
+      - "/usr/local/sbin/"
+      - "/usr/local/bin/"
+      - "/usr/bin/"
+      - "/opt/android-sdk/cmdline-tools/latest/bin/"
+      - "/opt/android-sdk/platform-tools/"
+      - "/opt/android-sdk/tools/"
+      - "/opt/android-sdk/tools/bin/"
+      - "/var/lib/flatpak/exports/bin/"
+      - "/usr/lib/jvm/default/bin/"
+      - "/usr/bin/site_perl/"
+      - "/usr/bin/vendor_perl/"
+      - "/usr/bin/core_perl/"
+      - "/usr/bin/"
+      - "/usr/sbin/"
+      - "/usr/"
+      - "/usr/local/bin/"
+      - "/usr/local/sbin/"
+      - "/usr/local/"
+      - "/bin/"
+      - "/sbin/"
+    searched_directories:
+      - "/home/d050/.gemini/antigravity/bin/rc"
+      - "/home/d050/.config/Antigravity/bin/rc"
+      - "/usr/local/sbin/rc"
+      - "/usr/local/bin/rc"
+      - "/usr/bin/rc"
+      - "/opt/android-sdk/cmdline-tools/latest/bin/rc"
+      - "/opt/android-sdk/platform-tools/rc"
+      - "/opt/android-sdk/tools/rc"
+      - "/opt/android-sdk/tools/bin/rc"
+      - "/var/lib/flatpak/exports/bin/rc"
+      - "/usr/lib/jvm/default/bin/rc"
+      - "/usr/bin/site_perl/rc"
+      - "/usr/bin/vendor_perl/rc"
+      - "/usr/bin/core_perl/rc"
+      - "/usr/bin/rc"
+      - "/usr/sbin/rc"
+      - "/usr/rc"
+      - "/usr/local/bin/rc"
+      - "/usr/local/sbin/rc"
+      - "/usr/local/rc"
+      - "/bin/rc"
+      - "/sbin/rc"
+    found: false
+    search_context:
+      ENV{PATH}:
+        - "/home/d050/.gemini/antigravity/bin"
+        - "/home/d050/.config/Antigravity/bin"
+        - "/usr/local/sbin"
+        - "/usr/local/bin"
+        - "/usr/bin"
+        - "/opt/android-sdk/cmdline-tools/latest/bin"
+        - "/opt/android-sdk/platform-tools"
+        - "/opt/android-sdk/tools"
+        - "/opt/android-sdk/tools/bin"
+        - "/var/lib/flatpak/exports/bin"
+        - "/usr/lib/jvm/default/bin"
+        - "/usr/bin/site_perl"
+        - "/usr/bin/vendor_perl"
+        - "/usr/bin/core_perl"
+      CMAKE_INSTALL_PREFIX: "/usr/local"
+      CMAKE_SYSTEM_PREFIX_PATH:
+        - "/usr"
+        - "/usr/local"
+        - "/"
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/Platform/Windows-Clang.cmake:216 (find_program)"
+      - "/usr/share/cmake/Modules/Platform/Windows-Clang-C.cmake:1 (include)"
+      - "/usr/share/cmake/Modules/CMakeCInformation.cmake:48 (include)"
+      - "CMakeLists.txt:3 (project)"
+    mode: "program"
+    variable: "__RC_COMPILER_PATH"
+    description: "Path to a program."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: true
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "llvm-rc"
+    candidate_directories:
+      - "/home/d050/.gemini/antigravity/bin/"
+      - "/home/d050/.config/Antigravity/bin/"
+      - "/usr/local/sbin/"
+      - "/usr/local/bin/"
+      - "/usr/bin/"
+      - "/opt/android-sdk/cmdline-tools/latest/bin/"
+      - "/opt/android-sdk/platform-tools/"
+      - "/opt/android-sdk/tools/"
+      - "/opt/android-sdk/tools/bin/"
+      - "/var/lib/flatpak/exports/bin/"
+      - "/usr/lib/jvm/default/bin/"
+      - "/usr/bin/site_perl/"
+      - "/usr/bin/vendor_perl/"
+      - "/usr/bin/core_perl/"
+      - "/usr/bin/"
+      - "/usr/sbin/"
+      - "/usr/"
+      - "/usr/local/bin/"
+      - "/usr/local/sbin/"
+      - "/usr/local/"
+      - "/bin/"
+      - "/sbin/"
+    searched_directories:
+      - "/home/d050/.gemini/antigravity/bin/llvm-rc"
+      - "/home/d050/.config/Antigravity/bin/llvm-rc"
+      - "/usr/local/sbin/llvm-rc"
+      - "/usr/local/bin/llvm-rc"
+    found: "/usr/bin/llvm-rc"
+    search_context:
+      ENV{PATH}:
+        - "/home/d050/.gemini/antigravity/bin"
+        - "/home/d050/.config/Antigravity/bin"
+        - "/usr/local/sbin"
+        - "/usr/local/bin"
+        - "/usr/bin"
+        - "/opt/android-sdk/cmdline-tools/latest/bin"
+        - "/opt/android-sdk/platform-tools"
+        - "/opt/android-sdk/tools"
+        - "/opt/android-sdk/tools/bin"
+        - "/var/lib/flatpak/exports/bin"
+        - "/usr/lib/jvm/default/bin"
+        - "/usr/bin/site_perl"
+        - "/usr/bin/vendor_perl"
+        - "/usr/bin/core_perl"
+      CMAKE_INSTALL_PREFIX: "/usr/local"
+      CMAKE_SYSTEM_PREFIX_PATH:
+        - "/usr"
+        - "/usr/local"
+        - "/"
+...

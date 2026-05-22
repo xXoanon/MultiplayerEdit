@@ -159,6 +159,11 @@ namespace mpedit {
         m_onError.clear();
     }
 
+    void SessionManager::clearPopupCallbacks() {
+        m_onSessionStarted.clear();
+        m_onError.clear();
+    }
+
     void SessionManager::setupNetworkHandlers() {
         auto& net = NetworkManager::get();
         RemoteActionHandler::get().setupHandlers();
