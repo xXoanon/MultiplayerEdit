@@ -8,6 +8,7 @@ const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
 
 const PORT = process.env.PORT || 8765;
+const HOST = process.env.HOST || '0.0.0.0';
 
 // ============================================================
 // Room Management
@@ -389,11 +390,11 @@ setInterval(() => {
 // Start Server
 // ============================================================
 
-server.listen(PORT, () => {
+server.listen(PORT, HOST, () => {
     console.log(`========================================`);
     console.log(`  Multiplayer Edit Server v0.1.0`);
-    console.log(`  Listening on port ${PORT}`);
-    console.log(`  WebSocket: ws://localhost:${PORT}`);
-    console.log(`  HTTP:      http://localhost:${PORT}`);
+    console.log(`  Listening on ${HOST}:${PORT}`);
+    console.log(`  WebSocket: ws://${HOST}:${PORT}`);
+    console.log(`  HTTP:      http://${HOST}:${PORT}`);
     console.log(`========================================`);
 });
