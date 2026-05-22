@@ -5,7 +5,14 @@ const crypto = require('crypto');
 
 const app = express();
 const server = http.createServer(app);
-const wss = new WebSocket.Server({ server });
+
+// WebSocket server configuration
+// Render.com handles TLS termination, so we only need plain WebSocket server
+const wss = new WebSocket.Server({ 
+    server,
+    // Handle both ws:// and wss:// (Render terminates TLS for us)
+    perMessageDeflate: false
+});
 
 const PORT = process.env.PORT || 8765;
 const HOST = process.env.HOST || '0.0.0.0';
