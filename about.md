@@ -1,7 +1,5 @@
 # Multiplayer Edit
 
-<img src="logo.png" width="150" alt="Start Position Viewer logo" />
-
 Collaborate with friends in real-time level editing! Host a session and build together.
 
 ## Features
