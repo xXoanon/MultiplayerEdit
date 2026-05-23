@@ -144,76 +144,81 @@ namespace mpedit {
                         } catch (...) {}
                     }
 
-                    pc.toolIndicator = CCNode::create();
-                    
                     ccColor4F bgColor;
                     std::string modeText;
-                    if (mode == 0) { // Build
+                    bool hasIndicator = true;
+                    if (mode == 2) { // Build
                         bgColor = {0.12f, 0.56f, 1.0f, 0.9f}; // Dodger Blue
                         modeText = "BUILD";
                     } else if (mode == 1) { // Delete
                         bgColor = {1.0f, 0.25f, 0.25f, 0.9f}; // Red
                         modeText = "DELETE";
-                    } else { // Edit (mode 3)
+                    } else if (mode == 3) { // Edit
                         bgColor = {1.0f, 0.6f, 0.07f, 0.9f}; // Orange
                         modeText = "EDIT";
+                    } else {
+                        hasIndicator = false;
                     }
 
-                    if (swipe != 0) {
-                        modeText += " (SWIPE)";
-                    }
+                    if (hasIndicator) {
+                        pc.toolIndicator = CCNode::create();
 
-                    auto* badgeLabel = CCLabelBMFont::create(modeText.c_str(), "chatFont.fnt");
-                    badgeLabel->setScale(0.35f);
-                    badgeLabel->setColor({255, 255, 255});
-                    
-                    float labelWidth = badgeLabel->getContentSize().width * badgeLabel->getScaleX();
-                    float labelHeight = badgeLabel->getContentSize().height * badgeLabel->getScaleY();
-                    
-                    float paddingX = 8.f;
-                    float paddingY = 4.f;
-                    
-                    float badgeWidth = labelWidth + paddingX * 2.f;
-                    float badgeHeight = labelHeight + paddingY * 2.f;
+                        if (swipe != 0) {
+                            modeText += " (SWIPE)";
+                        }
 
-                    GameObject* previewObj = nullptr;
-                    float previewWidth = 0.f;
-                    if (mode == 0 && objectId > 0) {
-                        auto* obj = GameObject::createWithKey(objectId);
-                        if (obj) {
-                            float maxDim = std::max(obj->getContentSize().width, obj->getContentSize().height);
-                            if (maxDim > 0.f) {
-                                float targetDim = 14.f;
-                                obj->setScale(targetDim / maxDim);
-                                previewWidth = targetDim;
-                                previewObj = obj;
+                        auto* badgeLabel = CCLabelBMFont::create(modeText.c_str(), "chatFont.fnt");
+                        badgeLabel->setScale(0.35f);
+                        badgeLabel->setColor({255, 255, 255});
+                        
+                        float labelWidth = badgeLabel->getContentSize().width * badgeLabel->getScaleX();
+                        float labelHeight = badgeLabel->getContentSize().height * badgeLabel->getScaleY();
+                        
+                        float paddingX = 8.f;
+                        float paddingY = 4.f;
+                        
+                        float badgeWidth = labelWidth + paddingX * 2.f;
+                        float badgeHeight = labelHeight + paddingY * 2.f;
+
+                        GameObject* previewObj = nullptr;
+                        float previewWidth = 0.f;
+                        if ((mode == 2 || mode == 3) && objectId > 0) {
+                            auto* obj = GameObject::createWithKey(objectId);
+                            if (obj) {
+                                float maxDim = std::max(obj->getContentSize().width, obj->getContentSize().height);
+                                if (maxDim > 0.f) {
+                                    float targetDim = 14.f;
+                                    obj->setScale(targetDim / maxDim);
+                                    previewWidth = targetDim;
+                                    previewObj = obj;
+                                }
                             }
                         }
-                    }
 
-                    if (previewObj) {
-                        badgeWidth += previewWidth + 4.f;
-                    }
+                        if (previewObj) {
+                            badgeWidth += previewWidth + 4.f;
+                        }
 
-                    auto* bgNode = CCDrawNode::create();
-                    float radius = badgeHeight / 2.f;
-                    bgNode->drawSegment({radius, radius}, {badgeWidth - radius, radius}, radius, bgColor);
-                    pc.toolIndicator->addChild(bgNode);
+                        auto* bgNode = CCDrawNode::create();
+                        float radius = badgeHeight / 2.f;
+                        bgNode->drawSegment({radius, radius}, {badgeWidth - radius, radius}, radius, bgColor);
+                        pc.toolIndicator->addChild(bgNode);
 
-                    if (previewObj) {
-                        previewObj->setPosition({paddingX + previewWidth / 2.f, radius});
-                        pc.toolIndicator->addChild(previewObj);
-                        badgeLabel->setPosition({paddingX + previewWidth + 4.f + labelWidth / 2.f, radius});
-                    } else {
-                        badgeLabel->setPosition({badgeWidth / 2.f, radius});
+                        if (previewObj) {
+                            previewObj->setPosition({paddingX + previewWidth / 2.f, radius});
+                            pc.toolIndicator->addChild(previewObj);
+                            badgeLabel->setPosition({paddingX + previewWidth + 4.f + labelWidth / 2.f, radius});
+                        } else {
+                            badgeLabel->setPosition({badgeWidth / 2.f, radius});
+                        }
+                        
+                        pc.toolIndicator->addChild(badgeLabel);
+                        pc.toolIndicator->setContentSize({badgeWidth, badgeHeight});
+                        pc.toolIndicator->setAnchorPoint({0.f, 0.5f});
+                        pc.toolIndicator->ignoreAnchorPointForPosition(false);
+                        
+                        this->addChild(pc.toolIndicator);
                     }
-                    
-                    pc.toolIndicator->addChild(badgeLabel);
-                    pc.toolIndicator->setContentSize({badgeWidth, badgeHeight});
-                    pc.toolIndicator->setAnchorPoint({0.f, 0.5f});
-                    pc.toolIndicator->ignoreAnchorPointForPosition(false);
-                    
-                    this->addChild(pc.toolIndicator);
                 }
             }
 

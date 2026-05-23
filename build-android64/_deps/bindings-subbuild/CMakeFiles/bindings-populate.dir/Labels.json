@@ -1,0 +1,46 @@
+{
+	"sources" : 
+	[
+		{
+			"file" : "/home/d050/Coding/Me Coding/MultiplayerEdit/build-android64/_deps/bindings-subbuild/CMakeFiles/bindings-populate"
+		},
+		{
+			"file" : "/home/d050/Coding/Me Coding/MultiplayerEdit/build-android64/_deps/bindings-subbuild/CMakeFiles/bindings-populate.rule"
+		},
+		{
+			"file" : "/home/d050/Coding/Me Coding/MultiplayerEdit/build-android64/_deps/bindings-subbuild/CMakeFiles/bindings-populate-complete.rule"
+		},
+		{
+			"file" : "/home/d050/Coding/Me Coding/MultiplayerEdit/build-android64/_deps/bindings-subbuild/bindings-populate-prefix/src/bindings-populate-stamp/bindings-populate-build.rule"
+		},
+		{
+			"file" : "/home/d050/Coding/Me Coding/MultiplayerEdit/build-android64/_deps/bindings-subbuild/bindings-populate-prefix/src/bindings-populate-stamp/bindings-populate-configure.rule"
+		},
+		{
+			"file" : "/home/d050/Coding/Me Coding/MultiplayerEdit/build-android64/_deps/bindings-subbuild/bindings-populate-prefix/src/bindings-populate-stamp/bindings-populate-download.rule"
+		},
+		{
+			"file" : "/home/d050/Coding/Me Coding/MultiplayerEdit/build-android64/_deps/bindings-subbuild/bindings-populate-prefix/src/bindings-populate-stamp/bindings-populate-install.rule"
+		},
+		{
+			"file" : "/home/d050/Coding/Me Coding/MultiplayerEdit/build-android64/_deps/bindings-subbuild/bindings-populate-prefix/src/bindings-populate-stamp/bindings-populate-mkdir.rule"
+		},
+		{
+			"file" : "/home/d050/Coding/Me Coding/MultiplayerEdit/build-android64/_deps/bindings-subbuild/bindings-populate-prefix/src/bindings-populate-stamp/bindings-populate-patch.rule"
+		},
+		{
+			"file" : "/home/d050/Coding/Me Coding/MultiplayerEdit/build-android64/_deps/bindings-subbuild/bindings-populate-prefix/src/bindings-populate-stamp/bindings-populate-test.rule"
+		},
+		{
+			"file" : "/home/d050/Coding/Me Coding/MultiplayerEdit/build-android64/_deps/bindings-subbuild/bindings-populate-prefix/src/bindings-populate-stamp/bindings-populate-update.rule"
+		}
+	],
+	"target" : 
+	{
+		"labels" : 
+		[
+			"bindings-populate"
+		],
+		"name" : "bindings-populate"
+	}
+}

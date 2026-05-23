@@ -1,0 +1,7 @@
+{
+	"InstallScripts" : 
+	[
+		"/home/d050/Coding/Me Coding/MultiplayerEdit/build-android32/_deps/mbedtls-subbuild/cmake_install.cmake"
+	],
+	"Parallel" : false
+}

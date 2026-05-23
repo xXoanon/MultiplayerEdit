@@ -1,0 +1,46 @@
+{
+	"sources" : 
+	[
+		{
+			"file" : "/home/d050/Coding/Me Coding/MultiplayerEdit/build-android32/_deps/mbedtls-subbuild/CMakeFiles/mbedtls-populate"
+		},
+		{
+			"file" : "/home/d050/Coding/Me Coding/MultiplayerEdit/build-android32/_deps/mbedtls-subbuild/CMakeFiles/mbedtls-populate.rule"
+		},
+		{
+			"file" : "/home/d050/Coding/Me Coding/MultiplayerEdit/build-android32/_deps/mbedtls-subbuild/CMakeFiles/mbedtls-populate-complete.rule"
+		},
+		{
+			"file" : "/home/d050/Coding/Me Coding/MultiplayerEdit/build-android32/_deps/mbedtls-subbuild/mbedtls-populate-prefix/src/mbedtls-populate-stamp/mbedtls-populate-build.rule"
+		},
+		{
+			"file" : "/home/d050/Coding/Me Coding/MultiplayerEdit/build-android32/_deps/mbedtls-subbuild/mbedtls-populate-prefix/src/mbedtls-populate-stamp/mbedtls-populate-configure.rule"
+		},
+		{
+			"file" : "/home/d050/Coding/Me Coding/MultiplayerEdit/build-android32/_deps/mbedtls-subbuild/mbedtls-populate-prefix/src/mbedtls-populate-stamp/mbedtls-populate-download.rule"
+		},
+		{
+			"file" : "/home/d050/Coding/Me Coding/MultiplayerEdit/build-android32/_deps/mbedtls-subbuild/mbedtls-populate-prefix/src/mbedtls-populate-stamp/mbedtls-populate-install.rule"
+		},
+		{
+			"file" : "/home/d050/Coding/Me Coding/MultiplayerEdit/build-android32/_deps/mbedtls-subbuild/mbedtls-populate-prefix/src/mbedtls-populate-stamp/mbedtls-populate-mkdir.rule"
+		},
+		{
+			"file" : "/home/d050/Coding/Me Coding/MultiplayerEdit/build-android32/_deps/mbedtls-subbuild/mbedtls-populate-prefix/src/mbedtls-populate-stamp/mbedtls-populate-patch.rule"
+		},
+		{
+			"file" : "/home/d050/Coding/Me Coding/MultiplayerEdit/build-android32/_deps/mbedtls-subbuild/mbedtls-populate-prefix/src/mbedtls-populate-stamp/mbedtls-populate-test.rule"
+		},
+		{
+			"file" : "/home/d050/Coding/Me Coding/MultiplayerEdit/build-android32/_deps/mbedtls-subbuild/mbedtls-populate-prefix/src/mbedtls-populate-stamp/mbedtls-populate-update.rule"
+		}
+	],
+	"target" : 
+	{
+		"labels" : 
+		[
+			"mbedtls-populate"
+		],
+		"name" : "mbedtls-populate"
+	}
+}

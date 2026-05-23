@@ -1,0 +1,14 @@
+# Target labels
+ mbedtls-populate
+# Source files and their labels
+/home/d050/Coding/Me Coding/MultiplayerEdit/build-android64/_deps/mbedtls-subbuild/CMakeFiles/mbedtls-populate
+/home/d050/Coding/Me Coding/MultiplayerEdit/build-android64/_deps/mbedtls-subbuild/CMakeFiles/mbedtls-populate.rule
+/home/d050/Coding/Me Coding/MultiplayerEdit/build-android64/_deps/mbedtls-subbuild/CMakeFiles/mbedtls-populate-complete.rule
+/home/d050/Coding/Me Coding/MultiplayerEdit/build-android64/_deps/mbedtls-subbuild/mbedtls-populate-prefix/src/mbedtls-populate-stamp/mbedtls-populate-build.rule
+/home/d050/Coding/Me Coding/MultiplayerEdit/build-android64/_deps/mbedtls-subbuild/mbedtls-populate-prefix/src/mbedtls-populate-stamp/mbedtls-populate-configure.rule
+/home/d050/Coding/Me Coding/MultiplayerEdit/build-android64/_deps/mbedtls-subbuild/mbedtls-populate-prefix/src/mbedtls-populate-stamp/mbedtls-populate-download.rule
+/home/d050/Coding/Me Coding/MultiplayerEdit/build-android64/_deps/mbedtls-subbuild/mbedtls-populate-prefix/src/mbedtls-populate-stamp/mbedtls-populate-install.rule
+/home/d050/Coding/Me Coding/MultiplayerEdit/build-android64/_deps/mbedtls-subbuild/mbedtls-populate-prefix/src/mbedtls-populate-stamp/mbedtls-populate-mkdir.rule
+/home/d050/Coding/Me Coding/MultiplayerEdit/build-android64/_deps/mbedtls-subbuild/mbedtls-populate-prefix/src/mbedtls-populate-stamp/mbedtls-populate-patch.rule
+/home/d050/Coding/Me Coding/MultiplayerEdit/build-android64/_deps/mbedtls-subbuild/mbedtls-populate-prefix/src/mbedtls-populate-stamp/mbedtls-populate-test.rule
+/home/d050/Coding/Me Coding/MultiplayerEdit/build-android64/_deps/mbedtls-subbuild/mbedtls-populate-prefix/src/mbedtls-populate-stamp/mbedtls-populate-update.rule

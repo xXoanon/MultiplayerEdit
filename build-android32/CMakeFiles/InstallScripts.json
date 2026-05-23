@@ -1,0 +1,23 @@
+{
+	"InstallScripts" : 
+	[
+		"/home/d050/Coding/Me Coding/MultiplayerEdit/build-android32/cmake_install.cmake",
+		"/home/d050/Coding/Me Coding/MultiplayerEdit/build-android32/_deps/mbedtls-build/cmake_install.cmake",
+		"/home/d050/Coding/Me Coding/MultiplayerEdit/build-android32/_deps/mbedtls-build/include/cmake_install.cmake",
+		"/home/d050/Coding/Me Coding/MultiplayerEdit/build-android32/_deps/mbedtls-build/3rdparty/cmake_install.cmake",
+		"/home/d050/Coding/Me Coding/MultiplayerEdit/build-android32/_deps/mbedtls-build/3rdparty/everest/cmake_install.cmake",
+		"/home/d050/Coding/Me Coding/MultiplayerEdit/build-android32/_deps/mbedtls-build/library/cmake_install.cmake",
+		"/home/d050/Coding/Me Coding/MultiplayerEdit/build-android32/_deps/mbedtls-build/pkgconfig/cmake_install.cmake",
+		"/home/d050/Coding/Me Coding/MultiplayerEdit/build-android32/_deps/ixwebsocket-build/cmake_install.cmake",
+		"/home/d050/Coding/Me Coding/MultiplayerEdit/build-android32/geode/cmake_install.cmake",
+		"/home/d050/Coding/Me Coding/MultiplayerEdit/build-android32/_deps/result-build/cmake_install.cmake",
+		"/home/d050/Coding/Me Coding/MultiplayerEdit/build-android32/_deps/json-build/cmake_install.cmake",
+		"/home/d050/Coding/Me Coding/MultiplayerEdit/build-android32/_deps/nontype_functional-build/cmake_install.cmake",
+		"/home/d050/Coding/Me Coding/MultiplayerEdit/build-android32/_deps/fmt-build/cmake_install.cmake",
+		"/home/d050/Coding/Me Coding/MultiplayerEdit/build-android32/_deps/asp2-build/cmake_install.cmake",
+		"/home/d050/Coding/Me Coding/MultiplayerEdit/build-android32/_deps/arc-build/cmake_install.cmake",
+		"/home/d050/Coding/Me Coding/MultiplayerEdit/build-android32/_deps/tuliphook-build/cmake_install.cmake",
+		"/home/d050/Coding/Me Coding/MultiplayerEdit/build-android32/bindings/cmake_install.cmake"
+	],
+	"Parallel" : false
+}

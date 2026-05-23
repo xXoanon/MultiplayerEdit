@@ -206,6 +206,13 @@ namespace mpedit {
                 continue;
             }
 
+            // Deselect first to prevent dangling pointer crashes in EditorUI
+            if (auto* editorUI = editor->m_editorUI) {
+                if (editorUI->m_selectedObject == obj || (editorUI->m_selectedObjects && editorUI->m_selectedObjects->containsObject(obj))) {
+                    editorUI->deselectObject(obj);
+                }
+            }
+
             pruneObjectFromHistory(editor, obj);
             editor->removeObject(obj, true);
             unregisterObject(uuid);
@@ -285,7 +292,7 @@ namespace mpedit {
             // Get selection state
             auto* editorUI = editor->m_editorUI;
             bool wasSelected = false;
-            if (editorUI->m_selectedObjects && editorUI->m_selectedObjects->containsObject(oldObj)) {
+            if (editorUI->m_selectedObject == oldObj || (editorUI->m_selectedObjects && editorUI->m_selectedObjects->containsObject(oldObj))) {
                 wasSelected = true;
                 editorUI->deselectObject(oldObj);
             }
@@ -399,6 +406,11 @@ namespace mpedit {
         m_processingRemote = true;
 
         log::info("RemoteActionHandler: Syncing level state with {} objects from player {}", objects.size(), playerId);
+
+        // Deselect all selected objects first to prevent dangling pointers in EditorUI!
+        if (auto* editorUI = editor->m_editorUI) {
+            editorUI->deselectAll();
+        }
 
         // Delete all existing objects
         auto* allObjects = editor->m_objects;

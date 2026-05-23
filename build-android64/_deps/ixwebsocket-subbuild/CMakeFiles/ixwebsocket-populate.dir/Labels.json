@@ -1,0 +1,46 @@
+{
+	"sources" : 
+	[
+		{
+			"file" : "/home/d050/Coding/Me Coding/MultiplayerEdit/build-android64/_deps/ixwebsocket-subbuild/CMakeFiles/ixwebsocket-populate"
+		},
+		{
+			"file" : "/home/d050/Coding/Me Coding/MultiplayerEdit/build-android64/_deps/ixwebsocket-subbuild/CMakeFiles/ixwebsocket-populate.rule"
+		},
+		{
+			"file" : "/home/d050/Coding/Me Coding/MultiplayerEdit/build-android64/_deps/ixwebsocket-subbuild/CMakeFiles/ixwebsocket-populate-complete.rule"
+		},
+		{
+			"file" : "/home/d050/Coding/Me Coding/MultiplayerEdit/build-android64/_deps/ixwebsocket-subbuild/ixwebsocket-populate-prefix/src/ixwebsocket-populate-stamp/ixwebsocket-populate-build.rule"
+		},
+		{
+			"file" : "/home/d050/Coding/Me Coding/MultiplayerEdit/build-android64/_deps/ixwebsocket-subbuild/ixwebsocket-populate-prefix/src/ixwebsocket-populate-stamp/ixwebsocket-populate-configure.rule"
+		},
+		{
+			"file" : "/home/d050/Coding/Me Coding/MultiplayerEdit/build-android64/_deps/ixwebsocket-subbuild/ixwebsocket-populate-prefix/src/ixwebsocket-populate-stamp/ixwebsocket-populate-download.rule"
+		},
+		{
+			"file" : "/home/d050/Coding/Me Coding/MultiplayerEdit/build-android64/_deps/ixwebsocket-subbuild/ixwebsocket-populate-prefix/src/ixwebsocket-populate-stamp/ixwebsocket-populate-install.rule"
+		},
+		{
+			"file" : "/home/d050/Coding/Me Coding/MultiplayerEdit/build-android64/_deps/ixwebsocket-subbuild/ixwebsocket-populate-prefix/src/ixwebsocket-populate-stamp/ixwebsocket-populate-mkdir.rule"
+		},
+		{
+			"file" : "/home/d050/Coding/Me Coding/MultiplayerEdit/build-android64/_deps/ixwebsocket-subbuild/ixwebsocket-populate-prefix/src/ixwebsocket-populate-stamp/ixwebsocket-populate-patch.rule"
+		},
+		{
+			"file" : "/home/d050/Coding/Me Coding/MultiplayerEdit/build-android64/_deps/ixwebsocket-subbuild/ixwebsocket-populate-prefix/src/ixwebsocket-populate-stamp/ixwebsocket-populate-test.rule"
+		},
+		{
+			"file" : "/home/d050/Coding/Me Coding/MultiplayerEdit/build-android64/_deps/ixwebsocket-subbuild/ixwebsocket-populate-prefix/src/ixwebsocket-populate-stamp/ixwebsocket-populate-update.rule"
+		}
+	],
+	"target" : 
+	{
+		"labels" : 
+		[
+			"ixwebsocket-populate"
+		],
+		"name" : "ixwebsocket-populate"
+	}
+}

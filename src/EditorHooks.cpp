@@ -642,10 +642,18 @@ class $modify(MPLevelEditorLayer, LevelEditorLayer) {
                     int mode = ui->m_selectedMode;
                     int swipe = ui->m_swipeEnabled ? 1 : 0;
                     int objectId = 0;
-                    if (mode == 0 && ui->m_createButtonArray) {
+                    if (mode == 2 && ui->m_createButtonArray) { // Build mode
                         if (ui->m_selectedObjectIndex >= 0 && ui->m_selectedObjectIndex < static_cast<int>(ui->m_createButtonArray->count())) {
                             if (auto* btn = typeinfo_cast<CreateMenuItem*>(ui->m_createButtonArray->objectAtIndex(ui->m_selectedObjectIndex))) {
                                 objectId = btn->m_objectID;
+                            }
+                        }
+                    } else if (mode == 3) { // Edit mode
+                        if (ui->m_selectedObject) {
+                            objectId = ui->m_selectedObject->m_objectID;
+                        } else if (ui->m_selectedObjects && ui->m_selectedObjects->count() > 0) {
+                            if (auto* first = typeinfo_cast<GameObject*>(ui->m_selectedObjects->objectAtIndex(0))) {
+                                objectId = first->m_objectID;
                             }
                         }
                     }
@@ -687,12 +695,14 @@ class $modify(MPEditorUI, EditorUI) {
 
         EditorUI::selectObject(obj, filter);
 
-        if (session.isInSession() && !handler.isProcessingRemote() && obj) {
+        if (session.isInSession() && obj) {
             auto uuid = handler.getOrCreateUUID(obj);
             if (m_fields->m_preSelectSaveStrings.find(obj) == m_fields->m_preSelectSaveStrings.end()) {
                 m_fields->m_preSelectSaveStrings[obj] = obj->getSaveString(nullptr);
-                auto msg = ActionSerializer::serializeLockObjects({uuid}, true);
-                NetworkManager::get().send(msg);
+                if (!handler.isProcessingRemote()) {
+                    auto msg = ActionSerializer::serializeLockObjects({uuid}, true);
+                    NetworkManager::get().send(msg);
+                }
             }
         }
     }
@@ -702,12 +712,14 @@ class $modify(MPEditorUI, EditorUI) {
         
         auto& handler = RemoteActionHandler::get();
         auto& session = SessionManager::get();
-        if (session.isInSession() && !handler.isProcessingRemote() && obj) {
-            auto uuid = handler.getUUIDForObject(obj);
-            if (!uuid.empty()) {
-                m_fields->m_preSelectSaveStrings.erase(obj);
-                auto msg = ActionSerializer::serializeLockObjects({uuid}, false);
-                NetworkManager::get().send(msg);
+        if (session.isInSession() && obj) {
+            m_fields->m_preSelectSaveStrings.erase(obj);
+            if (!handler.isProcessingRemote()) {
+                auto uuid = handler.getUUIDForObject(obj);
+                if (!uuid.empty()) {
+                    auto msg = ActionSerializer::serializeLockObjects({uuid}, false);
+                    NetworkManager::get().send(msg);
+                }
             }
         }
     }
@@ -715,19 +727,21 @@ class $modify(MPEditorUI, EditorUI) {
     void deselectAll() {
         auto& handler = RemoteActionHandler::get();
         auto& session = SessionManager::get();
-        if (session.isInSession() && !handler.isProcessingRemote()) {
-            std::vector<std::string> uuids;
-            for (auto const& [obj, _] : m_fields->m_preSelectSaveStrings) {
-                auto uuid = handler.getUUIDForObject(obj);
-                if (!uuid.empty()) {
-                    uuids.push_back(uuid);
+        if (session.isInSession()) {
+            if (!handler.isProcessingRemote()) {
+                std::vector<std::string> uuids;
+                for (auto const& [obj, _] : m_fields->m_preSelectSaveStrings) {
+                    auto uuid = handler.getUUIDForObject(obj);
+                    if (!uuid.empty()) {
+                        uuids.push_back(uuid);
+                    }
+                }
+                if (!uuids.empty()) {
+                    auto msg = ActionSerializer::serializeLockObjects(uuids, false);
+                    NetworkManager::get().send(msg);
                 }
             }
             m_fields->m_preSelectSaveStrings.clear();
-            if (!uuids.empty()) {
-                auto msg = ActionSerializer::serializeLockObjects(uuids, false);
-                NetworkManager::get().send(msg);
-            }
         }
         EditorUI::deselectAll();
     }
@@ -808,7 +822,7 @@ class $modify(MPEditorUI, EditorUI) {
 
         EditorUI::selectObjects(filteredObjects, filter);
 
-        if (session.isInSession() && !handler.isProcessingRemote() && filteredObjects) {
+        if (session.isInSession() && filteredObjects) {
             std::vector<std::string> uuids;
             for (auto* obj : CCArrayExt<GameObject*>(filteredObjects)) {
                 auto uuid = handler.getOrCreateUUID(obj);
@@ -817,7 +831,7 @@ class $modify(MPEditorUI, EditorUI) {
                     uuids.push_back(uuid);
                 }
             }
-            if (!uuids.empty()) {
+            if (!uuids.empty() && !handler.isProcessingRemote()) {
                 auto msg = ActionSerializer::serializeLockObjects(uuids, true);
                 NetworkManager::get().send(msg);
             }

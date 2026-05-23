@@ -1,0 +1,46 @@
+{
+	"sources" : 
+	[
+		{
+			"file" : "/home/d050/Coding/Me Coding/MultiplayerEdit/build-android32/_deps/result-subbuild/CMakeFiles/result-populate"
+		},
+		{
+			"file" : "/home/d050/Coding/Me Coding/MultiplayerEdit/build-android32/_deps/result-subbuild/CMakeFiles/result-populate.rule"
+		},
+		{
+			"file" : "/home/d050/Coding/Me Coding/MultiplayerEdit/build-android32/_deps/result-subbuild/CMakeFiles/result-populate-complete.rule"
+		},
+		{
+			"file" : "/home/d050/Coding/Me Coding/MultiplayerEdit/build-android32/_deps/result-subbuild/result-populate-prefix/src/result-populate-stamp/result-populate-build.rule"
+		},
+		{
+			"file" : "/home/d050/Coding/Me Coding/MultiplayerEdit/build-android32/_deps/result-subbuild/result-populate-prefix/src/result-populate-stamp/result-populate-configure.rule"
+		},
+		{
+			"file" : "/home/d050/Coding/Me Coding/MultiplayerEdit/build-android32/_deps/result-subbuild/result-populate-prefix/src/result-populate-stamp/result-populate-download.rule"
+		},
+		{
+			"file" : "/home/d050/Coding/Me Coding/MultiplayerEdit/build-android32/_deps/result-subbuild/result-populate-prefix/src/result-populate-stamp/result-populate-install.rule"
+		},
+		{
+			"file" : "/home/d050/Coding/Me Coding/MultiplayerEdit/build-android32/_deps/result-subbuild/result-populate-prefix/src/result-populate-stamp/result-populate-mkdir.rule"
+		},
+		{
+			"file" : "/home/d050/Coding/Me Coding/MultiplayerEdit/build-android32/_deps/result-subbuild/result-populate-prefix/src/result-populate-stamp/result-populate-patch.rule"
+		},
+		{
+			"file" : "/home/d050/Coding/Me Coding/MultiplayerEdit/build-android32/_deps/result-subbuild/result-populate-prefix/src/result-populate-stamp/result-populate-test.rule"
+		},
+		{
+			"file" : "/home/d050/Coding/Me Coding/MultiplayerEdit/build-android32/_deps/result-subbuild/result-populate-prefix/src/result-populate-stamp/result-populate-update.rule"
+		}
+	],
+	"target" : 
+	{
+		"labels" : 
+		[
+			"result-populate"
+		],
+		"name" : "result-populate"
+	}
+}

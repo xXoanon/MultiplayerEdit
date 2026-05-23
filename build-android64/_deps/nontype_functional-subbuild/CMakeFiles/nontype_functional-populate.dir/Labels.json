@@ -1,0 +1,46 @@
+{
+	"sources" : 
+	[
+		{
+			"file" : "/home/d050/Coding/Me Coding/MultiplayerEdit/build-android64/_deps/nontype_functional-subbuild/CMakeFiles/nontype_functional-populate"
+		},
+		{
+			"file" : "/home/d050/Coding/Me Coding/MultiplayerEdit/build-android64/_deps/nontype_functional-subbuild/CMakeFiles/nontype_functional-populate.rule"
+		},
+		{
+			"file" : "/home/d050/Coding/Me Coding/MultiplayerEdit/build-android64/_deps/nontype_functional-subbuild/CMakeFiles/nontype_functional-populate-complete.rule"
+		},
+		{
+			"file" : "/home/d050/Coding/Me Coding/MultiplayerEdit/build-android64/_deps/nontype_functional-subbuild/nontype_functional-populate-prefix/src/nontype_functional-populate-stamp/nontype_functional-populate-build.rule"
+		},
+		{
+			"file" : "/home/d050/Coding/Me Coding/MultiplayerEdit/build-android64/_deps/nontype_functional-subbuild/nontype_functional-populate-prefix/src/nontype_functional-populate-stamp/nontype_functional-populate-configure.rule"
+		},
+		{
+			"file" : "/home/d050/Coding/Me Coding/MultiplayerEdit/build-android64/_deps/nontype_functional-subbuild/nontype_functional-populate-prefix/src/nontype_functional-populate-stamp/nontype_functional-populate-download.rule"
+		},
+		{
+			"file" : "/home/d050/Coding/Me Coding/MultiplayerEdit/build-android64/_deps/nontype_functional-subbuild/nontype_functional-populate-prefix/src/nontype_functional-populate-stamp/nontype_functional-populate-install.rule"
+		},
+		{
+			"file" : "/home/d050/Coding/Me Coding/MultiplayerEdit/build-android64/_deps/nontype_functional-subbuild/nontype_functional-populate-prefix/src/nontype_functional-populate-stamp/nontype_functional-populate-mkdir.rule"
+		},
+		{
+			"file" : "/home/d050/Coding/Me Coding/MultiplayerEdit/build-android64/_deps/nontype_functional-subbuild/nontype_functional-populate-prefix/src/nontype_functional-populate-stamp/nontype_functional-populate-patch.rule"
+		},
+		{
+			"file" : "/home/d050/Coding/Me Coding/MultiplayerEdit/build-android64/_deps/nontype_functional-subbuild/nontype_functional-populate-prefix/src/nontype_functional-populate-stamp/nontype_functional-populate-test.rule"
+		},
+		{
+			"file" : "/home/d050/Coding/Me Coding/MultiplayerEdit/build-android64/_deps/nontype_functional-subbuild/nontype_functional-populate-prefix/src/nontype_functional-populate-stamp/nontype_functional-populate-update.rule"
+		}
+	],
+	"target" : 
+	{
+		"labels" : 
+		[
+			"nontype_functional-populate"
+		],
+		"name" : "nontype_functional-populate"
+	}
+}

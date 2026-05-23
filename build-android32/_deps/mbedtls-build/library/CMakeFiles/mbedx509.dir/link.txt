@@ -1,0 +1,2 @@
+/opt/android-sdk/ndk/28.2.13676358/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-ar qc libmbedx509.a CMakeFiles/mbedx509.dir/certs.c.o CMakeFiles/mbedx509.dir/pkcs11.c.o CMakeFiles/mbedx509.dir/x509.c.o CMakeFiles/mbedx509.dir/x509_create.c.o CMakeFiles/mbedx509.dir/x509_crl.c.o CMakeFiles/mbedx509.dir/x509_crt.c.o CMakeFiles/mbedx509.dir/x509_csr.c.o CMakeFiles/mbedx509.dir/x509write_crt.c.o CMakeFiles/mbedx509.dir/x509write_csr.c.o
+/opt/android-sdk/ndk/28.2.13676358/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-ranlib libmbedx509.a
