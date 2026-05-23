@@ -17,9 +17,18 @@ Real-time collaborative level editing for Geometry Dash! Host a session, invite 
 
 ## How to Use
 
+### Installation
+
+1. Make sure you have [Geode](https://geode-sdk.org/) installed.
+2. Go to the [Releases page](https://github.com/xXoanon/MultiplayerEdit/releases) and download the latest `.geode` file.
+3. Place the `.geode` file in your Geometry Dash `geode/mods/` folder.
+4. Restart Geometry Dash.
+
+### Using the Mod
+
 1. Open any level in the Geometry Dash level editor.
 2. Click the **Multiplayer** button in the editor pause menu.
-3. Click **Host** to create a session and copy the room code, or click **Join** and enter your friend's room code.
+3. Click **Host** to create a session and share the room code, or click **Join** and enter your friend's room code.
 4. Once connected, your changes will sync automatically!
 
 ## Build Instructions
