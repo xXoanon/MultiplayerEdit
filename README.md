@@ -58,3 +58,7 @@ geode build --platform android64
 The mod routes editor actions through a lightweight WebSocket relay server. A public default server is configured by default (`wss://multiplayeredit.onrender.com`), but you can host your own.
 
 See the [server/README.md](server/README.md) file for setup and hosting instructions. You can update the **Server URL** setting in the mod settings in-game to connect to your custom server.
+
+## Support Development
+
+If you enjoy this mod or any of my other projects, consider supporting future development on [Patreon](https://www.patreon.com/c/d050/membership)!
