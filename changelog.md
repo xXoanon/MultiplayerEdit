@@ -1,8 +1,8 @@
-# Changelog
-
-## v0.1.0 (2026-05-21)
-- Initial development build
-- Basic session hosting and joining
-- Object placement and deletion sync
-- Player cursor display
-- Editor pause menu integration
+# 0.1.0
+- Added real-time multiplayer level editing.
+- Synchronized object placement, deletion, movement, scaling, rotation, and more.
+- Isolated undo/redo stacks per player so actions do not overwrite other players' histories.
+- Added live player cursors in the editor.
+- Badge previews next to player cursors showing their selected object.
+- Live playtesting showing the players custom icons in real-time.
+- Added in-editor multiplayer panel (player list, session status HUD overlay, join/leave notifications).

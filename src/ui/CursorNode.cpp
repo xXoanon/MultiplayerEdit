@@ -69,6 +69,7 @@ namespace mpedit {
             // Create cursor if it doesn't exist
             if (m_cursors.find(player.id) == m_cursors.end()) {
                 PlayerCursor pc;
+                pc.playtestIcon = nullptr;
                 
                 pc.drawNode = CCDrawNode::create();
                 
@@ -106,21 +107,18 @@ namespace mpedit {
                 auto& pc = m_cursors[player.id];
                 pc.targetX = player.cursorX;
                 pc.targetY = player.cursorY;
-                
-                // Smooth interpolation (lerp) towards target
-                auto currentPos = pc.drawNode->getPosition();
-                float newX = currentPos.x + (pc.targetX - currentPos.x) * 15.f * dt;
-                float newY = currentPos.y + (pc.targetY - currentPos.y) * 15.f * dt;
-                
-                pc.drawNode->setPosition({newX, newY});
-                pc.label->setAnchorPoint({0.f, 0.5f});
-                pc.label->setPosition({newX + 15.f, newY - 15.f});
-
-                pc.label->setString(player.name.c_str());
             }
 
             auto& pc = m_cursors[player.id];
             
+            // Smooth interpolation (lerp) towards target
+            auto currentPos = pc.drawNode->getPosition();
+            float newX = currentPos.x + (pc.targetX - currentPos.x) * 15.f * dt;
+            float newY = currentPos.y + (pc.targetY - currentPos.y) * 15.f * dt;
+            
+            pc.drawNode->setPosition({newX, newY});
+            pc.label->setString(player.name.c_str());
+
             // Rebuild toolIndicator if status changed
             if (player.status != pc.lastStatus) {
                 pc.lastStatus = player.status;
@@ -129,7 +127,7 @@ namespace mpedit {
                     pc.toolIndicator = nullptr;
                 }
 
-                if (!player.status.empty()) {
+                if (!player.status.empty() && player.status.rfind("pt:", 0) != 0) {
                     // Parse "mode:swipe:objectId"
                     int mode = 0;
                     int swipe = 0;
@@ -202,17 +200,17 @@ namespace mpedit {
                         auto* bgNode = CCDrawNode::create();
                         float radius = badgeHeight / 2.f;
                         bgNode->drawSegment({radius, radius}, {badgeWidth - radius, radius}, radius, bgColor);
-                        pc.toolIndicator->addChild(bgNode);
+                        pc.toolIndicator->addChild(bgNode, -1);
 
                         if (previewObj) {
                             previewObj->setPosition({paddingX + previewWidth / 2.f, radius});
-                            pc.toolIndicator->addChild(previewObj);
+                            pc.toolIndicator->addChild(previewObj, 1);
                             badgeLabel->setPosition({paddingX + previewWidth + 4.f + labelWidth / 2.f, radius});
                         } else {
                             badgeLabel->setPosition({badgeWidth / 2.f, radius});
                         }
                         
-                        pc.toolIndicator->addChild(badgeLabel);
+                        pc.toolIndicator->addChild(badgeLabel, 1);
                         pc.toolIndicator->setContentSize({badgeWidth, badgeHeight});
                         pc.toolIndicator->setAnchorPoint({0.f, 0.5f});
                         pc.toolIndicator->ignoreAnchorPointForPosition(false);
@@ -222,8 +220,124 @@ namespace mpedit {
                 }
             }
 
+            // Parse playtesting information
+            bool isPlaytesting = false;
+            int iconType = 0;
+            float rotation = 0.f;
+            bool isUpsideDown = false;
+            int cubeFrame = 1, shipFrame = 1, ballFrame = 1, ufoFrame = 1, waveFrame = 1, robotFrame = 1, spiderFrame = 1, swingFrame = 1;
+            cocos2d::ccColor3B col1{255, 255, 255}, col2{255, 255, 255}, glowCol{0, 0, 0};
+            bool glowEnabled = false;
+
+            if (player.status.rfind("pt:", 0) == 0) {
+                std::vector<std::string> tokens;
+                std::stringstream ss(player.status);
+                std::string token;
+                while (std::getline(ss, token, ':')) {
+                    tokens.push_back(token);
+                }
+                
+                if (tokens.size() >= 23) {
+                    isPlaytesting = (tokens[1] == "1");
+                    try {
+                        iconType = std::stoi(tokens[2]);
+                        rotation = std::stof(tokens[3]);
+                        isUpsideDown = (tokens[4] == "1");
+                        cubeFrame = std::stoi(tokens[5]);
+                        shipFrame = std::stoi(tokens[6]);
+                        ballFrame = std::stoi(tokens[7]);
+                        ufoFrame = std::stoi(tokens[8]);
+                        waveFrame = std::stoi(tokens[9]);
+                        robotFrame = std::stoi(tokens[10]);
+                        spiderFrame = std::stoi(tokens[11]);
+                        swingFrame = std::stoi(tokens[12]);
+                        
+                        col1.r = std::stoi(tokens[13]);
+                        col1.g = std::stoi(tokens[14]);
+                        col1.b = std::stoi(tokens[15]);
+                        
+                        col2.r = std::stoi(tokens[16]);
+                        col2.g = std::stoi(tokens[17]);
+                        col2.b = std::stoi(tokens[18]);
+                        
+                        glowEnabled = (tokens[19] == "1");
+                        
+                        glowCol.r = std::stoi(tokens[20]);
+                        glowCol.g = std::stoi(tokens[21]);
+                        glowCol.b = std::stoi(tokens[22]);
+                    } catch (...) {}
+                }
+            }
+
+            if (isPlaytesting) {
+                pc.drawNode->setVisible(false);
+                if (pc.toolIndicator) {
+                    pc.toolIndicator->setVisible(false);
+                }
+                
+                if (!pc.playtestIcon) {
+                    pc.playtestIcon = SimplePlayer::create(1);
+                    this->addChild(pc.playtestIcon);
+                }
+                
+                pc.playtestIcon->setVisible(true);
+                pc.playtestIcon->setPosition({newX, newY});
+                pc.playtestIcon->setRotation(rotation);
+                pc.playtestIcon->setScaleY(isUpsideDown ? -1.f : 1.f);
+                
+                int activeIconId = cubeFrame;
+                IconType activeIconType = IconType::Cube;
+                
+                if (iconType == 1) {
+                    activeIconId = shipFrame;
+                    activeIconType = IconType::Ship;
+                } else if (iconType == 2) {
+                    activeIconId = ballFrame;
+                    activeIconType = IconType::Ball;
+                } else if (iconType == 3) {
+                    activeIconId = ufoFrame;
+                    activeIconType = IconType::Ufo;
+                } else if (iconType == 4) {
+                    activeIconId = waveFrame;
+                    activeIconType = IconType::Wave;
+                } else if (iconType == 5) {
+                    activeIconId = robotFrame;
+                    activeIconType = IconType::Robot;
+                } else if (iconType == 6) {
+                    activeIconId = spiderFrame;
+                    activeIconType = IconType::Spider;
+                } else if (iconType == 7) {
+                    activeIconId = swingFrame;
+                    activeIconType = IconType::Swing;
+                } else if (iconType == 8) {
+                    activeIconId = shipFrame; // Jetpack uses ship frame
+                    activeIconType = IconType::Jetpack;
+                }
+                
+                pc.playtestIcon->updatePlayerFrame(activeIconId, activeIconType);
+                pc.playtestIcon->setColors(col1, col2);
+                if (glowEnabled) {
+                    pc.playtestIcon->setGlowOutline(glowCol);
+                } else {
+                    pc.playtestIcon->disableGlowOutline();
+                }
+                
+                pc.label->setAnchorPoint({0.5f, 0.f});
+                pc.label->setPosition({newX, newY + 20.f});
+            } else {
+                pc.drawNode->setVisible(true);
+                if (pc.toolIndicator) {
+                    pc.toolIndicator->setVisible(true);
+                }
+                if (pc.playtestIcon) {
+                    pc.playtestIcon->setVisible(false);
+                }
+                pc.label->setAnchorPoint({0.f, 0.5f});
+                pc.label->setPosition({newX + 15.f, newY - 15.f});
+            }
+
             // Update toolIndicator position
-            if (pc.toolIndicator) {
+            if (pc.toolIndicator && !isPlaytesting) {
                 float labelWidth = pc.label->getContentSize().width * pc.label->getScaleX();
                 float labelX = pc.label->getPositionX();
                 float labelY = pc.label->getPositionY();
@@ -267,6 +381,7 @@ namespace mpedit {
                 if (it->second.drawNode) it->second.drawNode->removeFromParent();
                 if (it->second.label) it->second.label->removeFromParent();
                 if (it->second.toolIndicator) it->second.toolIndicator->removeFromParent();
+                if (it->second.playtestIcon) it->second.playtestIcon->removeFromParent();
                 it = m_cursors.erase(it);
             } else {
                 ++it;

@@ -15,6 +15,10 @@
 using namespace geode::prelude;
 using namespace mpedit;
 
+namespace {
+    int s_selectedObjectID = 1;
+}
+
 // ============================================================
 // EditorPauseLayer — Add "Multiplayer" button to pause menu
 // ============================================================
@@ -428,28 +432,39 @@ class $modify(MPLevelEditorLayer, LevelEditorLayer) {
 
 
     // Intercept object creation to assign UUIDs and sync
-    GameObject* createObject(int objectID, cocos2d::CCPoint position, bool undo) {
-        auto* obj = LevelEditorLayer::createObject(objectID, position, undo);
+    GameObject* createObject(int objectID, cocos2d::CCPoint position, bool noUndo) {
+        auto* obj = LevelEditorLayer::createObject(objectID, position, noUndo);
         
         if (!obj) return obj;
 
         auto& handler = RemoteActionHandler::get();
         auto& session = SessionManager::get();
 
-        // If we're processing a remote action, the UUID is already assigned
-        if (handler.isProcessingRemote()) return obj;
+        // If we're processing a remote action or it's a noUndo creation, we do not sync it
+        if (handler.isProcessingRemote() || noUndo) return obj;
 
-        // If we're in a session, assign UUID and send to server
+        // If we're in a session, assign UUID and sync deferred
         if (session.isInSession()) {
             auto uuid = RemoteActionHandler::generateUUID();
             handler.registerObject(uuid, obj);
 
-            // Send placement to server
-            auto objData = ActionSerializer::extractObjectData(obj, uuid);
-            auto msg = ActionSerializer::serializePlaceObjects({objData});
-            NetworkManager::get().send(msg);
+            // Capture as a Ref to automatically manage retaining and releasing next frame
+            geode::queueInMainThread([this, obj = geode::Ref<GameObject>(obj), uuid]() {
+                if (LevelEditorLayer::get() != this) return;
+                auto& handler = RemoteActionHandler::get();
+                auto& session = SessionManager::get();
+                if (session.isInSession() && !handler.isProcessingRemote()) {
+                    if (this->m_objects && this->m_objects->containsObject(obj)) {
+                        auto objData = ActionSerializer::extractObjectData(obj, uuid);
+                        auto msg = ActionSerializer::serializePlaceObjects({objData});
+                        NetworkManager::get().send(msg);
+                        
+                        log::debug("EditorHooks: Deferred placement sync complete for uuid={}", uuid);
+                    }
+                }
+            });
 
-            log::debug("EditorHooks: Placed object {} (uuid={})", objectID, uuid);
+            log::debug("EditorHooks: Scheduled deferred placement for object {} (uuid={})", objectID, uuid);
         }
 
         return obj;
@@ -499,7 +514,8 @@ class $modify(MPLevelEditorLayer, LevelEditorLayer) {
         }
 
         // 1. Verify that no objects in the undoObjects are locked by other players
-        for (auto* item : CCArrayExt<UndoObject*>(undoObjects)) {
+        for (auto* itemObj : CCArrayExt<cocos2d::CCObject*>(undoObjects)) {
+            auto* item = typeinfo_cast<UndoObject*>(itemObj);
             if (!item) continue;
             
             auto checkLocked = [&](GameObject* gObj) -> bool {
@@ -523,10 +539,13 @@ class $modify(MPLevelEditorLayer, LevelEditorLayer) {
                     }
                 }
             }
-            if (item->m_objectCopy && item->m_objectCopy->m_object) {
-                if (checkLocked(item->m_objectCopy->m_object)) {
-                    log::info("EditorHooks: Blocked undo/redo of locked object");
-                    return;
+            if (item->m_objectCopy) {
+                auto* copy = typeinfo_cast<GameObjectCopy*>(item->m_objectCopy);
+                if (copy && copy->m_object) {
+                    if (checkLocked(copy->m_object)) {
+                        log::info("EditorHooks: Blocked undo/redo of locked object");
+                        return;
+                    }
                 }
             }
         }
@@ -568,15 +587,19 @@ class $modify(MPLevelEditorLayer, LevelEditorLayer) {
             affectedStates.push_back(state);
         };
 
-        for (auto* item : CCArrayExt<UndoObject*>(undoObjects)) {
+        for (auto* itemObj : CCArrayExt<cocos2d::CCObject*>(undoObjects)) {
+            auto* item = typeinfo_cast<UndoObject*>(itemObj);
             if (!item) continue;
             if (item->m_objects) {
                 for (auto* gObj : CCArrayExt<GameObject*>(item->m_objects)) {
                     recordObjectState(gObj);
                 }
             }
-            if (item->m_objectCopy && item->m_objectCopy->m_object) {
-                recordObjectState(item->m_objectCopy->m_object);
+            if (item->m_objectCopy) {
+                auto* copy = typeinfo_cast<GameObjectCopy*>(item->m_objectCopy);
+                if (copy && copy->m_object) {
+                    recordObjectState(copy->m_object);
+                }
             }
         }
 
@@ -659,32 +682,75 @@ class $modify(MPLevelEditorLayer, LevelEditorLayer) {
         if (m_fields->m_cursorSendTimer >= 0.1f) {  // 10 Hz cursor updates
             m_fields->m_cursorSendTimer = 0.f;
             
-            // Get current cursor position from EditorUI
             if (this->m_objectLayer) {
-                auto mousePos = geode::cocos::getMousePos();
-                auto levelPos = this->m_objectLayer->convertToNodeSpace(mousePos);
-                
+                cocos2d::CCPoint levelPos;
                 std::string statusStr = "";
-                if (auto* ui = this->m_editorUI) {
-                    int mode = ui->m_selectedMode;
-                    int swipe = ui->m_swipeEnabled ? 1 : 0;
-                    int objectId = 0;
-                    if (mode == 2 && ui->m_createButtonArray) { // Build mode
-                        if (ui->m_selectedObjectIndex >= 0 && ui->m_selectedObjectIndex < static_cast<int>(ui->m_createButtonArray->count())) {
-                            if (auto* btn = typeinfo_cast<CreateMenuItem*>(ui->m_createButtonArray->objectAtIndex(ui->m_selectedObjectIndex))) {
-                                objectId = btn->m_objectID;
-                            }
-                        }
-                    } else if (mode == 3) { // Edit mode
-                        if (ui->m_selectedObject) {
-                            objectId = ui->m_selectedObject->m_objectID;
-                        } else if (ui->m_selectedObjects && ui->m_selectedObjects->count() > 0) {
-                            if (auto* first = typeinfo_cast<GameObject*>(ui->m_selectedObjects->objectAtIndex(0))) {
-                                objectId = first->m_objectID;
-                            }
-                        }
+
+                if (this->m_playbackMode != PlaybackMode::Not && this->m_player1) {
+                    levelPos = this->m_player1->getPosition();
+                    
+                    auto* gm = GameManager::get();
+                    int iconType = 0; // Cube
+                    if (this->m_player1->m_isShip) {
+                        iconType = this->m_player1->m_isPlatformer ? 8 : 1; // 8 = Jetpack, 1 = Ship
+                    } else if (this->m_player1->m_isBall) {
+                        iconType = 2;
+                    } else if (this->m_player1->m_isBird) {
+                        iconType = 3;
+                    } else if (this->m_player1->m_isDart) {
+                        iconType = 4;
+                    } else if (this->m_player1->m_isRobot) {
+                        iconType = 5;
+                    } else if (this->m_player1->m_isSpider) {
+                        iconType = 6;
+                    } else if (this->m_player1->m_isSwing) {
+                        iconType = 7;
                     }
-                    statusStr = std::to_string(mode) + ":" + std::to_string(swipe) + ":" + std::to_string(objectId);
+
+                    auto col1 = gm->colorForIdx(gm->getPlayerColor());
+                    auto col2 = gm->colorForIdx(gm->getPlayerColor2());
+                    bool glowEnabled = gm->getPlayerGlow();
+                    auto colGlow = gm->colorForIdx(gm->getPlayerGlowColor());
+
+                    std::stringstream ss;
+                    ss << "pt:1:" 
+                       << iconType << ":" 
+                       << this->m_player1->getRotation() << ":" 
+                       << (this->m_player1->m_isUpsideDown ? 1 : 0) << ":"
+                       << gm->getPlayerFrame() << ":"
+                       << gm->getPlayerShip() << ":"
+                       << gm->getPlayerBall() << ":"
+                       << gm->getPlayerBird() << ":"
+                       << gm->getPlayerDart() << ":"
+                       << gm->getPlayerRobot() << ":"
+                       << gm->getPlayerSpider() << ":"
+                       << gm->getPlayerSwing() << ":"
+                       << static_cast<int>(col1.r) << ":" << static_cast<int>(col1.g) << ":" << static_cast<int>(col1.b) << ":"
+                       << static_cast<int>(col2.r) << ":" << static_cast<int>(col2.g) << ":" << static_cast<int>(col2.b) << ":"
+                       << (glowEnabled ? 1 : 0) << ":"
+                       << static_cast<int>(colGlow.r) << ":" << static_cast<int>(colGlow.g) << ":" << static_cast<int>(colGlow.b);
+                    statusStr = ss.str();
+                } else {
+                    auto mousePos = geode::cocos::getMousePos();
+                    levelPos = this->m_objectLayer->convertToNodeSpace(mousePos);
+                    
+                    if (auto* ui = this->m_editorUI) {
+                        int mode = ui->m_selectedMode;
+                        int swipe = ui->m_swipeEnabled ? 1 : 0;
+                        int objectId = 0;
+                        if (mode == 2) { // Build mode
+                            objectId = s_selectedObjectID;
+                        } else if (mode == 3) { // Edit mode
+                            if (ui->m_selectedObject) {
+                                objectId = ui->m_selectedObject->m_objectID;
+                            } else if (ui->m_selectedObjects && ui->m_selectedObjects->count() > 0) {
+                                if (auto* first = typeinfo_cast<GameObject*>(ui->m_selectedObjects->objectAtIndex(0))) {
+                                    objectId = first->m_objectID;
+                                }
+                            }
+                        }
+                        statusStr = std::to_string(mode) + ":" + std::to_string(swipe) + ":" + std::to_string(objectId);
+                    }
                 }
                 
                 auto msg = ActionSerializer::serializeCursorUpdate(levelPos.x, levelPos.y, statusStr);
@@ -700,9 +766,13 @@ class $modify(MPLevelEditorLayer, LevelEditorLayer) {
 
 class $modify(MPEditorUI, EditorUI) {
     struct Fields {
-        std::unordered_map<GameObject*, std::string> m_preSelectSaveStrings;
         float m_lockRefreshTimer = 0.f;
     };
+
+    void onCreateObject(int id) {
+        EditorUI::onCreateObject(id);
+        s_selectedObjectID = id;
+    }
 
     void selectObject(GameObject* obj, bool filter) {
         auto& handler = RemoteActionHandler::get();
@@ -724,8 +794,9 @@ class $modify(MPEditorUI, EditorUI) {
 
         if (session.isInSession() && obj) {
             auto uuid = handler.getOrCreateUUID(obj);
-            if (m_fields->m_preSelectSaveStrings.find(obj) == m_fields->m_preSelectSaveStrings.end()) {
-                m_fields->m_preSelectSaveStrings[obj] = obj->getSaveString(LevelEditorLayer::get());
+            auto& tracked = handler.getTrackedSelections();
+            if (tracked.find(obj) == tracked.end()) {
+                tracked[obj] = obj->getSaveString(LevelEditorLayer::get());
                 if (!handler.isProcessingRemote()) {
                     auto msg = ActionSerializer::serializeLockObjects({uuid}, true);
                     NetworkManager::get().send(msg);
@@ -740,7 +811,7 @@ class $modify(MPEditorUI, EditorUI) {
         auto& handler = RemoteActionHandler::get();
         auto& session = SessionManager::get();
         if (session.isInSession() && obj) {
-            m_fields->m_preSelectSaveStrings.erase(obj);
+            handler.getTrackedSelections().erase(obj);
             if (!handler.isProcessingRemote()) {
                 auto uuid = handler.getUUIDForObject(obj);
                 if (!uuid.empty()) {
@@ -758,7 +829,8 @@ class $modify(MPEditorUI, EditorUI) {
             if (!handler.isProcessingRemote()) {
                 auto* editor = LevelEditorLayer::get();
                 std::vector<std::string> uuids;
-                for (auto const& [obj, _] : m_fields->m_preSelectSaveStrings) {
+                auto& tracked = handler.getTrackedSelections();
+                for (auto const& [obj, _] : tracked) {
                     if (editor && editor->m_objects && editor->m_objects->containsObject(obj)) {
                         auto uuid = handler.getUUIDForObject(obj);
                         if (!uuid.empty()) {
@@ -771,7 +843,7 @@ class $modify(MPEditorUI, EditorUI) {
                     NetworkManager::get().send(msg);
                 }
             }
-            m_fields->m_preSelectSaveStrings.clear();
+            handler.getTrackedSelections().clear();
         }
         EditorUI::deselectAll();
     }
@@ -854,10 +926,11 @@ class $modify(MPEditorUI, EditorUI) {
 
         if (session.isInSession() && filteredObjects) {
             std::vector<std::string> uuids;
+            auto& tracked = handler.getTrackedSelections();
             for (auto* obj : CCArrayExt<GameObject*>(filteredObjects)) {
                 auto uuid = handler.getOrCreateUUID(obj);
-                if (m_fields->m_preSelectSaveStrings.find(obj) == m_fields->m_preSelectSaveStrings.end()) {
-                    m_fields->m_preSelectSaveStrings[obj] = obj->getSaveString(LevelEditorLayer::get());
+                if (tracked.find(obj) == tracked.end()) {
+                    tracked[obj] = obj->getSaveString(LevelEditorLayer::get());
                     uuids.push_back(uuid);
                 }
             }
@@ -885,10 +958,11 @@ class $modify(MPEditorUI, EditorUI) {
 
         // selection lock refresh timer
         m_fields->m_lockRefreshTimer += dt;
+        auto& tracked = handler.getTrackedSelections();
         if (m_fields->m_lockRefreshTimer >= 1.0f) {
             m_fields->m_lockRefreshTimer = 0.f;
             std::vector<std::string> selectedUuids;
-            for (auto const& [obj, _] : m_fields->m_preSelectSaveStrings) {
+            for (auto const& [obj, _] : tracked) {
                 if (editor->m_objects->containsObject(obj)) {
                     auto uuid = handler.getUUIDForObject(obj);
                     if (!uuid.empty()) {
@@ -905,12 +979,12 @@ class $modify(MPEditorUI, EditorUI) {
         std::vector<std::string> unlockUuids;
         std::vector<ActionSerializer::ObjectData> updates;
 
-        for (auto it = m_fields->m_preSelectSaveStrings.begin(); it != m_fields->m_preSelectSaveStrings.end(); ) {
+        for (auto it = tracked.begin(); it != tracked.end(); ) {
             GameObject* obj = it->first;
             
             // Check if object still exists in the editor to avoid dangling pointers
             if (!editor->m_objects->containsObject(obj)) {
-                it = m_fields->m_preSelectSaveStrings.erase(it);
+                it = tracked.erase(it);
                 continue;
             }
             
@@ -921,7 +995,7 @@ class $modify(MPEditorUI, EditorUI) {
 
             auto uuid = handler.getUUIDForObject(obj);
             if (uuid.empty()) {
-                it = m_fields->m_preSelectSaveStrings.erase(it);
+                it = tracked.erase(it);
                 continue;
             }
 
@@ -939,7 +1013,7 @@ class $modify(MPEditorUI, EditorUI) {
 
             if (!isSelected) {
                 unlockUuids.push_back(uuid);
-                it = m_fields->m_preSelectSaveStrings.erase(it);
+                it = tracked.erase(it);
             } else {
                 ++it;
             }

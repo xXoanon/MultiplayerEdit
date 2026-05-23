@@ -4,6 +4,8 @@
 #include <unordered_map>
 #include "../SessionManager.hpp"
 
+class SimplePlayer;
+
 namespace mpedit {
 
     class CursorNode : public cocos2d::CCNode {
@@ -12,6 +14,7 @@ namespace mpedit {
             cocos2d::CCDrawNode* drawNode = nullptr;
             cocos2d::CCLabelBMFont* label = nullptr;
             cocos2d::CCNode* toolIndicator = nullptr;
+            SimplePlayer* playtestIcon = nullptr;
             std::string lastStatus;
             float targetX = 0.f;
             float targetY = 0.f;

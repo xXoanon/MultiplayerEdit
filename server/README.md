@@ -36,12 +36,3 @@ PORT=3000 npm start
 ## Protocol
 
 The server uses JSON messages over WebSocket. See the implementation plan for the full protocol specification.
-
-## Security Notes
-
-- This is a development server. For production, add:
-  - Rate limiting
-  - Authentication
-  - TLS (wss://)
-  - Input validation
-  - Max message size limits

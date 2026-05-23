@@ -80,6 +80,9 @@ namespace mpedit {
         void loadSongInfoFinished(SongInfoObject* object) override {}
         void loadSongInfoFailed(int id, GJSongError errorType) override {}
 
+        // Selected objects baseline saveStrings (for tracking property changes during selection)
+        std::unordered_map<GameObject*, std::string>& getTrackedSelections() { return m_preSelectSaveStrings; }
+
     private:
         RemoteActionHandler() = default;
         ~RemoteActionHandler() = default;
@@ -95,6 +98,8 @@ namespace mpedit {
 
         // UUID ↔ Lock info
         std::unordered_map<std::string, LockInfo> m_objectLocks;
+        std::unordered_map<std::string, std::string> m_lockedSaveStrings;
+        std::unordered_map<GameObject*, std::string> m_preSelectSaveStrings;
 
         bool m_processingRemote = false;
         bool m_initialSyncCompleted = false;

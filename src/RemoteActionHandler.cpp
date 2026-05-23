@@ -183,7 +183,7 @@ namespace mpedit {
         m_processingRemote = true;
 
         for (auto& objData : objects) {
-            auto* obj = editor->createObject(objData.objectID, {objData.x, objData.y}, false);
+            auto* obj = editor->createObject(objData.objectID, {objData.x, objData.y}, true);
             if (!obj) {
                 log::warn("RemoteActionHandler: Failed to create object ID {}", objData.objectID);
                 continue;
@@ -224,6 +224,12 @@ namespace mpedit {
             if (auto* editorUI = editor->m_editorUI) {
                 if (editorUI->m_selectedObject == obj || (editorUI->m_selectedObjects && editorUI->m_selectedObjects->containsObject(obj))) {
                     editorUI->deselectObject(obj);
+                    if (editorUI->m_selectedObject == obj) {
+                        editorUI->m_selectedObject = nullptr;
+                    }
+                    if (editorUI->m_selectedObjects && editorUI->m_selectedObjects->containsObject(obj)) {
+                        editorUI->m_selectedObjects->removeObject(obj);
+                    }
                 }
             }
 
@@ -254,6 +260,7 @@ namespace mpedit {
 
             auto pos = obj->getPosition();
             obj->setPosition({pos.x + move.dx, pos.y + move.dy});
+            editor->updateObjectSection(obj);
             log::debug("RemoteActionHandler: Moved object (uuid={}) by ({}, {})", move.uuid, move.dx, move.dy);
         }
 
@@ -303,12 +310,47 @@ namespace mpedit {
                 continue;
             }
 
+            // Check if the object is currently locked by a remote player
+            bool isLockedRemote = false;
+            auto const& locks = m_objectLocks;
+            auto it = locks.find(objData.uuid);
+            if (it != locks.end() && it->second.playerId != SessionManager::get().getLocalPlayerId()) {
+                isLockedRemote = true;
+            }
+
+            if (isLockedRemote) {
+                // Update transform and basic properties in place to avoid deletion and recreation during dragging
+                oldObj->setPosition({objData.x, objData.y});
+                oldObj->setRotation(objData.rotation);
+                oldObj->setScaleX(objData.scaleX);
+                oldObj->setScaleY(objData.scaleY);
+                oldObj->setFlipX(objData.flipX);
+                oldObj->setFlipY(objData.flipY);
+                oldObj->m_editorLayer = objData.editorLayer;
+                oldObj->m_editorLayer2 = objData.editorLayer2;
+                
+                editor->updateObjectSection(oldObj);
+                LevelEditorLayer::updateObjectLabel(oldObj);
+                
+                // Store the latest saveString to apply final recreations upon unlock
+                m_lockedSaveStrings[objData.uuid] = objData.saveString;
+                
+                log::debug("RemoteActionHandler: Updated locked object {} in-place", objData.uuid);
+                continue;
+            }
+
             // Get selection state
             auto* editorUI = editor->m_editorUI;
             bool wasSelected = false;
-            if (editorUI->m_selectedObject == oldObj || (editorUI->m_selectedObjects && editorUI->m_selectedObjects->containsObject(oldObj))) {
+            if (editorUI && (editorUI->m_selectedObject == oldObj || (editorUI->m_selectedObjects && editorUI->m_selectedObjects->containsObject(oldObj)))) {
                 wasSelected = true;
                 editorUI->deselectObject(oldObj);
+                if (editorUI->m_selectedObject == oldObj) {
+                    editorUI->m_selectedObject = nullptr;
+                }
+                if (editorUI->m_selectedObjects && editorUI->m_selectedObjects->containsObject(oldObj)) {
+                    editorUI->m_selectedObjects->removeObject(oldObj);
+                }
             }
 
             pruneObjectFromHistory(editor, oldObj);
@@ -317,14 +359,13 @@ namespace mpedit {
             unregisterObject(objData.uuid);
 
             // Recreate object using saveString to ensure ALL properties are loaded
-            // We use createObjectsFromString because it parses the raw GD level string format
             auto arr = editor->createObjectsFromString(objData.saveString, true, true);
             if (arr && arr->count() > 0) {
                 auto* newObj = static_cast<GameObject*>(arr->objectAtIndex(0));
                 registerObject(objData.uuid, newObj);
                 log::debug("RemoteActionHandler: Updated object {} via saveString", objData.uuid);
 
-                if (wasSelected) {
+                if (wasSelected && editorUI) {
                     editorUI->selectObject(newObj, true);
                 }
             } else {
@@ -340,19 +381,90 @@ namespace mpedit {
         std::vector<std::string> const& uuids, 
         bool locked
     ) {
+        m_processingRemote = true;
+
         if (locked) {
+            auto* editor = getEditorLayer();
+            auto* editorUI = editor ? editor->m_editorUI : nullptr;
             for (auto& uuid : uuids) {
                 // Set lock timeout to 3 seconds. It will be refreshed by cursor_update or explicitly released
                 m_objectLocks[uuid] = LockInfo { playerId, 3.0f }; 
+                
+                // Deselect locked objects if we have them selected
+                if (editorUI) {
+                    auto* obj = getObjectByUUID(uuid);
+                    if (obj) {
+                        if (editorUI->m_selectedObject == obj || (editorUI->m_selectedObjects && editorUI->m_selectedObjects->containsObject(obj))) {
+                            editorUI->deselectObject(obj);
+                            if (editorUI->m_selectedObject == obj) {
+                                editorUI->m_selectedObject = nullptr;
+                            }
+                            if (editorUI->m_selectedObjects && editorUI->m_selectedObjects->containsObject(obj)) {
+                                editorUI->m_selectedObjects->removeObject(obj);
+                            }
+                        }
+                    }
+                }
             }
         } else {
+            auto* editor = getEditorLayer();
             for (auto& uuid : uuids) {
                 auto it = m_objectLocks.find(uuid);
                 if (it != m_objectLocks.end() && it->second.playerId == playerId) {
                     m_objectLocks.erase(it);
+                    
+                    // If we have a pending final saveString and editor is active, recreate the object now to apply all final properties
+                    if (editor) {
+                        auto saveIt = m_lockedSaveStrings.find(uuid);
+                        if (saveIt != m_lockedSaveStrings.end()) {
+                            std::string saveStr = saveIt->second;
+                            m_lockedSaveStrings.erase(saveIt);
+                            
+                            auto* oldObj = getObjectByUUID(uuid);
+                            if (oldObj) {
+                                // Check if the saveString has actually changed.
+                                // If it hasn't (or only transform properties changed, which are updated in-place),
+                                // we can skip the recreation completely!
+                                std::string currentSave = oldObj->getSaveString(editor);
+                                if (currentSave != saveStr) {
+                                    auto* editorUI = editor->m_editorUI;
+                                    bool wasSelected = false;
+                                    if (editorUI && (editorUI->m_selectedObject == oldObj || (editorUI->m_selectedObjects && editorUI->m_selectedObjects->containsObject(oldObj)))) {
+                                        wasSelected = true;
+                                        editorUI->deselectObject(oldObj);
+                                        if (editorUI->m_selectedObject == oldObj) {
+                                            editorUI->m_selectedObject = nullptr;
+                                        }
+                                        if (editorUI->m_selectedObjects && editorUI->m_selectedObjects->containsObject(oldObj)) {
+                                            editorUI->m_selectedObjects->removeObject(oldObj);
+                                        }
+                                    }
+                                    
+                                    pruneObjectFromHistory(editor, oldObj);
+                                    editor->removeObject(oldObj, true);
+                                    unregisterObject(uuid);
+                                    
+                                    auto arr = editor->createObjectsFromString(saveStr, true, true);
+                                    if (arr && arr->count() > 0) {
+                                        auto* newObj = static_cast<GameObject*>(arr->objectAtIndex(0));
+                                        registerObject(uuid, newObj);
+                                        
+                                        if (wasSelected && editorUI) {
+                                            editorUI->selectObject(newObj, true);
+                                        }
+                                        log::debug("RemoteActionHandler: Finished edit and applied final saveString recreate for uuid={}", uuid);
+                                    }
+                                } else {
+                                    log::debug("RemoteActionHandler: Skipped unlock recreation since saveStrings are identical for uuid={}", uuid);
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
+
+        m_processingRemote = false;
     }
 
     void RemoteActionHandler::handleRemoteSyncLevel(
@@ -543,6 +655,7 @@ namespace mpedit {
             GameObject* obj = it->second;
             m_objectToUuid.erase(obj);
             m_uuidToObject.erase(it);
+            m_preSelectSaveStrings.erase(obj);
         }
     }
 
@@ -552,7 +665,8 @@ namespace mpedit {
         auto pruneList = [](cocos2d::CCArray* list, GameObject* target) {
             if (!list) return;
             std::vector<cocos2d::CCObject*> toRemove;
-            for (auto* item : geode::cocos::CCArrayExt<UndoObject*>(list)) {
+            for (auto* itemObj : geode::cocos::CCArrayExt<cocos2d::CCObject*>(list)) {
+                auto* item = typeinfo_cast<UndoObject*>(itemObj);
                 if (!item) continue;
                 
                 // Check m_objects array
@@ -566,10 +680,13 @@ namespace mpedit {
                     }
                 }
                 
-                // Check m_objectCopy
-                if (item->m_objectCopy && item->m_objectCopy->m_object == target) {
-                    toRemove.push_back(item);
-                    continue;
+                // Check m_objectCopy safely
+                if (item->m_objectCopy) {
+                    auto* copy = typeinfo_cast<GameObjectCopy*>(item->m_objectCopy);
+                    if (copy && copy->m_object == target) {
+                        toRemove.push_back(item);
+                        continue;
+                    }
                 }
             }
             for (auto* item : toRemove) {
@@ -637,7 +754,9 @@ namespace mpedit {
         m_uuidToObject.clear();
         m_objectToUuid.clear();
         m_objectLocks.clear();
+        m_lockedSaveStrings.clear();
         m_expectedUuids.clear();
+        m_preSelectSaveStrings.clear();
         m_initialSyncCompleted = false;
         s_uuidCounter = 0;
     }
