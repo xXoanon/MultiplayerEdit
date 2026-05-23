@@ -80,16 +80,17 @@ namespace mpedit::ActionSerializer {
         return msg;
     }
 
-    matjson::Value serializeSyncLevel(int targetPlayerId, std::vector<ObjectData> const& objects, LevelSettingsData const& settings, std::vector<LockData> const& locks) {
+    matjson::Value serializeSyncLevel(int targetPlayerId, std::string const& objectsString, std::vector<std::string> const& uuids, LevelSettingsData const& settings, std::vector<LockData> const& locks) {
         matjson::Value msg;
         msg["action"] = "sync_level";
         msg["targetPlayerId"] = targetPlayerId;
+        msg["objectsString"] = objectsString;
         
         auto arr = matjson::Value::array();
-        for (auto& obj : objects) {
-            arr.push(objectDataToJson(obj));
+        for (auto const& uuid : uuids) {
+            arr.push(uuid);
         }
-        msg["objects"] = arr;
+        msg["uuids"] = arr;
         
         auto settingsObj = matjson::Value::object();
         settingsObj["saveString"] = settings.saveString;
@@ -341,7 +342,7 @@ namespace mpedit::ActionSerializer {
         data.zOrder = obj->getZOrder();
         data.editorLayer = obj->m_editorLayer;
         data.editorLayer2 = obj->m_editorLayer2;
-        data.saveString = obj->getSaveString(nullptr);
+        data.saveString = obj->getSaveString(LevelEditorLayer::get());
 
         // Extract groups
         if (obj->m_groups && obj->m_groupCount > 0) {

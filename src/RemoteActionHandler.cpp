@@ -90,10 +90,24 @@ namespace mpedit {
             int targetId = *targetIdRes;
             if (targetId != SessionManager::get().getLocalPlayerId()) return; // Not for us
 
-            auto objects = ActionSerializer::deserializePlacedObjects(data); // uses objects array
+            std::string objectsString = "";
+            if (auto val = data.get<std::string>("objectsString")) {
+                objectsString = *val;
+            }
+
+            std::vector<std::string> uuids;
+            auto uuidsRes = data.get("uuids");
+            if (uuidsRes.isOk()) {
+                for (auto& item : uuidsRes.unwrap()) {
+                    if (auto str = item.asString()) {
+                        uuids.push_back(*str);
+                    }
+                }
+            }
+
             auto settings = ActionSerializer::deserializeLevelSettings(data);
             auto locks = ActionSerializer::deserializeSyncLevelLocks(data);
-            handleRemoteSyncLevel(*idRes, objects, settings, locks);
+            handleRemoteSyncLevel(*idRes, objectsString, uuids, settings, locks);
         });
 
         net.on("update_settings", [this](matjson::Value const& data) {
@@ -153,7 +167,7 @@ namespace mpedit {
         if (!m_pendingSync) return;
         auto sync = m_pendingSync.value();
         m_pendingSync.reset();
-        handleRemoteSyncLevel(sync.playerId, sync.objects, sync.settings, sync.locks, true);
+        handleRemoteSyncLevel(sync.playerId, sync.objectsString, sync.uuids, sync.settings, sync.locks, true);
     }
 
     void RemoteActionHandler::handleRemotePlaceObjects(
@@ -343,7 +357,8 @@ namespace mpedit {
 
     void RemoteActionHandler::handleRemoteSyncLevel(
         int playerId, 
-        std::vector<ActionSerializer::ObjectData> const& objects, 
+        std::string const& objectsString, 
+        std::vector<std::string> const& uuids,
         ActionSerializer::LevelSettingsData const& settings,
         std::vector<ActionSerializer::LockData> const& locks,
         bool isPendingSync
@@ -354,14 +369,10 @@ namespace mpedit {
             
             // Build the native level string
             std::string levelString = settings.saveString;
-            std::vector<std::string> expectedUuids;
-            for (auto const& obj : objects) {
-                if (!obj.saveString.empty()) {
-                    levelString += ";" + obj.saveString;
-                    expectedUuids.push_back(obj.uuid);
-                }
+            if (!objectsString.empty()) {
+                levelString += ";" + objectsString;
             }
-            m_expectedUuids = expectedUuids;
+            m_expectedUuids = uuids;
 
             // Create game level
             auto* level = GJGameLevel::create();
@@ -383,7 +394,8 @@ namespace mpedit {
 
             m_pendingSync = PendingSync {
                 playerId,
-                objects,
+                objectsString,
+                uuids,
                 settings,
                 locks
             };
@@ -405,7 +417,7 @@ namespace mpedit {
 
         m_processingRemote = true;
 
-        log::info("RemoteActionHandler: Syncing level state with {} objects from player {}", objects.size(), playerId);
+        log::info("RemoteActionHandler: Syncing level state with {} objects from player {}", uuids.size(), playerId);
 
         // Deselect all selected objects first to prevent dangling pointers in EditorUI!
         if (auto* editorUI = editor->m_editorUI) {
@@ -477,13 +489,20 @@ namespace mpedit {
             }
         }
         
-        // Spawn all objects
-        for (auto& objData : objects) {
-            if (objData.saveString.empty()) continue;
-            auto arr = editor->createObjectsFromString(objData.saveString, true, true);
-            if (arr && arr->count() > 0) {
-                auto* newObj = static_cast<GameObject*>(arr->objectAtIndex(0));
-                registerObject(objData.uuid, newObj);
+        // Spawn all objects via bulk creation
+        if (!objectsString.empty()) {
+            auto arr = editor->createObjectsFromString(objectsString, true, true);
+            if (arr) {
+                int index = 0;
+                for (auto* obj : CCArrayExt<GameObject*>(arr)) {
+                    if (index < uuids.size()) {
+                        registerObject(uuids[index], obj);
+                        index++;
+                    } else {
+                        auto uuid = generateUUID();
+                        registerObject(uuid, obj);
+                    }
+                }
             }
         }
 
@@ -564,10 +583,24 @@ namespace mpedit {
 
     GameObject* RemoteActionHandler::getObjectByUUID(std::string const& uuid) const {
         auto it = m_uuidToObject.find(uuid);
-        return it != m_uuidToObject.end() ? it->second : nullptr;
+        if (it != m_uuidToObject.end()) {
+            auto* obj = it->second;
+            if (auto* editor = LevelEditorLayer::get()) {
+                if (editor->m_objects && editor->m_objects->containsObject(obj)) {
+                    return obj;
+                }
+            }
+        }
+        return nullptr;
     }
 
     std::string RemoteActionHandler::getUUIDForObject(GameObject* obj) const {
+        if (!obj) return "";
+        if (auto* editor = LevelEditorLayer::get()) {
+            if (editor->m_objects && !editor->m_objects->containsObject(obj)) {
+                return "";
+            }
+        }
         auto it = m_objectToUuid.find(obj);
         return it != m_objectToUuid.end() ? it->second : "";
     }

@@ -71,7 +71,7 @@ namespace mpedit {
         // === Serialization (local action → JSON) ===
 
         matjson::Value serializePlaceObjects(std::vector<ObjectData> const& objects);
-        matjson::Value serializeSyncLevel(int targetPlayerId, std::vector<ObjectData> const& objects, LevelSettingsData const& settings, std::vector<LockData> const& locks);
+        matjson::Value serializeSyncLevel(int targetPlayerId, std::string const& objectsString, std::vector<std::string> const& uuids, LevelSettingsData const& settings, std::vector<LockData> const& locks);
         matjson::Value serializeDeleteObjects(std::vector<std::string> const& uuids);
         matjson::Value serializeMoveObjects(std::vector<MoveData> const& moves);
         matjson::Value serializeTransformObjects(std::vector<TransformData> const& transforms);

@@ -212,8 +212,17 @@ namespace mpedit {
         m_contentNode->addChild(m_sessionMenu);
     }
  
-    void MultiplayerPopup::createLoadingView(std::string const& statusText) {
+    void MultiplayerPopup::clearContentNode() {
         m_contentNode->removeAllChildren();
+        m_roomCodeInput = nullptr;
+        m_statusLabel = nullptr;
+        m_roomCodeLabel = nullptr;
+        m_connectMenu = nullptr;
+        m_sessionMenu = nullptr;
+    }
+
+    void MultiplayerPopup::createLoadingView(std::string const& statusText) {
+        this->clearContentNode();
 
         auto center = m_mainLayer->getContentSize() / 2.f;
 
@@ -273,8 +282,10 @@ namespace mpedit {
         if (name.empty()) name = "Player";
         Mod::get()->setSettingValue<std::string>("player-name", name);
 
-        m_statusLabel->setString("Connecting...");
-        m_statusLabel->setColor({255, 255, 100});
+        if (m_statusLabel) {
+            m_statusLabel->setString("Connecting...");
+            m_statusLabel->setColor({255, 255, 100});
+        }
 
         auto& session = SessionManager::get();
         
@@ -283,7 +294,7 @@ namespace mpedit {
             if (session.getRole() == SessionManager::Role::Client) {
                 createLoadingView("Waiting for level sync from host...");
             } else {
-                m_contentNode->removeAllChildren();
+                this->clearContentNode();
                 createSessionView();
                 Notification::create("Session started!", NotificationIcon::Success)->show();
             }
@@ -296,8 +307,13 @@ namespace mpedit {
                 fullError = fmt::format("{}\n\nNetwork: {}", error, net.getError());
             }
             
-            m_statusLabel->setString(error.c_str());
-            m_statusLabel->setColor({255, 100, 100});
+            this->clearContentNode();
+            this->createConnectView();
+            
+            if (m_statusLabel) {
+                m_statusLabel->setString(error.c_str());
+                m_statusLabel->setColor({255, 100, 100});
+            }
             
             log::error("MultiplayerPopup: Session error - {}", fullError);
             FLAlertLayer::create("Connection Error", fullError.c_str(), "OK")->show();
@@ -313,15 +329,19 @@ namespace mpedit {
         std::string code = std::string(m_roomCodeInput->getString());
 
         if (code.empty()) {
-            m_statusLabel->setString("Please enter a room code!");
-            m_statusLabel->setColor({255, 100, 100});
+            if (m_statusLabel) {
+                m_statusLabel->setString("Please enter a room code!");
+                m_statusLabel->setColor({255, 100, 100});
+            }
             return;
         }
 
         Mod::get()->setSettingValue<std::string>("player-name", name);
 
-        m_statusLabel->setString("Joining...");
-        m_statusLabel->setColor({255, 255, 100});
+        if (m_statusLabel) {
+            m_statusLabel->setString("Joining...");
+            m_statusLabel->setColor({255, 255, 100});
+        }
 
         auto& session = SessionManager::get();
 
@@ -336,8 +356,13 @@ namespace mpedit {
                 fullError = fmt::format("{}\n\nNetwork: {}", error, net.getError());
             }
             
-            m_statusLabel->setString(error.c_str());
-            m_statusLabel->setColor({255, 100, 100});
+            this->clearContentNode();
+            this->createConnectView();
+            
+            if (m_statusLabel) {
+                m_statusLabel->setString(error.c_str());
+                m_statusLabel->setColor({255, 100, 100});
+            }
             
             log::error("MultiplayerPopup: Session error - {}", fullError);
             FLAlertLayer::create("Connection Error", fullError.c_str(), "OK")->show();
@@ -352,7 +377,7 @@ namespace mpedit {
         session.leaveSession();
         session.clearCallbacks();
         
-        m_contentNode->removeAllChildren();
+        this->clearContentNode();
         createConnectView();
 
         Notification::create("Left session", NotificationIcon::Info)->show();

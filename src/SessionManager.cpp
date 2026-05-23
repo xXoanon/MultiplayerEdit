@@ -218,7 +218,8 @@ namespace mpedit {
 
         log::info("SessionManager: Room created with code '{}'", m_roomCode);
 
-        for (auto& cb : m_onSessionStarted) {
+        auto callbacks = m_onSessionStarted;
+        for (auto& cb : callbacks) {
             cb();
         }
     }
@@ -245,7 +246,8 @@ namespace mpedit {
 
         log::info("SessionManager: Joined room '{}' with {} players", m_roomCode, m_players.size());
 
-        for (auto& cb : m_onSessionStarted) {
+        auto callbacks = m_onSessionStarted;
+        for (auto& cb : callbacks) {
             cb();
         }
     }
@@ -261,7 +263,8 @@ namespace mpedit {
 
         log::info("SessionManager: Player '{}' joined (id={})", info.name, info.id);
 
-        for (auto& cb : m_onPlayerJoined) {
+        auto callbacks = m_onPlayerJoined;
+        for (auto& cb : callbacks) {
             cb(info);
         }
     }
@@ -283,7 +286,8 @@ namespace mpedit {
 
         log::info("SessionManager: Player '{}' left (id={})", leftPlayer.name, playerId);
 
-        for (auto& cb : m_onPlayerLeft) {
+        auto callbacks = m_onPlayerLeft;
+        for (auto& cb : callbacks) {
             cb(leftPlayer);
         }
     }

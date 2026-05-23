@@ -232,6 +232,15 @@ class $modify(MPLevelEditorLayer, LevelEditorLayer) {
     struct Fields {
         float m_cursorSendTimer = 0.f;
         bool m_sessionActive = false;
+
+        ~Fields() {
+            auto& session = SessionManager::get();
+            if (session.isInSession()) {
+                session.leaveSession();
+                log::info("EditorHooks: Left session automatically on editor destructor (Fields)");
+            }
+            session.clearCallbacks();
+        }
     };
 
     void levelSettingsUpdated() {
@@ -259,6 +268,9 @@ class $modify(MPLevelEditorLayer, LevelEditorLayer) {
 
     bool init(GJGameLevel* level, bool unk) {
         if (!LevelEditorLayer::init(level, unk)) return false;
+
+        // Force construction of Fields immediately so its destructor runs reliably
+        m_fields->m_sessionActive = SessionManager::get().isInSession();
 
         // Set up the remote action handler for this editor session
         auto& handler = RemoteActionHandler::get();
@@ -293,12 +305,24 @@ class $modify(MPLevelEditorLayer, LevelEditorLayer) {
 
             // Immediately broadcast level sync to already connected players if we are the host
             if (session.getRole() == SessionManager::Role::Host) {
-                std::vector<ActionSerializer::ObjectData> objects;
+                std::string objectsString;
+                std::vector<std::string> uuids;
                 if (this->m_objects) {
+                    bool first = true;
                     for (auto* obj : CCArrayExt<GameObject*>(this->m_objects)) {
                         auto uuid = handler.getUUIDForObject(obj);
-                        if (!uuid.empty()) {
-                            objects.push_back(ActionSerializer::extractObjectData(obj, uuid));
+                        if (uuid.empty()) {
+                            uuid = RemoteActionHandler::generateUUID();
+                            handler.registerObject(uuid, obj);
+                        }
+                        auto saveStr = obj->getSaveString(this);
+                        if (!saveStr.empty()) {
+                            if (!first) {
+                                objectsString += ";";
+                            }
+                            objectsString += saveStr;
+                            uuids.push_back(uuid);
+                            first = false;
                         }
                     }
                 }
@@ -317,7 +341,7 @@ class $modify(MPLevelEditorLayer, LevelEditorLayer) {
                 }
                 for (auto const& player : session.getPlayers()) {
                     if (player.id != session.getLocalPlayerId()) {
-                        auto msg = ActionSerializer::serializeSyncLevel(player.id, objects, settings, locks);
+                        auto msg = ActionSerializer::serializeSyncLevel(player.id, objectsString, uuids, settings, locks);
                         NetworkManager::get().send(msg);
                         log::info("EditorHooks: Sent sync_level to existing player {}", player.id);
                     }
@@ -329,16 +353,26 @@ class $modify(MPLevelEditorLayer, LevelEditorLayer) {
         SessionManager::get().onPlayerJoined([this](PlayerInfo const& info) {
             auto& session = SessionManager::get();
             if (session.getRole() == SessionManager::Role::Host) {
-                std::vector<ActionSerializer::ObjectData> objects;
+                std::string objectsString;
+                std::vector<std::string> uuids;
                 if (this->m_objects) {
                     auto& h = RemoteActionHandler::get();
+                    bool first = true;
                     for (auto* obj : CCArrayExt<GameObject*>(this->m_objects)) {
                         auto uuid = h.getUUIDForObject(obj);
                         if (uuid.empty()) {
                             uuid = RemoteActionHandler::generateUUID();
                             h.registerObject(uuid, obj);
                         }
-                        objects.push_back(ActionSerializer::extractObjectData(obj, uuid));
+                        auto saveStr = obj->getSaveString(this);
+                        if (!saveStr.empty()) {
+                            if (!first) {
+                                objectsString += ";";
+                            }
+                            objectsString += saveStr;
+                            uuids.push_back(uuid);
+                            first = false;
+                        }
                     }
                 }
                 ActionSerializer::LevelSettingsData settings;
@@ -354,7 +388,7 @@ class $modify(MPLevelEditorLayer, LevelEditorLayer) {
                 for (auto const& [uuid, lockInfo] : RemoteActionHandler::get().getObjectLocks()) {
                     locks.push_back({uuid, lockInfo.playerId, lockInfo.timeLeft});
                 }
-                auto msg = ActionSerializer::serializeSyncLevel(info.id, objects, settings, locks);
+                auto msg = ActionSerializer::serializeSyncLevel(info.id, objectsString, uuids, settings, locks);
                 NetworkManager::get().send(msg);
                 log::info("EditorHooks: Sent sync_level to new player {}", info.id);
             }
@@ -389,16 +423,9 @@ class $modify(MPLevelEditorLayer, LevelEditorLayer) {
             session.leaveSession();
             log::info("EditorHooks: Left session automatically on editor exit");
         }
-    }
-
-    ~MPLevelEditorLayer() {
-        auto& session = SessionManager::get();
-        if (session.isInSession()) {
-            session.leaveSession();
-            log::info("EditorHooks: Left session automatically on editor destructor");
-        }
         session.clearCallbacks();
     }
+
 
     // Intercept object creation to assign UUIDs and sync
     GameObject* createObject(int objectID, cocos2d::CCPoint position, bool undo) {
@@ -536,7 +563,7 @@ class $modify(MPLevelEditorLayer, LevelEditorLayer) {
             state.scaleY = obj->getScaleY();
             state.flipX = obj->isFlipX();
             state.flipY = obj->isFlipY();
-            state.saveString = obj->getSaveString(nullptr);
+            state.saveString = obj->getSaveString(this);
             
             affectedStates.push_back(state);
         };
@@ -585,7 +612,7 @@ class $modify(MPLevelEditorLayer, LevelEditorLayer) {
                     handler.registerObject(uuid, obj);
                 }
 
-                std::string newSave = obj->getSaveString(nullptr);
+                std::string newSave = obj->getSaveString(this);
                 if (state.saveString != newSave) {
                     if (!typeinfo_cast<StartPosObject*>(obj)) {
                         updatedObjects.push_back(ActionSerializer::extractObjectData(obj, uuid));
@@ -698,7 +725,7 @@ class $modify(MPEditorUI, EditorUI) {
         if (session.isInSession() && obj) {
             auto uuid = handler.getOrCreateUUID(obj);
             if (m_fields->m_preSelectSaveStrings.find(obj) == m_fields->m_preSelectSaveStrings.end()) {
-                m_fields->m_preSelectSaveStrings[obj] = obj->getSaveString(nullptr);
+                m_fields->m_preSelectSaveStrings[obj] = obj->getSaveString(LevelEditorLayer::get());
                 if (!handler.isProcessingRemote()) {
                     auto msg = ActionSerializer::serializeLockObjects({uuid}, true);
                     NetworkManager::get().send(msg);
@@ -729,11 +756,14 @@ class $modify(MPEditorUI, EditorUI) {
         auto& session = SessionManager::get();
         if (session.isInSession()) {
             if (!handler.isProcessingRemote()) {
+                auto* editor = LevelEditorLayer::get();
                 std::vector<std::string> uuids;
                 for (auto const& [obj, _] : m_fields->m_preSelectSaveStrings) {
-                    auto uuid = handler.getUUIDForObject(obj);
-                    if (!uuid.empty()) {
-                        uuids.push_back(uuid);
+                    if (editor && editor->m_objects && editor->m_objects->containsObject(obj)) {
+                        auto uuid = handler.getUUIDForObject(obj);
+                        if (!uuid.empty()) {
+                            uuids.push_back(uuid);
+                        }
                     }
                 }
                 if (!uuids.empty()) {
@@ -827,7 +857,7 @@ class $modify(MPEditorUI, EditorUI) {
             for (auto* obj : CCArrayExt<GameObject*>(filteredObjects)) {
                 auto uuid = handler.getOrCreateUUID(obj);
                 if (m_fields->m_preSelectSaveStrings.find(obj) == m_fields->m_preSelectSaveStrings.end()) {
-                    m_fields->m_preSelectSaveStrings[obj] = obj->getSaveString(nullptr);
+                    m_fields->m_preSelectSaveStrings[obj] = obj->getSaveString(LevelEditorLayer::get());
                     uuids.push_back(uuid);
                 }
             }
@@ -846,6 +876,9 @@ class $modify(MPEditorUI, EditorUI) {
     }
 
     void syncDeselections(float dt) {
+        auto* editor = LevelEditorLayer::get();
+        if (!editor || !editor->m_objects) return;
+
         auto& handler = RemoteActionHandler::get();
         auto& session = SessionManager::get();
         if (!session.isInSession() || handler.isProcessingRemote()) return;
@@ -856,9 +889,11 @@ class $modify(MPEditorUI, EditorUI) {
             m_fields->m_lockRefreshTimer = 0.f;
             std::vector<std::string> selectedUuids;
             for (auto const& [obj, _] : m_fields->m_preSelectSaveStrings) {
-                auto uuid = handler.getUUIDForObject(obj);
-                if (!uuid.empty()) {
-                    selectedUuids.push_back(uuid);
+                if (editor->m_objects->containsObject(obj)) {
+                    auto uuid = handler.getUUIDForObject(obj);
+                    if (!uuid.empty()) {
+                        selectedUuids.push_back(uuid);
+                    }
                 }
             }
             if (!selectedUuids.empty()) {
@@ -873,6 +908,12 @@ class $modify(MPEditorUI, EditorUI) {
         for (auto it = m_fields->m_preSelectSaveStrings.begin(); it != m_fields->m_preSelectSaveStrings.end(); ) {
             GameObject* obj = it->first;
             
+            // Check if object still exists in the editor to avoid dangling pointers
+            if (!editor->m_objects->containsObject(obj)) {
+                it = m_fields->m_preSelectSaveStrings.erase(it);
+                continue;
+            }
+            
             // Check if object is still selected
             bool isSelected = false;
             if (m_selectedObjects && m_selectedObjects->containsObject(obj)) isSelected = true;
@@ -885,7 +926,7 @@ class $modify(MPEditorUI, EditorUI) {
             }
 
             std::string oldSave = it->second;
-            std::string newSave = obj->getSaveString(nullptr);
+            std::string newSave = obj->getSaveString(editor);
 
             // If it changed, queue an update and reset the baseline
             if (oldSave != newSave) {

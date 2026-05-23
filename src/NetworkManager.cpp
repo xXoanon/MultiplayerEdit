@@ -46,11 +46,17 @@ namespace mpedit {
     }
 
     void NetworkManager::disconnect() {
+        bool shouldStop = false;
         {
             std::lock_guard lock(m_stateMutex);
-            if (m_state == State::Disconnected) return;
+            if (m_state != State::Disconnected) {
+                shouldStop = true;
+                m_state = State::Disconnected;
+            }
+        }
+
+        if (shouldStop) {
             m_webSocket.stop();
-            m_state = State::Disconnected;
         }
         
         {
@@ -118,12 +124,23 @@ namespace mpedit {
             auto& msg = messages.front();
             
             if (auto eventName = msg.get<std::string>("event")) {
-                auto it = m_handlers.find(*eventName);
-                if (it != m_handlers.end()) {
-                    for (auto& handler : it->second) {
-                        handler(msg);
+                std::vector<MessageCallback> handlersCopy;
+                {
+                    auto it = m_handlers.find(*eventName);
+                    if (it != m_handlers.end()) {
+                        handlersCopy = it->second;
                     }
                 }
+                for (auto const& handler : handlersCopy) {
+                    handler(msg);
+                    if (m_handlers.empty()) {
+                        break; // Handlers were cleared, abort further execution of handlers
+                    }
+                }
+            }
+
+            if (m_handlers.empty()) {
+                break; // Handlers were cleared, discard remaining messages
             }
 
             messages.pop();
