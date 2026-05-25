@@ -312,32 +312,35 @@ namespace mpedit {
 
         // If client/guest encountered an error (e.g. host left or connection lost) while inside the editor, close the level and exit
         if (role == Role::Client) {
-            if (auto* editor = LevelEditorLayer::get()) {
-                auto* director = cocos2d::CCDirector::sharedDirector();
-                if (auto* runningScene = director->getRunningScene()) {
-                    std::function<EditorPauseLayer*(cocos2d::CCNode*)> findPauseLayer = [&](cocos2d::CCNode* parent) -> EditorPauseLayer* {
-                        if (!parent) return nullptr;
-                        if (auto* pause = typeinfo_cast<EditorPauseLayer*>(parent)) {
-                            return pause;
-                        }
-                        if (parent->getChildren()) {
-                            for (auto* child : CCArrayExt<CCNode*>(parent->getChildren())) {
-                                if (auto* p = findPauseLayer(child)) return p;
+            geode::queueInMainThread([errorMsg]() {
+                if (auto* editor = LevelEditorLayer::get()) {
+                    auto* director = cocos2d::CCDirector::sharedDirector();
+                    if (auto* runningScene = director->getRunningScene()) {
+                        std::function<EditorPauseLayer*(cocos2d::CCNode*)> findPauseLayer = [&](cocos2d::CCNode* parent) -> EditorPauseLayer* {
+                            if (!parent) return nullptr;
+                            if (auto* pause = typeinfo_cast<EditorPauseLayer*>(parent)) {
+                                return pause;
                             }
+                            if (parent->getChildren()) {
+                                for (auto* child : CCArrayExt<CCNode*>(parent->getChildren())) {
+                                    if (auto* p = findPauseLayer(child)) return p;
+                                }
+                            }
+                            return nullptr;
+                        };
+
+                        auto* pauseLayer = findPauseLayer(runningScene);
+                        if (pauseLayer) {
+                            auto* dummySender = cocos2d::CCNode::create();
+                            pauseLayer->onExitEditor(dummySender);
+                        } else {
+                            director->popScene();
                         }
-                        return nullptr;
-                    };
 
-                    auto* pauseLayer = findPauseLayer(runningScene);
-                    if (pauseLayer) {
-                        pauseLayer->onExitEditor(nullptr);
-                    } else {
-                        director->popScene();
+                        geode::Notification::create(errorMsg, geode::NotificationIcon::Error)->show();
                     }
-
-                    geode::Notification::create(errorMsg, geode::NotificationIcon::Error)->show();
                 }
-            }
+            });
         }
     }
 

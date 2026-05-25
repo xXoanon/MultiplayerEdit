@@ -19,6 +19,9 @@ namespace mpedit {
         tlsOptions.caFile = "SYSTEM"; // Use system certificate store
         m_webSocket.setTLSOptions(tlsOptions);
         
+        // Configure heartbeat (ping interval) to keep connection alive (e.g. Render 50s idle timeout)
+        m_webSocket.setPingInterval(30);
+        
         m_webSocket.setOnMessageCallback([this](const ix::WebSocketMessagePtr& msg) {
             this->onMessage(msg);
         });

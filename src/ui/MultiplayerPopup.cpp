@@ -401,7 +401,8 @@ namespace mpedit {
 
                 auto* pauseLayer = findPauseLayer(runningScene);
                 if (pauseLayer) {
-                    pauseLayer->onExitEditor(nullptr);
+                    auto* dummySender = cocos2d::CCNode::create();
+                    pauseLayer->onExitEditor(dummySender);
                 } else {
                     director->popScene();
                 }

@@ -39,6 +39,7 @@ jobs:
       with:
         combine: true
         target: ${{ matrix.config.target }}
+        configure-args: "-DCMAKE_POLICY_VERSION_MINIMUM=3.5"
 
   package:
     name: Package Mod
