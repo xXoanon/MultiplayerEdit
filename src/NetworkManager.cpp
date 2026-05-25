@@ -23,6 +23,10 @@ namespace mpedit {
 #endif
         m_webSocket.setTLSOptions(tlsOptions);
         
+        // Disable automatic reconnection — we manage connection state explicitly
+        // This prevents confusing "connection lost" messages on Android/mbedtls
+        m_webSocket.disableAutomaticReconnection();
+        
         // Configure heartbeat (ping interval) to keep connection alive (e.g. Render 50s idle timeout)
         m_webSocket.setPingInterval(30);
         

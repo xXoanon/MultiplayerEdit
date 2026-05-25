@@ -472,42 +472,12 @@ class $modify(MPLevelEditorLayer, LevelEditorLayer) {
     }
 
 
-    // Intercept object creation to assign UUIDs and sync
+    // Intercept object creation — UUID assignment and sync is handled by addToSection hook
     GameObject* createObject(int objectID, cocos2d::CCPoint position, bool noUndo) {
         auto* obj = LevelEditorLayer::createObject(objectID, position, noUndo);
-        
-        if (!obj) return obj;
-
-        auto& handler = RemoteActionHandler::get();
-        auto& session = SessionManager::get();
-
-        // If we're processing a remote action or it's a noUndo creation, we do not sync it
-        if (handler.isProcessingRemote() || noUndo) return obj;
-
-        // If we're in a session, assign UUID and sync deferred
-        if (session.isInSession()) {
-            auto uuid = RemoteActionHandler::generateUUID();
-            handler.registerObject(uuid, obj);
-
-            // Capture as a Ref to automatically manage retaining and releasing next frame
-            geode::queueInMainThread([this, obj = geode::Ref<GameObject>(obj), uuid]() {
-                if (LevelEditorLayer::get() != this) return;
-                auto& handler = RemoteActionHandler::get();
-                auto& session = SessionManager::get();
-                if (session.isInSession() && !handler.isProcessingRemote()) {
-                    if (this->m_objects && this->m_objects->containsObject(obj)) {
-                        auto objData = ActionSerializer::extractObjectData(obj, uuid);
-                        auto msg = ActionSerializer::serializePlaceObjects({objData});
-                        NetworkManager::get().send(msg);
-                        
-                        log::debug("EditorHooks: Deferred placement sync complete for uuid={}", uuid);
-                    }
-                }
-            });
-
-            log::debug("EditorHooks: Scheduled deferred placement for object {} (uuid={})", objectID, uuid);
-        }
-
+        // addToSection is called internally by LevelEditorLayer::createObject,
+        // which handles UUID assignment and placement sync.
+        // We do NOT sync here to avoid sending duplicate placement messages.
         return obj;
     }
 
@@ -516,7 +486,10 @@ class $modify(MPLevelEditorLayer, LevelEditorLayer) {
         auto& handler = RemoteActionHandler::get();
         auto& session = SessionManager::get();
 
-        if (session.isInSession() && !handler.isProcessingRemote() && obj) {
+        // During undo/redo, handleAction already handles sync — skip here to avoid double-sync
+        bool inUndoRedo = m_fields->m_inUndoRedo;
+
+        if (session.isInSession() && !handler.isProcessingRemote() && !inUndoRedo && obj) {
             auto uuid = handler.getUUIDForObject(obj);
             if (!uuid.empty()) {
                 auto const& locks = handler.getObjectLocks();
@@ -529,8 +502,8 @@ class $modify(MPLevelEditorLayer, LevelEditorLayer) {
             }
         }
 
-        // If we're in a session and this isn't a remote action
-        if (session.isInSession() && !handler.isProcessingRemote() && obj) {
+        // If we're in a session and this isn't a remote action or undo/redo
+        if (session.isInSession() && !handler.isProcessingRemote() && !inUndoRedo && obj) {
             auto uuid = handler.getUUIDForObject(obj);
             if (!uuid.empty()) {
                 auto msg = ActionSerializer::serializeDeleteObjects({uuid});

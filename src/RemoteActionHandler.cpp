@@ -657,6 +657,16 @@ namespace mpedit {
     }
 
     void RemoteActionHandler::registerObject(std::string const& uuid, GameObject* obj) {
+        // Clean up any existing mapping for this object (prevent orphaned UUID→object entries)
+        auto existingUuidIt = m_objectToUuid.find(obj);
+        if (existingUuidIt != m_objectToUuid.end()) {
+            m_uuidToObject.erase(existingUuidIt->second);
+        }
+        // Clean up any existing mapping for this UUID (prevent orphaned object→UUID entries)
+        auto existingObjIt = m_uuidToObject.find(uuid);
+        if (existingObjIt != m_uuidToObject.end()) {
+            m_objectToUuid.erase(existingObjIt->second);
+        }
         m_uuidToObject[uuid] = obj;
         m_objectToUuid[obj] = uuid;
     }
