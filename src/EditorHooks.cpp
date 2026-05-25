@@ -549,43 +549,58 @@ class $modify(MPLevelEditorLayer, LevelEditorLayer) {
         auto& handler = RemoteActionHandler::get();
         auto& session = SessionManager::get();
 
-        if (!session.isInSession() || handler.isProcessingRemote() || !undoObjects) {
+        if (!session.isInSession() || handler.isProcessingRemote() || !undoObjects || undoObjects->count() == 0) {
             m_fields->m_inUndoRedo = true;
             LevelEditorLayer::handleAction(undo, undoObjects);
             m_fields->m_inUndoRedo = false;
             return;
         }
 
-        // 1. Verify that no objects in the undoObjects are locked by other players
-        for (auto* item : CCArrayExt<UndoObject*>(undoObjects)) {
-            if (!item) continue;
-            
-            auto checkLocked = [&](GameObject* gObj) -> bool {
-                if (!gObj) return false;
-                auto uuid = handler.getUUIDForObject(gObj);
-                if (!uuid.empty()) {
-                    auto const& locks = handler.getObjectLocks();
-                    auto it = locks.find(uuid);
-                    if (it != locks.end() && it->second.playerId != session.getLocalPlayerId()) {
-                        return true; // Locked by someone else!
-                    }
-                }
-                return false;
-            };
-            
-            if (item->m_objects) {
-                for (auto* gObj : CCArrayExt<GameObject*>(item->m_objects)) {
-                    if (checkLocked(gObj)) {
-                        log::info("EditorHooks: Blocked undo/redo of locked object");
-                        return;
-                    }
+        auto* lastItem = static_cast<UndoObject*>(undoObjects->lastObject());
+        if (!lastItem) {
+            m_fields->m_inUndoRedo = true;
+            LevelEditorLayer::handleAction(undo, undoObjects);
+            m_fields->m_inUndoRedo = false;
+            return;
+        }
+
+        auto isObjectValid = [&](GameObject* obj) -> bool {
+            if (!obj) return false;
+            if (this->m_objects && this->m_objects->containsObject(obj)) {
+                return true;
+            }
+            if (lastItem->m_objects && lastItem->m_objects->containsObject(obj)) {
+                return true;
+            }
+            return false;
+        };
+
+        auto checkLocked = [&](GameObject* gObj) -> bool {
+            if (!isObjectValid(gObj)) return false;
+            auto uuid = handler.getUUIDForObject(gObj);
+            if (!uuid.empty()) {
+                auto const& locks = handler.getObjectLocks();
+                auto it = locks.find(uuid);
+                if (it != locks.end() && it->second.playerId != session.getLocalPlayerId()) {
+                    return true; // Locked by someone else!
                 }
             }
-            if (item->m_objectCopy && item->m_objectCopy->m_object) {
-                if (checkLocked(item->m_objectCopy->m_object)) {
+            return false;
+        };
+
+        // 1. Verify locks for active UndoObject
+        if (lastItem->m_objects) {
+            for (auto* gObj : CCArrayExt<GameObject*>(lastItem->m_objects)) {
+                if (checkLocked(gObj)) {
                     log::info("EditorHooks: Blocked undo/redo of locked object");
                     return;
                 }
+            }
+        }
+        if (lastItem->m_objectCopy && lastItem->m_objectCopy->m_object) {
+            if (checkLocked(lastItem->m_objectCopy->m_object)) {
+                log::info("EditorHooks: Blocked undo/redo of locked object");
+                return;
             }
         }
 
@@ -606,7 +621,7 @@ class $modify(MPLevelEditorLayer, LevelEditorLayer) {
         std::vector<ObjectState> affectedStates;
         
         auto recordObjectState = [&](GameObject* obj) {
-            if (!obj) return;
+            if (!isObjectValid(obj)) return;
             for (auto const& state : affectedStates) {
                 if (state.obj == obj) return;
             }
@@ -626,16 +641,13 @@ class $modify(MPLevelEditorLayer, LevelEditorLayer) {
             affectedStates.push_back(state);
         };
 
-        for (auto* item : CCArrayExt<UndoObject*>(undoObjects)) {
-            if (!item) continue;
-            if (item->m_objects) {
-                for (auto* gObj : CCArrayExt<GameObject*>(item->m_objects)) {
-                    recordObjectState(gObj);
-                }
+        if (lastItem->m_objects) {
+            for (auto* gObj : CCArrayExt<GameObject*>(lastItem->m_objects)) {
+                recordObjectState(gObj);
             }
-            if (item->m_objectCopy && item->m_objectCopy->m_object) {
-                recordObjectState(item->m_objectCopy->m_object);
-            }
+        }
+        if (lastItem->m_objectCopy && lastItem->m_objectCopy->m_object) {
+            recordObjectState(lastItem->m_objectCopy->m_object);
         }
 
         // 3. Execute base handleAction
