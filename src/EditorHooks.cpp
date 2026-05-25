@@ -17,6 +17,36 @@ using namespace mpedit;
 
 namespace {
     int s_selectedObjectID = 1;
+
+    class UpdateHelperNode : public cocos2d::CCNode {
+    public:
+        using UpdateCallback = std::function<void(float)>;
+
+        static UpdateHelperNode* create(UpdateCallback callback, float interval) {
+            auto* ret = new UpdateHelperNode();
+            if (ret && ret->init(std::move(callback), interval)) {
+                ret->autorelease();
+                return ret;
+            }
+            delete ret;
+            return nullptr;
+        }
+
+        bool init(UpdateCallback callback, float interval) {
+            m_callback = std::move(callback);
+            this->schedule(schedule_selector(UpdateHelperNode::onUpdate), interval);
+            return true;
+        }
+
+        void onUpdate(float dt) {
+            if (m_callback) {
+                m_callback(dt);
+            }
+        }
+
+    private:
+        UpdateCallback m_callback;
+    };
 }
 
 // ============================================================
@@ -403,8 +433,14 @@ class $modify(MPLevelEditorLayer, LevelEditorLayer) {
             handler.applyPendingSync();
         }
 
-        // Schedule update for network message dispatch and cursor updates
-        this->schedule(schedule_selector(MPLevelEditorLayer::networkUpdate), 0.05f);
+        // Add a helper node to handle network updates safely without member function pointer layout mismatch
+        auto* helper = UpdateHelperNode::create([this](float dt) {
+            this->networkUpdate(dt);
+        }, 0.05f);
+        if (helper) {
+            helper->setID("network-update-helper"_spr);
+            this->addChild(helper);
+        }
 
         // Add session status indicator
         auto* status = SessionStatusNode::create();
@@ -944,7 +980,14 @@ class $modify(MPEditorUI, EditorUI) {
     bool init(LevelEditorLayer* editorLayer) {
         if (!EditorUI::init(editorLayer)) return false;
 
-        this->schedule(schedule_selector(MPEditorUI::syncDeselections), 0.1f);
+        // Add a helper node to handle syncDeselections updates safely without member function pointer layout mismatch
+        auto* helper = UpdateHelperNode::create([this](float dt) {
+            this->syncDeselections(dt);
+        }, 0.1f);
+        if (helper) {
+            helper->setID("sync-deselect-helper"_spr);
+            this->addChild(helper);
+        }
         return true;
     }
 

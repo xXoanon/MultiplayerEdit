@@ -1,3 +1,6 @@
+# 0.1.1
+- Fixed an EXCEPTION_ACCESS_VIOLATION (DEP violation) crash caused by using `schedule_selector` in `$modify` wrapper classes.
+
 # 0.1.0
 - Added real-time multiplayer level editing.
 - Synchronized object placement, deletion, movement, scaling, rotation, and more.
