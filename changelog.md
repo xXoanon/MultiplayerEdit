@@ -11,6 +11,7 @@
 - Fixed undo/redo synchronization and potential memory corruption crashes by replacing failing `typeinfo_cast` calls in history pruning with type-safe iterations.
 - Fixed selection highlights and object locks when copy-pasting or duplicating objects by correcting the host's active session checks in object placement hooks.
 - Fixed host level duplication issue when a guest joins.
+- Fixed server keeping zombie connections in between hosting levels, causing hosting to break in certain cirumstances.
 
 # 0.1.1
 - Fixed an EXCEPTION_ACCESS_VIOLATION (DEP violation) crash on Windows/Wine caused by using `schedule_selector` in `$modify` wrapper classes.

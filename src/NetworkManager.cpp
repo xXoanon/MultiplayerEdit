@@ -43,10 +43,18 @@ namespace mpedit {
     void NetworkManager::connect(std::string const& url) {
         {
             std::lock_guard lock(m_stateMutex);
-            if (m_state == State::Connecting || m_state == State::Connected) {
-                log::warn("NetworkManager: Already connected or connecting");
-                return;
+            if (m_state != State::Disconnected) {
+                log::warn("NetworkManager: Not disconnected (state={}), cleaning up first",
+                    static_cast<int>(m_state));
             }
+        }
+        
+        // Force a clean disconnect before (re)connecting — prevents stale
+        // ix::WebSocket reuse and Error-state lockout
+        disconnect();
+        
+        {
+            std::lock_guard lock(m_stateMutex);
             m_state = State::Connecting;
             m_error.clear();
         }
@@ -57,18 +65,14 @@ namespace mpedit {
     }
 
     void NetworkManager::disconnect() {
-        bool shouldStop = false;
         {
             std::lock_guard lock(m_stateMutex);
-            if (m_state != State::Disconnected) {
-                shouldStop = true;
-                m_state = State::Disconnected;
-            }
+            m_state = State::Disconnected;
+            m_error.clear();
         }
 
-        if (shouldStop) {
-            m_webSocket.stop();
-        }
+        // Always stop — ix::WebSocket::stop() is safe to call even if already stopped
+        m_webSocket.stop();
         
         {
             std::lock_guard lock(m_incomingMutex);

@@ -147,8 +147,22 @@ app.get('/poll', (req, res) => {
 wss.on('connection', (ws) => {
     console.log(`[WS] New connection`);
 
+    // Handshake timeout — if no valid message within 10s, terminate the socket.
+    // This prevents zombie half-open connections from accumulating.
+    ws._handshakeTimeout = setTimeout(() => {
+        if (!ws._playerId) {
+            console.log(`[WS] Handshake timeout, closing unregistered connection`);
+            ws.terminate();
+        }
+    }, 10000);
+
     ws.on('message', (raw) => {
         try {
+            // Clear handshake timeout on first valid message
+            if (ws._handshakeTimeout) {
+                clearTimeout(ws._handshakeTimeout);
+                ws._handshakeTimeout = null;
+            }
             const message = JSON.parse(raw.toString());
             handleMessage(ws, message);
         } catch (e) {
@@ -158,8 +172,18 @@ wss.on('connection', (ws) => {
     });
 
     ws.on('close', () => {
-        console.log(`[WS] Connection closed (player=${ws._playerId})`);
-        handleDisconnect(ws);
+        // Clear handshake timeout if connection closes early
+        if (ws._handshakeTimeout) {
+            clearTimeout(ws._handshakeTimeout);
+            ws._handshakeTimeout = null;
+        }
+        // Only process disconnect for sockets that completed the handshake
+        if (ws._playerId) {
+            console.log(`[WS] Connection closed (player=${ws._playerId})`);
+            handleDisconnect(ws);
+        } else {
+            console.log(`[WS] Unregistered connection closed (no handshake completed)`);
+        }
     });
 
     ws.on('error', (err) => {
