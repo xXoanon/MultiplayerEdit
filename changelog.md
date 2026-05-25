@@ -5,6 +5,9 @@
 - Added a 30 second ping interval heartbeat to prevent server idle terminations.
 - Deferred the client-side editor exit logic to run on the next frame to prevent use-after-free crashes inside `networkUpdate()`.
 - Added a dummy sender node to the `onExitEditor` call to prevent null pointer dereferences inside GD.
+- Fixed copy/paste and duplication synchronization in the level editor.
+- Fixed initial rendering of text objects for remote players.
+- Fixed mobile player cursors drifting when panning the camera.
 
 # 0.1.1
 - Fixed an EXCEPTION_ACCESS_VIOLATION (DEP violation) crash on Windows/Wine caused by using `schedule_selector` in `$modify` wrapper classes.

@@ -183,6 +183,18 @@ namespace mpedit {
         m_processingRemote = true;
 
         for (auto& objData : objects) {
+            // Recreate object using saveString if available to load all properties (e.g. text contents, custom colors, groups)
+            if (!objData.saveString.empty()) {
+                auto arr = editor->createObjectsFromString(objData.saveString, true, true);
+                if (arr && arr->count() > 0) {
+                    auto* obj = static_cast<GameObject*>(arr->objectAtIndex(0));
+                    registerObject(objData.uuid, obj);
+                    log::debug("RemoteActionHandler: Placed object {} via saveString (uuid={})", objData.objectID, objData.uuid);
+                    continue;
+                }
+            }
+
+            // Fallback to basic creation if saveString is empty or failed
             auto* obj = editor->createObject(objData.objectID, {objData.x, objData.y}, true);
             if (!obj) {
                 log::warn("RemoteActionHandler: Failed to create object ID {}", objData.objectID);

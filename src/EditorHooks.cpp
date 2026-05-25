@@ -3,6 +3,7 @@
 #include <Geode/modify/LevelEditorLayer.hpp>
 #include <Geode/modify/EditorUI.hpp>
 #include <Geode/modify/LevelBrowserLayer.hpp>
+#include <Geode/modify/GJBaseGameLayer.hpp>
 
 #include "SessionManager.hpp"
 #include "NetworkManager.hpp"
@@ -17,6 +18,8 @@ using namespace mpedit;
 
 namespace {
     int s_selectedObjectID = 1;
+    cocos2d::CCPoint s_lastTouchPos = {0.f, 0.f};
+    bool s_isTouching = false;
 
     class UpdateHelperNode : public cocos2d::CCNode {
     public:
@@ -266,6 +269,8 @@ class $modify(MPLevelEditorLayer, LevelEditorLayer) {
     struct Fields {
         float m_cursorSendTimer = 0.f;
         bool m_sessionActive = false;
+        bool m_inUndoRedo = false;
+        cocos2d::CCPoint m_lastSentLevelPos = {0.f, 0.f};
 
         ~Fields() {
             auto& session = SessionManager::get();
@@ -545,7 +550,9 @@ class $modify(MPLevelEditorLayer, LevelEditorLayer) {
         auto& session = SessionManager::get();
 
         if (!session.isInSession() || handler.isProcessingRemote() || !undoObjects) {
+            m_fields->m_inUndoRedo = true;
             LevelEditorLayer::handleAction(undo, undoObjects);
+            m_fields->m_inUndoRedo = false;
             return;
         }
 
@@ -640,7 +647,9 @@ class $modify(MPLevelEditorLayer, LevelEditorLayer) {
         }
 
         // 3. Execute base handleAction
+        m_fields->m_inUndoRedo = true;
         LevelEditorLayer::handleAction(undo, undoObjects);
+        m_fields->m_inUndoRedo = false;
 
         // 4. Compare states and send sync messages
         std::vector<ActionSerializer::ObjectData> placedObjects;
@@ -767,8 +776,17 @@ class $modify(MPLevelEditorLayer, LevelEditorLayer) {
                        << static_cast<int>(colGlow.r) << ":" << static_cast<int>(colGlow.g) << ":" << static_cast<int>(colGlow.b);
                     statusStr = ss.str();
                 } else {
+#ifdef GEODE_IS_MOBILE
+                    if (s_isTouching) {
+                        levelPos = this->m_objectLayer->convertToNodeSpace(s_lastTouchPos);
+                        m_fields->m_lastSentLevelPos = levelPos;
+                    } else {
+                        levelPos = m_fields->m_lastSentLevelPos;
+                    }
+#else
                     auto mousePos = geode::cocos::getMousePos();
                     levelPos = this->m_objectLayer->convertToNodeSpace(mousePos);
+#endif
                     
                     if (auto* ui = this->m_editorUI) {
                         int mode = ui->m_selectedMode;
@@ -808,6 +826,33 @@ class $modify(MPEditorUI, EditorUI) {
     void onCreateObject(int id) {
         EditorUI::onCreateObject(id);
         s_selectedObjectID = id;
+    }
+
+    bool ccTouchBegan(cocos2d::CCTouch* touch, cocos2d::CCEvent* event) {
+        bool res = EditorUI::ccTouchBegan(touch, event);
+        if (touch) {
+            s_lastTouchPos = touch->getLocation();
+            s_isTouching = true;
+        }
+        return res;
+    }
+
+    void ccTouchMoved(cocos2d::CCTouch* touch, cocos2d::CCEvent* event) {
+        EditorUI::ccTouchMoved(touch, event);
+        if (touch) {
+            s_lastTouchPos = touch->getLocation();
+            s_isTouching = true;
+        }
+    }
+
+    void ccTouchEnded(cocos2d::CCTouch* touch, cocos2d::CCEvent* event) {
+        EditorUI::ccTouchEnded(touch, event);
+        s_isTouching = false;
+    }
+
+    void ccTouchCancelled(cocos2d::CCTouch* touch, cocos2d::CCEvent* event) {
+        EditorUI::ccTouchCancelled(touch, event);
+        s_isTouching = false;
     }
 
     void selectObject(GameObject* obj, bool filter) {
@@ -1285,5 +1330,52 @@ class $modify(MPEditorUI, EditorUI) {
                 NetworkManager::get().send(moveMsg);
             }
         }
+    }
+};
+
+class $modify(MPBaseGameLayer, GJBaseGameLayer) {
+    void addToSection(GameObject* obj) {
+        GJBaseGameLayer::addToSection(obj);
+
+        auto& handler = RemoteActionHandler::get();
+        auto& session = SessionManager::get();
+
+        if (!session.isInSession() || handler.isProcessingRemote() || !obj) {
+            return;
+        }
+
+        auto* editor = LevelEditorLayer::get();
+        if (!editor || static_cast<GJBaseGameLayer*>(editor) != this) {
+            return;
+        }
+
+        auto* mpEditor = modify_cast<MPLevelEditorLayer*>(editor);
+        if (!mpEditor || !mpEditor->m_fields->m_sessionActive || mpEditor->m_fields->m_inUndoRedo) {
+            return;
+        }
+
+        // If the object already has a UUID, it's already registered (e.g., via createObject)
+        if (!handler.getUUIDForObject(obj).empty()) {
+            return;
+        }
+
+        // Assign a new UUID and sync it (duplicates, copy-paste)
+        auto uuid = RemoteActionHandler::generateUUID();
+        handler.registerObject(uuid, obj);
+
+        geode::queueInMainThread([editor, obj = geode::Ref<GameObject>(obj), uuid]() {
+            if (LevelEditorLayer::get() != editor) return;
+            auto& handler = RemoteActionHandler::get();
+            auto& session = SessionManager::get();
+            if (session.isInSession() && !handler.isProcessingRemote()) {
+                if (editor->m_objects && editor->m_objects->containsObject(obj)) {
+                    auto objData = ActionSerializer::extractObjectData(obj, uuid);
+                    auto msg = ActionSerializer::serializePlaceObjects({objData});
+                    NetworkManager::get().send(msg);
+
+                    log::debug("EditorHooks: Sync pasted/duplicated object uuid={}", uuid);
+                }
+            }
+        });
     }
 };
