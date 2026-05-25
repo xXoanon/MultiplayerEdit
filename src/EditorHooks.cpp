@@ -362,14 +362,10 @@ class $modify(MPLevelEditorLayer, LevelEditorLayer) {
 
             // Immediately broadcast level sync to already connected players if we are the host
             if (session.getRole() == SessionManager::Role::Host) {
-                std::string objectsString;
+                std::string objectsString = "";
                 std::vector<std::string> uuids;
                 
                 std::string fullLevelString = std::string(this->getLevelString());
-                size_t firstSemi = fullLevelString.find(';');
-                if (firstSemi != std::string::npos) {
-                    objectsString = fullLevelString.substr(firstSemi + 1);
-                }
 
                 if (this->m_objects) {
                     uuids.reserve(this->m_objects->count());
@@ -383,13 +379,7 @@ class $modify(MPLevelEditorLayer, LevelEditorLayer) {
                     }
                 }
                 ActionSerializer::LevelSettingsData settings;
-                if (firstSemi != std::string::npos) {
-                    settings.saveString = fullLevelString.substr(0, firstSemi);
-                } else {
-                    if (this->m_levelSettings) {
-                        settings.saveString = this->m_levelSettings->getSaveString();
-                    }
-                }
+                settings.saveString = fullLevelString;
                 if (this->m_level) {
                     settings.audioTrack = this->m_level->m_audioTrack;
                     settings.songID = this->m_level->m_songID;
@@ -413,14 +403,10 @@ class $modify(MPLevelEditorLayer, LevelEditorLayer) {
         SessionManager::get().onPlayerJoined([this](PlayerInfo const& info) {
             auto& session = SessionManager::get();
             if (session.getRole() == SessionManager::Role::Host) {
-                std::string objectsString;
+                std::string objectsString = "";
                 std::vector<std::string> uuids;
                 
                 std::string fullLevelString = std::string(this->getLevelString());
-                size_t firstSemi = fullLevelString.find(';');
-                if (firstSemi != std::string::npos) {
-                    objectsString = fullLevelString.substr(firstSemi + 1);
-                }
 
                 if (this->m_objects) {
                     auto& h = RemoteActionHandler::get();
@@ -435,13 +421,7 @@ class $modify(MPLevelEditorLayer, LevelEditorLayer) {
                     }
                 }
                 ActionSerializer::LevelSettingsData settings;
-                if (firstSemi != std::string::npos) {
-                    settings.saveString = fullLevelString.substr(0, firstSemi);
-                } else {
-                    if (this->m_levelSettings) {
-                        settings.saveString = this->m_levelSettings->getSaveString();
-                    }
-                }
+                settings.saveString = fullLevelString;
                 if (this->m_level) {
                     settings.audioTrack = this->m_level->m_audioTrack;
                     settings.songID = this->m_level->m_songID;

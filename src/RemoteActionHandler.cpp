@@ -527,9 +527,14 @@ namespace mpedit {
         m_pendingSync.reset();
 
         if (isPendingSync) {
-            log::info("RemoteActionHandler: Applying pending sync - recreating objects with correct UUIDs");
-            // We must proceed to delete the natively loaded m_objects and recreate them
-            // using createObjectsFromString so that UUID mapping matches the host exactly.
+            log::info("RemoteActionHandler: Applying pending sync locks (objects already natively loaded)");
+            // Apply locks
+            m_objectLocks.clear();
+            for (auto const& lock : locks) {
+                m_objectLocks[lock.uuid] = LockInfo { lock.playerId, lock.timeLeft };
+            }
+            m_initialSyncCompleted = true;
+            return;
         }
 
         m_processingRemote = true;
