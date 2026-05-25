@@ -678,8 +678,8 @@ namespace mpedit {
             if (!list) return;
             std::vector<cocos2d::CCObject*> toRemove;
             for (auto* itemObj : geode::cocos::CCArrayExt<cocos2d::CCObject*>(list)) {
-                auto* item = typeinfo_cast<UndoObject*>(itemObj);
-                if (!item) continue;
+                if (!itemObj) continue;
+                auto* item = static_cast<UndoObject*>(itemObj);
                 
                 // Check m_objects array
                 if (item->m_objects) {
@@ -692,13 +692,9 @@ namespace mpedit {
                     }
                 }
                 
-                // Check m_objectCopy safely
-                if (item->m_objectCopy) {
-                    auto* copy = typeinfo_cast<GameObjectCopy*>(item->m_objectCopy);
-                    if (copy && copy->m_object == target) {
-                        toRemove.push_back(item);
-                        continue;
-                    }
+                // Check m_objectCopy safely (m_objectCopy is already GameObjectCopy* in bindings)
+                if (item->m_objectCopy && item->m_objectCopy->m_object == target) {
+                    toRemove.push_back(item);
                 }
             }
             for (auto* item : toRemove) {

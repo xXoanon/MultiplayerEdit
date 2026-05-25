@@ -557,8 +557,7 @@ class $modify(MPLevelEditorLayer, LevelEditorLayer) {
         }
 
         // 1. Verify that no objects in the undoObjects are locked by other players
-        for (auto* itemObj : CCArrayExt<cocos2d::CCObject*>(undoObjects)) {
-            auto* item = typeinfo_cast<UndoObject*>(itemObj);
+        for (auto* item : CCArrayExt<UndoObject*>(undoObjects)) {
             if (!item) continue;
             
             auto checkLocked = [&](GameObject* gObj) -> bool {
@@ -582,13 +581,10 @@ class $modify(MPLevelEditorLayer, LevelEditorLayer) {
                     }
                 }
             }
-            if (item->m_objectCopy) {
-                auto* copy = typeinfo_cast<GameObjectCopy*>(item->m_objectCopy);
-                if (copy && copy->m_object) {
-                    if (checkLocked(copy->m_object)) {
-                        log::info("EditorHooks: Blocked undo/redo of locked object");
-                        return;
-                    }
+            if (item->m_objectCopy && item->m_objectCopy->m_object) {
+                if (checkLocked(item->m_objectCopy->m_object)) {
+                    log::info("EditorHooks: Blocked undo/redo of locked object");
+                    return;
                 }
             }
         }
@@ -630,19 +626,15 @@ class $modify(MPLevelEditorLayer, LevelEditorLayer) {
             affectedStates.push_back(state);
         };
 
-        for (auto* itemObj : CCArrayExt<cocos2d::CCObject*>(undoObjects)) {
-            auto* item = typeinfo_cast<UndoObject*>(itemObj);
+        for (auto* item : CCArrayExt<UndoObject*>(undoObjects)) {
             if (!item) continue;
             if (item->m_objects) {
                 for (auto* gObj : CCArrayExt<GameObject*>(item->m_objects)) {
                     recordObjectState(gObj);
                 }
             }
-            if (item->m_objectCopy) {
-                auto* copy = typeinfo_cast<GameObjectCopy*>(item->m_objectCopy);
-                if (copy && copy->m_object) {
-                    recordObjectState(copy->m_object);
-                }
+            if (item->m_objectCopy && item->m_objectCopy->m_object) {
+                recordObjectState(item->m_objectCopy->m_object);
             }
         }
 
@@ -682,7 +674,7 @@ class $modify(MPLevelEditorLayer, LevelEditorLayer) {
 
                 std::string newSave = obj->getSaveString(this);
                 if (state.saveString != newSave) {
-                    if (!typeinfo_cast<StartPosObject*>(obj)) {
+                    if (obj->m_objectID != 31) {
                         updatedObjects.push_back(ActionSerializer::extractObjectData(obj, uuid));
                     }
                 } else if (state.pos.x != obj->getPositionX() || state.pos.y != obj->getPositionY()) {
@@ -1044,26 +1036,83 @@ class $modify(MPEditorUI, EditorUI) {
         auto& session = SessionManager::get();
         if (!session.isInSession() || handler.isProcessingRemote()) return;
 
-        // selection lock refresh timer
-        m_fields->m_lockRefreshTimer += dt;
         auto& tracked = handler.getTrackedSelections();
+        auto const& locks = handler.getObjectLocks();
+        int localId = session.getLocalPlayerId();
+
+        // 1. Gather all currently selected objects
+        std::vector<GameObject*> currentSelection;
+        if (m_selectedObject) {
+            currentSelection.push_back(m_selectedObject);
+        }
+        if (m_selectedObjects) {
+            for (auto* obj : CCArrayExt<GameObject*>(m_selectedObjects)) {
+                if (obj) currentSelection.push_back(obj);
+            }
+        }
+
+        // 2. Identify objects to deselect (locked by others) or lock (newly selected by us)
+        std::vector<GameObject*> toDeselect;
+        std::vector<std::string> toLockUuids;
+
+        for (auto* obj : currentSelection) {
+            auto uuid = handler.getUUIDForObject(obj);
+            // If the object has no UUID (e.g. just pasted), register it immediately
+            if (uuid.empty()) {
+                uuid = RemoteActionHandler::generateUUID();
+                handler.registerObject(uuid, obj);
+            }
+
+            // Check if it's locked by another player
+            auto it = locks.find(uuid);
+            if (it != locks.end() && it->second.playerId != localId) {
+                toDeselect.push_back(obj);
+            } else {
+                // If not tracked yet, track it and queue for locking
+                if (tracked.find(obj) == tracked.end()) {
+                    tracked[obj] = obj->getSaveString(editor);
+                    toLockUuids.push_back(uuid);
+                }
+            }
+        }
+
+        // 3. Deselect locked objects
+        for (auto* obj : toDeselect) {
+            this->deselectObject(obj);
+            if (m_selectedObject == obj) {
+                m_selectedObject = nullptr;
+            }
+            if (m_selectedObjects && m_selectedObjects->containsObject(obj)) {
+                m_selectedObjects->removeObject(obj);
+            }
+        }
+
+        // 4. Send lock messages for newly selected objects
+        if (!toLockUuids.empty()) {
+            auto msg = ActionSerializer::serializeLockObjects(toLockUuids, true);
+            NetworkManager::get().send(msg);
+        }
+
+        // 5. selection lock refresh timer (for already tracked selections)
+        m_fields->m_lockRefreshTimer += dt;
         if (m_fields->m_lockRefreshTimer >= 1.0f) {
             m_fields->m_lockRefreshTimer = 0.f;
-            std::vector<std::string> selectedUuids;
+            std::vector<std::string> refreshUuids;
             for (auto const& [obj, _] : tracked) {
                 if (editor->m_objects->containsObject(obj)) {
                     auto uuid = handler.getUUIDForObject(obj);
                     if (!uuid.empty()) {
-                        selectedUuids.push_back(uuid);
+                        refreshUuids.push_back(uuid);
                     }
                 }
             }
-            if (!selectedUuids.empty()) {
-                auto msg = ActionSerializer::serializeLockObjects(selectedUuids, true);
+            if (!refreshUuids.empty()) {
+                auto msg = ActionSerializer::serializeLockObjects(refreshUuids, true);
                 NetworkManager::get().send(msg);
             }
         }
 
+        // 6. Handle deselections and update modified objects
         std::vector<std::string> unlockUuids;
         std::vector<ActionSerializer::ObjectData> updates;
 
@@ -1076,43 +1125,47 @@ class $modify(MPEditorUI, EditorUI) {
                 continue;
             }
             
-            // Check if object is still selected
-            bool isSelected = false;
-            if (m_selectedObjects && m_selectedObjects->containsObject(obj)) isSelected = true;
-            if (m_selectedObject == obj) isSelected = true;
-
+            // Check if object is still selected and not scheduled for deselection
+            bool isSelected = (std::find(currentSelection.begin(), currentSelection.end(), obj) != currentSelection.end()) &&
+                              (std::find(toDeselect.begin(), toDeselect.end(), obj) == toDeselect.end());
+            
             auto uuid = handler.getUUIDForObject(obj);
             if (uuid.empty()) {
                 it = tracked.erase(it);
                 continue;
             }
 
-            std::string oldSave = it->second;
-            std::string newSave = obj->getSaveString(editor);
-
-            // If it changed, queue an update and reset the baseline
-            if (oldSave != newSave) {
-                // Ignore property updates for start positions so each user controls them independently
-                if (!typeinfo_cast<StartPosObject*>(obj)) {
-                    updates.push_back(ActionSerializer::extractObjectData(obj, uuid));
-                }
-                it->second = newSave; // Update the baseline string
-            }
-
             if (!isSelected) {
                 unlockUuids.push_back(uuid);
+                
+                // If the object properties changed since selection, send an update now
+                std::string currentSave = obj->getSaveString(editor);
+                if (it->second != currentSave) {
+                    if (obj->m_objectID != 31) {
+                        updates.push_back(ActionSerializer::extractObjectData(obj, uuid));
+                    }
+                }
+                
                 it = tracked.erase(it);
             } else {
+                // If still selected, check if properties changed to update baseline and broadcast change
+                std::string currentSave = obj->getSaveString(editor);
+                if (it->second != currentSave) {
+                    if (obj->m_objectID != 31) {
+                        updates.push_back(ActionSerializer::extractObjectData(obj, uuid));
+                    }
+                    it->second = currentSave;
+                }
                 ++it;
             }
         }
 
-        if (!updates.empty()) {
-            auto msg = ActionSerializer::serializeUpdateObjects(updates);
-            NetworkManager::get().send(msg);
-        }
         if (!unlockUuids.empty()) {
             auto msg = ActionSerializer::serializeLockObjects(unlockUuids, false);
+            NetworkManager::get().send(msg);
+        }
+        if (!updates.empty()) {
+            auto msg = ActionSerializer::serializeUpdateObjects(updates);
             NetworkManager::get().send(msg);
         }
     }
@@ -1350,7 +1403,7 @@ class $modify(MPBaseGameLayer, GJBaseGameLayer) {
         }
 
         auto* mpEditor = modify_cast<MPLevelEditorLayer*>(editor);
-        if (!mpEditor || !mpEditor->m_fields->m_sessionActive || mpEditor->m_fields->m_inUndoRedo) {
+        if (!mpEditor || !session.isInSession() || mpEditor->m_fields->m_inUndoRedo) {
             return;
         }
 
