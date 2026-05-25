@@ -8,6 +8,38 @@ using namespace geode::prelude;
 
 namespace mpedit {
 
+    namespace {
+        class UpdateHelperNode : public cocos2d::CCNode {
+        public:
+            using UpdateCallback = std::function<void(float)>;
+
+            static UpdateHelperNode* create(UpdateCallback callback, float interval) {
+                auto* ret = new UpdateHelperNode();
+                if (ret && ret->init(std::move(callback), interval)) {
+                    ret->autorelease();
+                    return ret;
+                }
+                delete ret;
+                return nullptr;
+            }
+
+            bool init(UpdateCallback callback, float interval) {
+                m_callback = std::move(callback);
+                this->schedule(schedule_selector(UpdateHelperNode::onUpdate), interval);
+                return true;
+            }
+
+            void onUpdate(float dt) {
+                if (m_callback) {
+                    m_callback(dt);
+                }
+            }
+
+        private:
+            UpdateCallback m_callback;
+        };
+    }
+
     MultiplayerPopup* MultiplayerPopup::create() {
         auto* ret = new MultiplayerPopup();
         if (ret->init(340.f, 260.f) && ret->setup()) {
@@ -19,8 +51,6 @@ namespace mpedit {
     }
 
     MultiplayerPopup::~MultiplayerPopup() {
-        this->unschedule(schedule_selector(MultiplayerPopup::pollNetwork));
-
         auto& session = SessionManager::get();
         if (session.isInSession() && session.getRole() == SessionManager::Role::Client && !LevelEditorLayer::get()) {
             log::info("MultiplayerPopup: Leaving session because popup was closed during sync");
@@ -38,7 +68,12 @@ namespace mpedit {
         m_contentNode = cocos2d::CCNode::create();
         m_mainLayer->addChild(m_contentNode);
 
-        this->schedule(schedule_selector(MultiplayerPopup::pollNetwork), 0.05f);
+        auto* helper = UpdateHelperNode::create([this](float dt) {
+            this->pollNetwork(dt);
+        }, 0.05f);
+        if (helper) {
+            this->addChild(helper);
+        }
 
         auto& session = SessionManager::get();
         
