@@ -346,23 +346,19 @@ class $modify(MPLevelEditorLayer, LevelEditorLayer) {
             if (session.getRole() == SessionManager::Role::Host) {
                 std::string objectsString;
                 std::vector<std::string> uuids;
+                std::string levelStr = this->getLevelString();
+                size_t firstSemi = levelStr.find(';');
+                if (firstSemi != std::string::npos) {
+                    objectsString = levelStr.substr(firstSemi + 1);
+                }
                 if (this->m_objects) {
-                    bool first = true;
                     for (auto* obj : CCArrayExt<GameObject*>(this->m_objects)) {
                         auto uuid = handler.getUUIDForObject(obj);
                         if (uuid.empty()) {
                             uuid = RemoteActionHandler::generateUUID();
                             handler.registerObject(uuid, obj);
                         }
-                        auto saveStr = obj->getSaveString(this);
-                        if (!saveStr.empty()) {
-                            if (!first) {
-                                objectsString += ";";
-                            }
-                            objectsString += saveStr;
-                            uuids.push_back(uuid);
-                            first = false;
-                        }
+                        uuids.push_back(uuid);
                     }
                 }
                 ActionSerializer::LevelSettingsData settings;
@@ -394,24 +390,20 @@ class $modify(MPLevelEditorLayer, LevelEditorLayer) {
             if (session.getRole() == SessionManager::Role::Host) {
                 std::string objectsString;
                 std::vector<std::string> uuids;
+                std::string levelStr = this->getLevelString();
+                size_t firstSemi = levelStr.find(';');
+                if (firstSemi != std::string::npos) {
+                    objectsString = levelStr.substr(firstSemi + 1);
+                }
                 if (this->m_objects) {
                     auto& h = RemoteActionHandler::get();
-                    bool first = true;
                     for (auto* obj : CCArrayExt<GameObject*>(this->m_objects)) {
                         auto uuid = h.getUUIDForObject(obj);
                         if (uuid.empty()) {
                             uuid = RemoteActionHandler::generateUUID();
                             h.registerObject(uuid, obj);
                         }
-                        auto saveStr = obj->getSaveString(this);
-                        if (!saveStr.empty()) {
-                            if (!first) {
-                                objectsString += ";";
-                            }
-                            objectsString += saveStr;
-                            uuids.push_back(uuid);
-                            first = false;
-                        }
+                        uuids.push_back(uuid);
                     }
                 }
                 ActionSerializer::LevelSettingsData settings;
@@ -1379,6 +1371,10 @@ class $modify(MPBaseGameLayer, GJBaseGameLayer) {
         auto& session = SessionManager::get();
 
         if (!session.isInSession() || handler.isProcessingRemote() || !obj) {
+            return;
+        }
+
+        if (!handler.isInitialSyncCompleted()) {
             return;
         }
 

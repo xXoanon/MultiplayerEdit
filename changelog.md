@@ -10,6 +10,8 @@
 - Fixed mobile player cursors drifting when panning the camera.
 - Fixed undo/redo synchronization and potential memory corruption crashes by replacing failing `typeinfo_cast` calls in history pruning with type-safe iterations.
 - Fixed selection highlights and object locks when copy-pasting or duplicating objects by correcting the host's active session checks in object placement hooks.
+- Fixed host level duplication issue when a guest joins.
+- Optimized level synchronization and loading speed on join by utilizing `getLevelString()`.
 
 # 0.1.1
 - Fixed an EXCEPTION_ACCESS_VIOLATION (DEP violation) crash on Windows/Wine caused by using `schedule_selector` in `$modify` wrapper classes.
