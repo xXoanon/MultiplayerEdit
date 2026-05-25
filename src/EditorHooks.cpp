@@ -315,6 +315,22 @@ class $modify(MPLevelEditorLayer, LevelEditorLayer) {
         auto& handler = RemoteActionHandler::get();
         handler.clearMappings();
 
+        // Register callback to assign UUIDs to all existing objects as soon as host session starts
+        SessionManager::get().onSessionStarted([this]() {
+            auto& session = SessionManager::get();
+            if (session.getRole() == SessionManager::Role::Host) {
+                if (this->m_objects) {
+                    auto& handler = RemoteActionHandler::get();
+                    for (auto* obj : CCArrayExt<GameObject*>(this->m_objects)) {
+                        if (handler.getUUIDForObject(obj).empty()) {
+                            auto uuid = RemoteActionHandler::generateUUID();
+                            handler.registerObject(uuid, obj);
+                        }
+                    }
+                }
+            }
+        });
+
         auto& session = SessionManager::get();
         if (session.isInSession()) {
             auto const& expected = handler.getExpectedUuids();
@@ -348,27 +364,31 @@ class $modify(MPLevelEditorLayer, LevelEditorLayer) {
             if (session.getRole() == SessionManager::Role::Host) {
                 std::string objectsString;
                 std::vector<std::string> uuids;
+                
+                std::string fullLevelString = std::string(this->getLevelString());
+                size_t firstSemi = fullLevelString.find(';');
+                if (firstSemi != std::string::npos) {
+                    objectsString = fullLevelString.substr(firstSemi + 1);
+                }
+
                 if (this->m_objects) {
-                    objectsString.reserve(this->m_objects->count() * 128); // Pre-allocate for performance
-                    bool first = true;
+                    uuids.reserve(this->m_objects->count());
                     for (auto* obj : CCArrayExt<GameObject*>(this->m_objects)) {
                         auto uuid = handler.getUUIDForObject(obj);
                         if (uuid.empty()) {
                             uuid = RemoteActionHandler::generateUUID();
                             handler.registerObject(uuid, obj);
                         }
-                        auto saveStr = obj->getSaveString(this);
-                        if (!saveStr.empty()) {
-                            if (!first) objectsString += ";";
-                            objectsString += saveStr;
-                            uuids.push_back(uuid);
-                            first = false;
-                        }
+                        uuids.push_back(uuid);
                     }
                 }
                 ActionSerializer::LevelSettingsData settings;
-                if (this->m_levelSettings) {
-                    settings.saveString = this->m_levelSettings->getSaveString();
+                if (firstSemi != std::string::npos) {
+                    settings.saveString = fullLevelString.substr(0, firstSemi);
+                } else {
+                    if (this->m_levelSettings) {
+                        settings.saveString = this->m_levelSettings->getSaveString();
+                    }
                 }
                 if (this->m_level) {
                     settings.audioTrack = this->m_level->m_audioTrack;
@@ -395,28 +415,32 @@ class $modify(MPLevelEditorLayer, LevelEditorLayer) {
             if (session.getRole() == SessionManager::Role::Host) {
                 std::string objectsString;
                 std::vector<std::string> uuids;
+                
+                std::string fullLevelString = std::string(this->getLevelString());
+                size_t firstSemi = fullLevelString.find(';');
+                if (firstSemi != std::string::npos) {
+                    objectsString = fullLevelString.substr(firstSemi + 1);
+                }
+
                 if (this->m_objects) {
                     auto& h = RemoteActionHandler::get();
-                    objectsString.reserve(this->m_objects->count() * 128); // Pre-allocate for performance
-                    bool first = true;
+                    uuids.reserve(this->m_objects->count());
                     for (auto* obj : CCArrayExt<GameObject*>(this->m_objects)) {
                         auto uuid = h.getUUIDForObject(obj);
                         if (uuid.empty()) {
                             uuid = RemoteActionHandler::generateUUID();
                             h.registerObject(uuid, obj);
                         }
-                        auto saveStr = obj->getSaveString(this);
-                        if (!saveStr.empty()) {
-                            if (!first) objectsString += ";";
-                            objectsString += saveStr;
-                            uuids.push_back(uuid);
-                            first = false;
-                        }
+                        uuids.push_back(uuid);
                     }
                 }
                 ActionSerializer::LevelSettingsData settings;
-                if (this->m_levelSettings) {
-                    settings.saveString = this->m_levelSettings->getSaveString();
+                if (firstSemi != std::string::npos) {
+                    settings.saveString = fullLevelString.substr(0, firstSemi);
+                } else {
+                    if (this->m_levelSettings) {
+                        settings.saveString = this->m_levelSettings->getSaveString();
+                    }
                 }
                 if (this->m_level) {
                     settings.audioTrack = this->m_level->m_audioTrack;

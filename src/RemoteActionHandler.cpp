@@ -124,6 +124,7 @@ namespace mpedit {
     void RemoteActionHandler::clearHandlers() {
         MusicDownloadManager::sharedState()->removeMusicDownloadDelegate(this);
         clearMappings();
+        m_expectedUuids.clear();
         m_objectLocks.clear();
         m_pendingSync.reset();
         m_initialSyncCompleted = false;
@@ -491,11 +492,8 @@ namespace mpedit {
         if (!editor) {
             log::info("RemoteActionHandler: Editor not ready yet, loading level string before entering editor");
             
-            // Build the native level string
+            // Build the native level string (settings only, objects will be loaded in applyPendingSync)
             std::string levelString = settings.saveString;
-            if (!objectsString.empty()) {
-                levelString += ";" + objectsString;
-            }
             m_expectedUuids = uuids;
 
             // Create game level
@@ -529,14 +527,9 @@ namespace mpedit {
         m_pendingSync.reset();
 
         if (isPendingSync) {
-            log::info("RemoteActionHandler: Applying pending sync locks (objects already natively loaded)");
-            // Apply locks
-            m_objectLocks.clear();
-            for (auto const& lock : locks) {
-                m_objectLocks[lock.uuid] = LockInfo { lock.playerId, lock.timeLeft };
-            }
-            m_initialSyncCompleted = true;
-            return;
+            log::info("RemoteActionHandler: Applying pending sync - recreating objects with correct UUIDs");
+            // We must proceed to delete the natively loaded m_objects and recreate them
+            // using createObjectsFromString so that UUID mapping matches the host exactly.
         }
 
         m_processingRemote = true;
@@ -558,6 +551,7 @@ namespace mpedit {
             }
         }
         clearMappings();
+        m_expectedUuids.clear();
 
         // Clear local undo/redo lists since all objects are replaced
         if (editor->m_undoObjects) {
@@ -773,7 +767,7 @@ namespace mpedit {
         m_objectToUuid.clear();
         m_objectLocks.clear();
         m_lockedSaveStrings.clear();
-        m_expectedUuids.clear();
+        // NOTE: Do NOT clear m_expectedUuids here - they are set before init() and must survive
         m_preSelectSaveStrings.clear();
         m_initialSyncCompleted = false;
         s_uuidCounter = 0;
