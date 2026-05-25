@@ -16,7 +16,11 @@ namespace mpedit {
         
         // Configure TLS for wss:// connections
         ix::SocketTLSOptions tlsOptions;
+#ifdef _WIN32
         tlsOptions.caFile = "SYSTEM"; // Use system certificate store
+#else
+        tlsOptions.caFile = "NONE";   // Disable verification on Android/macOS (mbedtls lacks SYSTEM cert store mapping)
+#endif
         m_webSocket.setTLSOptions(tlsOptions);
         
         // Configure heartbeat (ping interval) to keep connection alive (e.g. Render 50s idle timeout)

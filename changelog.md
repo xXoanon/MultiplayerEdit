@@ -1,5 +1,6 @@
 # 0.1.2
 - Added proper support for macOS and Android.
+- Fixed TLS handshake connection failures on Android and macOS.
 - Added a 30 second ping interval heartbeat to prevent server idle terminations.
 - Deferred the client-side editor exit logic to run on the next frame to prevent use-after-free crashes inside `networkUpdate()`.
 - Added a dummy sender node to the `onExitEditor` call to prevent null pointer dereferences inside GD.
