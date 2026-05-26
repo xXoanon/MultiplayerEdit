@@ -1,3 +1,8 @@
+# 0.2.1
+- Fixed Use-After-Free crashes (`EXCEPTION_ACCESS_VIOLATION` / DEP violation) during multiplayer editor playtesting and editing by nullifying dangling pointers to deleted objects (like gamemode portals, teleport portals, and rings) on player objects, layer states, and UI fields.
+- Fixed a C++ array-out-of-bounds `std::out_of_range` crash when extracting object groups by safely capping group extraction at 10.
+- Fixed memory safety on all deletion routes by proactively unregistering deleted objects from the UUID bidirectional maps and tracked selections.
+
 # 0.2.0
 - Added proper support for macOS and Android.
 - Fixed TLS handshake connection failures on Android and macOS.

@@ -129,6 +129,10 @@ namespace mpedit {
     }
 
     void NetworkManager::dispatchMessages() {
+        // Prevent re-entrant dispatch (e.g., handler triggers code that calls dispatchMessages again)
+        if (m_dispatching) return;
+        m_dispatching = true;
+
         std::queue<matjson::Value> messages;
         {
             std::lock_guard lock(m_incomingMutex);
@@ -160,6 +164,8 @@ namespace mpedit {
 
             messages.pop();
         }
+
+        m_dispatching = false;
     }
 
     void NetworkManager::onMessage(const ix::WebSocketMessagePtr& msg) {
@@ -237,13 +243,12 @@ namespace mpedit {
         }
 
         auto val = std::move(parseResult.unwrap());
+        std::lock_guard lock(m_incomingMutex);
         if (val.isArray()) {
             for (auto& item : val) {
-                std::lock_guard lock(m_incomingMutex);
                 m_incoming.push(item);
             }
         } else {
-            std::lock_guard lock(m_incomingMutex);
             m_incoming.push(std::move(val));
         }
     }

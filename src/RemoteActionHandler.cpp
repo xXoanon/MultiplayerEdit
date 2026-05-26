@@ -406,7 +406,25 @@ namespace mpedit {
                     editorUI->selectObject(newObj, true);
                 }
             } else {
-                log::error("RemoteActionHandler: Failed to create updated object from saveString");
+                // Fallback: recreate with basic properties if saveString parsing failed
+                auto* fallbackObj = editor->createObject(objData.objectID, {objData.x, objData.y}, true);
+                if (fallbackObj) {
+                    fallbackObj->setRotation(objData.rotation);
+                    fallbackObj->setScaleX(objData.scaleX);
+                    fallbackObj->setScaleY(objData.scaleY);
+                    fallbackObj->setFlipX(objData.flipX);
+                    fallbackObj->setFlipY(objData.flipY);
+                    fallbackObj->m_editorLayer = objData.editorLayer;
+                    fallbackObj->m_editorLayer2 = objData.editorLayer2;
+                    registerObject(objData.uuid, fallbackObj);
+                    log::warn("RemoteActionHandler: Updated object {} via fallback createObject", objData.uuid);
+
+                    if (wasSelected && editorUI) {
+                        editorUI->selectObject(fallbackObj, true);
+                    }
+                } else {
+                    log::error("RemoteActionHandler: Failed to create updated object from saveString AND fallback");
+                }
             }
         }
 
@@ -490,6 +508,8 @@ namespace mpedit {
                                             editorUI->selectObject(newObj, true);
                                         }
                                         log::debug("RemoteActionHandler: Finished edit and applied final saveString recreate for uuid={}", uuid);
+                                    } else {
+                                        log::warn("RemoteActionHandler: saveString recreation failed on unlock for uuid={}, object lost", uuid);
                                     }
                                 } else {
                                     log::debug("RemoteActionHandler: Skipped unlock recreation since saveStrings are identical for uuid={}", uuid);
@@ -594,27 +614,26 @@ namespace mpedit {
         if (!settings.saveString.empty() && editor->m_levelSettings) {
             auto* newSettings = LevelSettingsObject::objectFromString(settings.saveString);
             if (newSettings) {
-                // Safely swap m_effectManager to sync level colors without crashing
-                if (newSettings->m_effectManager) {
-                    newSettings->m_effectManager->retain();
-                    if (newSettings->m_effectManager->getParent() == newSettings) {
-                        newSettings->m_effectManager->removeFromParent();
+                    // Safely swap m_effectManager to sync level colors without crashing
+                    if (newSettings->m_effectManager) {
+                        newSettings->m_effectManager->retain();
+                        if (newSettings->m_effectManager->getParent() == newSettings) {
+                            newSettings->m_effectManager->removeFromParent();
+                        }
+                        auto* oldEM = editor->m_levelSettings->m_effectManager;
+                        editor->m_levelSettings->m_effectManager = newSettings->m_effectManager;
+                        CC_SAFE_RELEASE(oldEM);
                     }
-                    if (editor->m_levelSettings->m_effectManager) {
-                        editor->m_levelSettings->m_effectManager->release();
-                    }
-                    editor->m_levelSettings->m_effectManager = newSettings->m_effectManager;
-                }
-                
-                editor->m_levelSettings->m_startMode = newSettings->m_startMode;
-                editor->m_levelSettings->m_startSpeed = newSettings->m_startSpeed;
-                editor->m_levelSettings->m_startMini = newSettings->m_startMini;
-                editor->m_levelSettings->m_startDual = newSettings->m_startDual;
-                editor->m_levelSettings->m_twoPlayerMode = newSettings->m_twoPlayerMode;
-                editor->m_levelSettings->m_isFlipped = newSettings->m_isFlipped;
-                editor->m_levelSettings->m_songOffset = newSettings->m_songOffset;
-                
-                editor->updateOptions();
+                    
+                    editor->m_levelSettings->m_startMode = newSettings->m_startMode;
+                    editor->m_levelSettings->m_startSpeed = newSettings->m_startSpeed;
+                    editor->m_levelSettings->m_startMini = newSettings->m_startMini;
+                    editor->m_levelSettings->m_startDual = newSettings->m_startDual;
+                    editor->m_levelSettings->m_twoPlayerMode = newSettings->m_twoPlayerMode;
+                    editor->m_levelSettings->m_isFlipped = newSettings->m_isFlipped;
+                    editor->m_levelSettings->m_songOffset = newSettings->m_songOffset;
+                    
+                    editor->updateOptions();
             }
         }
         
@@ -724,7 +743,7 @@ namespace mpedit {
                 }
                 
                 // Check m_objectCopy safely (m_objectCopy is already GameObjectCopy* in bindings)
-                if (item->m_objectCopy && item->m_objectCopy->m_object == target) {
+                if (item->m_objectCopy && item->m_objectCopy->m_object && item->m_objectCopy->m_object == target) {
                     toRemove.push_back(item);
                 }
             }
@@ -826,27 +845,26 @@ namespace mpedit {
         if (!settings.saveString.empty() && editor->m_levelSettings) {
             auto* newSettings = LevelSettingsObject::objectFromString(settings.saveString);
             if (newSettings) {
-                // Safely swap m_effectManager to sync level colors without crashing
-                if (newSettings->m_effectManager) {
-                    newSettings->m_effectManager->retain();
-                    if (newSettings->m_effectManager->getParent() == newSettings) {
-                        newSettings->m_effectManager->removeFromParent();
+                    // Safely swap m_effectManager to sync level colors without crashing
+                    if (newSettings->m_effectManager) {
+                        newSettings->m_effectManager->retain();
+                        if (newSettings->m_effectManager->getParent() == newSettings) {
+                            newSettings->m_effectManager->removeFromParent();
+                        }
+                        auto* oldEM = editor->m_levelSettings->m_effectManager;
+                        editor->m_levelSettings->m_effectManager = newSettings->m_effectManager;
+                        CC_SAFE_RELEASE(oldEM);
                     }
-                    if (editor->m_levelSettings->m_effectManager) {
-                        editor->m_levelSettings->m_effectManager->release();
-                    }
-                    editor->m_levelSettings->m_effectManager = newSettings->m_effectManager;
-                }
-                
-                editor->m_levelSettings->m_startMode = newSettings->m_startMode;
-                editor->m_levelSettings->m_startSpeed = newSettings->m_startSpeed;
-                editor->m_levelSettings->m_startMini = newSettings->m_startMini;
-                editor->m_levelSettings->m_startDual = newSettings->m_startDual;
-                editor->m_levelSettings->m_twoPlayerMode = newSettings->m_twoPlayerMode;
-                editor->m_levelSettings->m_isFlipped = newSettings->m_isFlipped;
-                editor->m_levelSettings->m_songOffset = newSettings->m_songOffset;
-                
-                editor->updateOptions();
+                    
+                    editor->m_levelSettings->m_startMode = newSettings->m_startMode;
+                    editor->m_levelSettings->m_startSpeed = newSettings->m_startSpeed;
+                    editor->m_levelSettings->m_startMini = newSettings->m_startMini;
+                    editor->m_levelSettings->m_startDual = newSettings->m_startDual;
+                    editor->m_levelSettings->m_twoPlayerMode = newSettings->m_twoPlayerMode;
+                    editor->m_levelSettings->m_isFlipped = newSettings->m_isFlipped;
+                    editor->m_levelSettings->m_songOffset = newSettings->m_songOffset;
+                    
+                    editor->updateOptions();
             }
         }
         

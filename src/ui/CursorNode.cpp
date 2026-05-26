@@ -135,11 +135,9 @@ namespace mpedit {
                     std::stringstream ss(player.status);
                     std::string modeStr, swipeStr, objStr;
                     if (std::getline(ss, modeStr, ':') && std::getline(ss, swipeStr, ':') && std::getline(ss, objStr, ':')) {
-                        try {
-                            mode = std::stoi(modeStr);
-                            swipe = std::stoi(swipeStr);
-                            objectId = std::stoi(objStr);
-                        } catch (...) {}
+                        mode = geode::utils::numFromString<int>(modeStr).unwrapOr(0);
+                        swipe = geode::utils::numFromString<int>(swipeStr).unwrapOr(0);
+                        objectId = geode::utils::numFromString<int>(objStr).unwrapOr(0);
                     }
 
                     ccColor4F bgColor;
@@ -238,34 +236,31 @@ namespace mpedit {
                 }
                 
                 if (tokens.size() >= 23) {
-                    isPlaytesting = (tokens[1] == "1");
-                    try {
-                        iconType = std::stoi(tokens[2]);
-                        rotation = std::stof(tokens[3]);
-                        isUpsideDown = (tokens[4] == "1");
-                        cubeFrame = std::stoi(tokens[5]);
-                        shipFrame = std::stoi(tokens[6]);
-                        ballFrame = std::stoi(tokens[7]);
-                        ufoFrame = std::stoi(tokens[8]);
-                        waveFrame = std::stoi(tokens[9]);
-                        robotFrame = std::stoi(tokens[10]);
-                        spiderFrame = std::stoi(tokens[11]);
-                        swingFrame = std::stoi(tokens[12]);
-                        
-                        col1.r = std::stoi(tokens[13]);
-                        col1.g = std::stoi(tokens[14]);
-                        col1.b = std::stoi(tokens[15]);
-                        
-                        col2.r = std::stoi(tokens[16]);
-                        col2.g = std::stoi(tokens[17]);
-                        col2.b = std::stoi(tokens[18]);
-                        
-                        glowEnabled = (tokens[19] == "1");
-                        
-                        glowCol.r = std::stoi(tokens[20]);
-                        glowCol.g = std::stoi(tokens[21]);
-                        glowCol.b = std::stoi(tokens[22]);
-                    } catch (...) {}
+                    iconType = geode::utils::numFromString<int>(tokens[2]).unwrapOr(0);
+                    rotation = geode::utils::numFromString<float>(tokens[3]).unwrapOr(0.f);
+                    isUpsideDown = (tokens[4] == "1");
+                    cubeFrame = geode::utils::numFromString<int>(tokens[5]).unwrapOr(1);
+                    shipFrame = geode::utils::numFromString<int>(tokens[6]).unwrapOr(1);
+                    ballFrame = geode::utils::numFromString<int>(tokens[7]).unwrapOr(1);
+                    ufoFrame = geode::utils::numFromString<int>(tokens[8]).unwrapOr(1);
+                    waveFrame = geode::utils::numFromString<int>(tokens[9]).unwrapOr(1);
+                    robotFrame = geode::utils::numFromString<int>(tokens[10]).unwrapOr(1);
+                    spiderFrame = geode::utils::numFromString<int>(tokens[11]).unwrapOr(1);
+                    swingFrame = geode::utils::numFromString<int>(tokens[12]).unwrapOr(1);
+                    
+                    col1.r = geode::utils::numFromString<int>(tokens[13]).unwrapOr(255);
+                    col1.g = geode::utils::numFromString<int>(tokens[14]).unwrapOr(255);
+                    col1.b = geode::utils::numFromString<int>(tokens[15]).unwrapOr(255);
+                    
+                    col2.r = geode::utils::numFromString<int>(tokens[16]).unwrapOr(255);
+                    col2.g = geode::utils::numFromString<int>(tokens[17]).unwrapOr(255);
+                    col2.b = geode::utils::numFromString<int>(tokens[18]).unwrapOr(255);
+                    
+                    glowEnabled = (tokens[19] == "1");
+                    
+                    glowCol.r = geode::utils::numFromString<int>(tokens[20]).unwrapOr(0);
+                    glowCol.g = geode::utils::numFromString<int>(tokens[21]).unwrapOr(0);
+                    glowCol.b = geode::utils::numFromString<int>(tokens[22]).unwrapOr(0);
                 }
             }
 

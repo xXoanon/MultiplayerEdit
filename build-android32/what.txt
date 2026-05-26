@@ -7,7 +7,7 @@
     },
     "id": "d050.multiplayeredit",
     "name": "Multiplayer Edit",
-    "version": "v0.1.0",
+    "version": "0.2.1",
     "developer": "d050",
     "description": "Collaborate with friends in real-time level editing! Host a session and build together.",
     "tags": [
@@ -26,7 +26,8 @@
             "name": "Server URL",
             "description": "The WebSocket relay server URL to connect to.",
             "default": "wss://multiplayeredit.onrender.com",
-            "max-length": 100
+            "max-length": 100,
+            "filter": "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789:/.?&=-_"
         },
         "player-name": {
             "type": "string",

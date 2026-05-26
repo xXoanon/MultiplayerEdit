@@ -65,6 +65,8 @@ namespace mpedit {
 
         std::queue<matjson::Value> m_pendingOutgoing;
         std::mutex m_pendingMutex;
+
+        bool m_dispatching = false;
     };
 
 } // namespace mpedit

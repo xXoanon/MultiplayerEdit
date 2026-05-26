@@ -4,6 +4,7 @@
 #include <Geode/modify/EditorUI.hpp>
 #include <Geode/modify/LevelBrowserLayer.hpp>
 #include <Geode/modify/GJBaseGameLayer.hpp>
+#include <Geode/binding/TeleportPortalObject.hpp>
 
 #include "SessionManager.hpp"
 #include "NetworkManager.hpp"
@@ -487,8 +488,79 @@ class $modify(MPLevelEditorLayer, LevelEditorLayer) {
 
     // Intercept object removal to sync deletion
     void removeObject(GameObject* obj, bool undo) {
+        if (!obj) {
+            LevelEditorLayer::removeObject(obj, undo);
+            return;
+        }
+
+        // Prevent premature deallocation during cleanup — the object may only be kept alive
+        // by CCArrays (e.g., m_selectedObjects, m_touchingRings) that we're removing from.
+        obj->retain();
+
         auto& handler = RemoteActionHandler::get();
         auto& session = SessionManager::get();
+
+        {
+            // Clean up teleport portal pairs to prevent Use-After-Free crashes from dangling pointers
+            if (auto* portal = typeinfo_cast<TeleportPortalObject*>(obj)) {
+                if (portal->m_orangePortal) {
+                    if (portal->m_orangePortal->m_orangePortal == portal) {
+                        portal->m_orangePortal->m_orangePortal = nullptr;
+                    }
+                    portal->m_orangePortal = nullptr;
+                }
+            }
+
+            // Clean up game state last activated portal references to prevent Use-After-Free crashes during playtesting/editing
+            if (m_gameState.m_lastActivatedPortal1 == obj) {
+                m_gameState.m_lastActivatedPortal1 = nullptr;
+            }
+            if (m_gameState.m_lastActivatedPortal2 == obj) {
+                m_gameState.m_lastActivatedPortal2 = nullptr;
+            }
+            if (this->m_player1) {
+                if (this->m_player1->m_lastActivatedPortal == obj) {
+                    this->m_player1->m_lastActivatedPortal = nullptr;
+                }
+                if (this->m_player1->m_touchingRings && this->m_player1->m_touchingRings->containsObject(obj)) {
+                    this->m_player1->m_touchingRings->removeObject(obj);
+                }
+            }
+            if (this->m_player2) {
+                if (this->m_player2->m_lastActivatedPortal == obj) {
+                    this->m_player2->m_lastActivatedPortal = nullptr;
+                }
+                if (this->m_player2->m_touchingRings && this->m_player2->m_touchingRings->containsObject(obj)) {
+                    this->m_player2->m_touchingRings->removeObject(obj);
+                }
+            }
+            if (this->m_endPortal == obj) {
+                this->m_endPortal = nullptr;
+            }
+            if (this->m_player1CollisionBlock == obj) {
+                this->m_player1CollisionBlock = nullptr;
+            }
+            if (this->m_player2CollisionBlock == obj) {
+                this->m_player2CollisionBlock = nullptr;
+            }
+            if (this->m_startPosObject == obj) {
+                this->m_startPosObject = nullptr;
+            }
+            if (this->m_copyStateObject == obj) {
+                this->m_copyStateObject = nullptr;
+            }
+            if (this->m_editorUI) {
+                if (this->m_editorUI->m_selectedObject == obj) {
+                    this->m_editorUI->m_selectedObject = nullptr;
+                }
+                if (this->m_editorUI->m_snapObject == obj) {
+                    this->m_editorUI->m_snapObject = nullptr;
+                }
+                if (this->m_editorUI->m_selectedObjects && this->m_editorUI->m_selectedObjects->containsObject(obj)) {
+                    this->m_editorUI->m_selectedObjects->removeObject(obj);
+                }
+            }
+        }
 
         // During undo/redo, handleAction already handles sync — skip here to avoid double-sync
         bool inUndoRedo = m_fields->m_inUndoRedo;
@@ -501,6 +573,7 @@ class $modify(MPLevelEditorLayer, LevelEditorLayer) {
                 if (it != locks.end() && it->second.playerId != session.getLocalPlayerId()) {
                     // Locked by another player! Do not delete.
                     log::info("EditorHooks: Blocked removal of locked object (uuid={})", uuid);
+                    obj->release();
                     return;
                 }
             }
@@ -518,7 +591,18 @@ class $modify(MPLevelEditorLayer, LevelEditorLayer) {
             }
         }
 
+        // Clean up from tracked selections and mapping maps to guarantee no dangling references in RemoteActionHandler
+        if (obj) {
+            auto uuid = handler.getUUIDForObject(obj);
+            if (!uuid.empty()) {
+                handler.unregisterObject(uuid);
+            }
+            handler.getTrackedSelections().erase(obj);
+        }
+
         LevelEditorLayer::removeObject(obj, undo);
+
+        obj->release();
     }
 
     // Hook handleAction to block locked undo/redo actions and synchronize local history updates

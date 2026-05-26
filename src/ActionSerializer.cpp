@@ -342,12 +342,16 @@ namespace mpedit::ActionSerializer {
         data.zOrder = obj->getZOrder();
         data.editorLayer = obj->m_editorLayer;
         data.editorLayer2 = obj->m_editorLayer2;
-        data.saveString = obj->getSaveString(LevelEditorLayer::get());
+        data.saveString = "";
+        if (auto* editor = LevelEditorLayer::get()) {
+            data.saveString = obj->getSaveString(editor);
+        }
 
-        // Extract groups
+        // Extract groups safely up to a maximum of 10 to avoid out-of-bounds/std::out_of_range crashes
         if (obj->m_groups && obj->m_groupCount > 0) {
-            for (int i = 0; i < obj->m_groupCount; i++) {
-                data.groups.push_back(obj->m_groups->at(i));
+            int count = std::min(static_cast<int>(obj->m_groupCount), 10);
+            for (int i = 0; i < count; i++) {
+                data.groups.push_back((*obj->m_groups)[i]);
             }
         }
 
