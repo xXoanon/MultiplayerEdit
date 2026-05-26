@@ -527,184 +527,89 @@ class $modify(MPLevelEditorLayer, LevelEditorLayer) {
         auto& session = SessionManager::get();
 
         if (!session.isInSession() || handler.isProcessingRemote() || !undoObjects || undoObjects->count() == 0) {
-            m_fields->m_inUndoRedo = true;
             LevelEditorLayer::handleAction(undo, undoObjects);
-            m_fields->m_inUndoRedo = false;
             return;
         }
 
-        auto* lastItem = static_cast<UndoObject*>(undoObjects->lastObject());
-        if (!lastItem) {
-            m_fields->m_inUndoRedo = true;
-            LevelEditorLayer::handleAction(undo, undoObjects);
-            m_fields->m_inUndoRedo = false;
-            return;
+        // 1. Gather ONLY objects affected by this specific action to prevent O(N) lag spikes
+        std::unordered_set<GameObject*> affectedObjects;
+        for (auto* undoObjRaw : CCArrayExt<UndoObject*>(undoObjects)) {
+            if (undoObjRaw->m_objects) {
+                for (auto* gObj : CCArrayExt<GameObject*>(undoObjRaw->m_objects)) {
+                    affectedObjects.insert(gObj);
+                }
+            }
+            if (undoObjRaw->m_objectCopy && undoObjRaw->m_objectCopy->m_object) {
+                affectedObjects.insert(undoObjRaw->m_objectCopy->m_object);
+            }
         }
 
-        auto isObjectValid = [&](GameObject* obj) -> bool {
-            if (!obj) return false;
-            if (this->m_objects && this->m_objects->containsObject(obj)) {
-                return true;
-            }
-            if (lastItem->m_objects && lastItem->m_objects->containsObject(obj)) {
-                return true;
-            }
-            return false;
-        };
-
-        auto checkLocked = [&](GameObject* gObj) -> bool {
-            if (!isObjectValid(gObj)) return false;
+        // 2. Verify locks for affected objects
+        for (auto* gObj : affectedObjects) {
+            if (!gObj) continue;
             auto uuid = handler.getUUIDForObject(gObj);
             if (!uuid.empty()) {
                 auto const& locks = handler.getObjectLocks();
                 auto it = locks.find(uuid);
                 if (it != locks.end() && it->second.playerId != session.getLocalPlayerId()) {
-                    return true; // Locked by someone else!
-                }
-            }
-            return false;
-        };
-
-        // 1. Verify locks for active UndoObject
-        if (lastItem->m_objects) {
-            for (auto* gObj : CCArrayExt<GameObject*>(lastItem->m_objects)) {
-                if (checkLocked(gObj)) {
                     log::info("EditorHooks: Blocked undo/redo of locked object");
                     return;
                 }
             }
         }
-        if (lastItem->m_objectCopy && lastItem->m_objectCopy->m_object) {
-            if (checkLocked(lastItem->m_objectCopy->m_object)) {
-                log::info("EditorHooks: Blocked undo/redo of locked object");
-                return;
-            }
-        }
 
-        // 2. Pointer-safe before/after set tracking
-        std::unordered_set<GameObject*> objectsBefore;
-        std::unordered_map<GameObject*, std::string> uuidsBefore;
+        // 3. Record baseline state for ONLY the affected objects
         std::unordered_map<GameObject*, cocos2d::CCPoint> positionsBefore;
         std::unordered_map<GameObject*, std::string> saveStringsBefore;
+        std::unordered_set<GameObject*> existedBefore;
 
-        if (this->m_objects) {
-            for (auto* obj : CCArrayExt<GameObject*>(this->m_objects)) {
-                if (obj) {
-                    objectsBefore.insert(obj);
-                    uuidsBefore[obj] = handler.getUUIDForObject(obj);
-                }
+        for (auto* obj : affectedObjects) {
+            if (!obj) continue;
+            // Check if it's currently active in the level by checking if it has a UUID
+            if (!handler.getUUIDForObject(obj).empty()) {
+                existedBefore.insert(obj);
+                positionsBefore[obj] = obj->getPosition();
+                saveStringsBefore[obj] = obj->getSaveString(this);
             }
         }
 
-        // Only record detailed properties for objects in the active UndoObject to optimize performance
-        auto recordBaseline = [&](GameObject* obj) {
-            if (!obj || objectsBefore.find(obj) == objectsBefore.end()) return;
-            positionsBefore[obj] = obj->getPosition();
-            saveStringsBefore[obj] = obj->getSaveString(this);
-        };
-
-        if (lastItem->m_objects) {
-            for (auto* gObj : CCArrayExt<GameObject*>(lastItem->m_objects)) {
-                recordBaseline(gObj);
-            }
-        }
-        if (lastItem->m_objectCopy && lastItem->m_objectCopy->m_object) {
-            recordBaseline(lastItem->m_objectCopy->m_object);
-        }
-
-        // 3. Execute base handleAction
-        // NOTE: m_inUndoRedo stays true until AFTER the set comparison and message
-        // sending below. This prevents the addToSection hook from firing for
-        // deferred section updates between the base call and our sync logic,
-        // which would cause duplicate placement messages.
-        m_fields->m_inUndoRedo = true;
+        // 4. Execute base handleAction
+        // We do NOT set m_inUndoRedo here anymore!
+        // We WANT addToSection and removeObject to run normally during undo/redo 
+        // to handle object creations and deletions natively.
         LevelEditorLayer::handleAction(undo, undoObjects);
 
-        // 4. Gather active objects after action
-        std::unordered_set<GameObject*> objectsAfter;
-        if (this->m_objects) {
-            for (auto* obj : CCArrayExt<GameObject*>(this->m_objects)) {
-                if (obj) {
-                    objectsAfter.insert(obj);
-                }
-            }
-        }
-
-        std::vector<ActionSerializer::ObjectData> placedObjects;
-        std::vector<std::string> deletedUuids;
+        // 5. Detect purely modified objects (existed before and still exist, but properties changed)
         std::vector<ActionSerializer::MoveData> movedObjects;
         std::vector<ActionSerializer::ObjectData> updatedObjects;
 
-        // A. Detect Deleted/Undone Objects (existed before, but not after)
-        for (auto* obj : objectsBefore) {
-            if (objectsAfter.find(obj) == objectsAfter.end()) {
-                std::string uuid = uuidsBefore[obj];
-                if (!uuid.empty()) {
-                    deletedUuids.push_back(uuid);
-                    handler.unregisterObject(uuid);
-                }
-            }
-        }
+        for (auto* obj : affectedObjects) {
+            if (!obj) continue;
+            std::string uuid = handler.getUUIDForObject(obj);
+            if (uuid.empty()) continue; // Object was deleted by removeObject, or hasn't got UUID yet
 
-        // B. Detect Added/Redone Objects (existed after, but not before)
-        for (auto* obj : objectsAfter) {
-            if (objectsBefore.find(obj) == objectsBefore.end()) {
-                std::string uuid = handler.getUUIDForObject(obj);
-                if (uuid.empty()) {
-                    uuid = RemoteActionHandler::generateUUID();
-                    handler.registerObject(uuid, obj);
-                }
-                placedObjects.push_back(ActionSerializer::extractObjectData(obj, uuid));
-            }
-        }
-
-        // C. Detect Modified/Moved Objects (existed in both, but properties changed)
-        for (auto* obj : objectsAfter) {
-            if (objectsBefore.find(obj) != objectsBefore.end()) {
-                // Only check if we recorded baseline state for this object
-                if (saveStringsBefore.find(obj) != saveStringsBefore.end()) {
-                    std::string currentSave = obj->getSaveString(this);
-                    if (saveStringsBefore[obj] != currentSave) {
-                        std::string uuid = uuidsBefore[obj];
-                        if (uuid.empty()) {
-                            uuid = RemoteActionHandler::generateUUID();
-                            handler.registerObject(uuid, obj);
-                        }
-                        if (obj->m_objectID != 31) {
-                            updatedObjects.push_back(ActionSerializer::extractObjectData(obj, uuid));
-                        }
-                    } else {
-                        cocos2d::CCPoint oldPos = positionsBefore[obj];
-                        float dx = obj->getPositionX() - oldPos.x;
-                        float dy = obj->getPositionY() - oldPos.y;
-                        if (dx != 0.f || dy != 0.f) {
-                            std::string uuid = uuidsBefore[obj];
-                            if (uuid.empty()) {
-                                uuid = RemoteActionHandler::generateUUID();
-                                handler.registerObject(uuid, obj);
-                            }
-                            ActionSerializer::MoveData md;
-                            md.uuid = uuid;
-                            md.dx = dx;
-                            md.dy = dy;
-                            movedObjects.push_back(md);
-                        }
+            if (existedBefore.find(obj) != existedBefore.end()) {
+                std::string currentSave = obj->getSaveString(this);
+                if (saveStringsBefore[obj] != currentSave) {
+                    if (obj->m_objectID != 31) {
+                        updatedObjects.push_back(ActionSerializer::extractObjectData(obj, uuid));
+                    }
+                } else {
+                    cocos2d::CCPoint oldPos = positionsBefore[obj];
+                    float dx = obj->getPositionX() - oldPos.x;
+                    float dy = obj->getPositionY() - oldPos.y;
+                    if (dx != 0.f || dy != 0.f) {
+                        ActionSerializer::MoveData md;
+                        md.uuid = uuid;
+                        md.dx = dx;
+                        md.dy = dy;
+                        movedObjects.push_back(md);
                     }
                 }
             }
         }
 
-        // Send updates
-        if (!placedObjects.empty()) {
-            auto msg = ActionSerializer::serializePlaceObjects(placedObjects);
-            NetworkManager::get().send(msg);
-            log::info("EditorHooks: Synced redo/undo placement of {} objects", placedObjects.size());
-        }
-        if (!deletedUuids.empty()) {
-            auto msg = ActionSerializer::serializeDeleteObjects(deletedUuids);
-            NetworkManager::get().send(msg);
-            log::info("EditorHooks: Synced redo/undo deletion of {} objects", deletedUuids.size());
-        }
+        // 6. Send property updates (addToSection/removeObject handle the rest)
         if (!movedObjects.empty()) {
             auto msg = ActionSerializer::serializeMoveObjects(movedObjects);
             NetworkManager::get().send(msg);
@@ -713,9 +618,6 @@ class $modify(MPLevelEditorLayer, LevelEditorLayer) {
             auto msg = ActionSerializer::serializeUpdateObjects(updatedObjects);
             NetworkManager::get().send(msg);
         }
-
-        // All sync messages sent — safe to allow addToSection hook again
-        m_fields->m_inUndoRedo = false;
     }
 
     void networkUpdate(float dt) {
