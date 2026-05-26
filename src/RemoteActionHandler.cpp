@@ -343,7 +343,7 @@ namespace mpedit {
                 oldObj->m_editorLayer2 = objData.editorLayer2;
                 
                 editor->updateObjectSection(oldObj);
-                LevelEditorLayer::updateObjectLabel(oldObj);
+                editor->updateObjectLabel(oldObj);
                 
                 // Store the latest saveString to apply final recreations upon unlock
                 m_lockedSaveStrings[objData.uuid] = objData.saveString;

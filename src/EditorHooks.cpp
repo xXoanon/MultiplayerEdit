@@ -581,50 +581,35 @@ class $modify(MPLevelEditorLayer, LevelEditorLayer) {
             }
         }
 
-        // 2. Gather affected object states before running handleAction
-        struct ObjectState {
-            GameObject* obj;
-            std::string uuid;
-            bool existedBefore;
-            cocos2d::CCPoint pos;
-            float rot;
-            float scaleX;
-            float scaleY;
-            bool flipX;
-            bool flipY;
-            std::string saveString;
-        };
-        
-        std::vector<ObjectState> affectedStates;
-        
-        auto recordObjectState = [&](GameObject* obj) {
-            if (!isObjectValid(obj)) return;
-            for (auto const& state : affectedStates) {
-                if (state.obj == obj) return;
+        // 2. Pointer-safe before/after set tracking
+        std::unordered_set<GameObject*> objectsBefore;
+        std::unordered_map<GameObject*, std::string> uuidsBefore;
+        std::unordered_map<GameObject*, cocos2d::CCPoint> positionsBefore;
+        std::unordered_map<GameObject*, std::string> saveStringsBefore;
+
+        if (this->m_objects) {
+            for (auto* obj : CCArrayExt<GameObject*>(this->m_objects)) {
+                if (obj) {
+                    objectsBefore.insert(obj);
+                    uuidsBefore[obj] = handler.getUUIDForObject(obj);
+                }
             }
-            
-            ObjectState state;
-            state.obj = obj;
-            state.uuid = handler.getUUIDForObject(obj);
-            state.existedBefore = (this->m_objects->containsObject(obj));
-            state.pos = obj->getPosition();
-            state.rot = obj->getRotation();
-            state.scaleX = obj->getScaleX();
-            state.scaleY = obj->getScaleY();
-            state.flipX = obj->isFlipX();
-            state.flipY = obj->isFlipY();
-            state.saveString = obj->getSaveString(this);
-            
-            affectedStates.push_back(state);
+        }
+
+        // Only record detailed properties for objects in the active UndoObject to optimize performance
+        auto recordBaseline = [&](GameObject* obj) {
+            if (!obj || objectsBefore.find(obj) == objectsBefore.end()) return;
+            positionsBefore[obj] = obj->getPosition();
+            saveStringsBefore[obj] = obj->getSaveString(this);
         };
 
         if (lastItem->m_objects) {
             for (auto* gObj : CCArrayExt<GameObject*>(lastItem->m_objects)) {
-                recordObjectState(gObj);
+                recordBaseline(gObj);
             }
         }
         if (lastItem->m_objectCopy && lastItem->m_objectCopy->m_object) {
-            recordObjectState(lastItem->m_objectCopy->m_object);
+            recordBaseline(lastItem->m_objectCopy->m_object);
         }
 
         // 3. Execute base handleAction
@@ -632,57 +617,86 @@ class $modify(MPLevelEditorLayer, LevelEditorLayer) {
         LevelEditorLayer::handleAction(undo, undoObjects);
         m_fields->m_inUndoRedo = false;
 
-        // 4. Compare states and send sync messages
+        // 4. Gather active objects after action
+        std::unordered_set<GameObject*> objectsAfter;
+        if (this->m_objects) {
+            for (auto* obj : CCArrayExt<GameObject*>(this->m_objects)) {
+                if (obj) {
+                    objectsAfter.insert(obj);
+                }
+            }
+        }
+
         std::vector<ActionSerializer::ObjectData> placedObjects;
         std::vector<std::string> deletedUuids;
         std::vector<ActionSerializer::MoveData> movedObjects;
         std::vector<ActionSerializer::ObjectData> updatedObjects;
 
-        for (auto& state : affectedStates) {
-            GameObject* obj = state.obj;
-            bool existedAfter = (this->m_objects->containsObject(obj));
-
-            if (state.existedBefore && !existedAfter) {
-                if (!state.uuid.empty()) {
-                    deletedUuids.push_back(state.uuid);
-                    handler.unregisterObject(state.uuid);
+        // A. Detect Deleted/Undone Objects (existed before, but not after)
+        for (auto* obj : objectsBefore) {
+            if (objectsAfter.find(obj) == objectsAfter.end()) {
+                std::string uuid = uuidsBefore[obj];
+                if (!uuid.empty()) {
+                    deletedUuids.push_back(uuid);
+                    handler.unregisterObject(uuid);
                 }
-            } else if (!state.existedBefore && existedAfter) {
-                std::string uuid = state.uuid;
+            }
+        }
+
+        // B. Detect Added/Redone Objects (existed after, but not before)
+        for (auto* obj : objectsAfter) {
+            if (objectsBefore.find(obj) == objectsBefore.end()) {
+                std::string uuid = handler.getUUIDForObject(obj);
                 if (uuid.empty()) {
                     uuid = RemoteActionHandler::generateUUID();
                     handler.registerObject(uuid, obj);
                 }
                 placedObjects.push_back(ActionSerializer::extractObjectData(obj, uuid));
-            } else if (state.existedBefore && existedAfter) {
-                std::string uuid = state.uuid;
+            }
+        }
+
+        // C. Detect Modified/Moved Objects (existed in both, but properties changed)
+        for (auto* obj : objectsAfter) {
+            if (objectsBefore.find(obj) != objectsBefore.end()) {
+                std::string uuid = uuidsBefore[obj];
                 if (uuid.empty()) {
                     uuid = RemoteActionHandler::generateUUID();
                     handler.registerObject(uuid, obj);
                 }
 
-                std::string newSave = obj->getSaveString(this);
-                if (state.saveString != newSave) {
-                    if (obj->m_objectID != 31) {
-                        updatedObjects.push_back(ActionSerializer::extractObjectData(obj, uuid));
+                // Only check if we recorded baseline state for this object
+                if (saveStringsBefore.find(obj) != saveStringsBefore.end()) {
+                    std::string currentSave = obj->getSaveString(this);
+                    if (saveStringsBefore[obj] != currentSave) {
+                        if (obj->m_objectID != 31) {
+                            updatedObjects.push_back(ActionSerializer::extractObjectData(obj, uuid));
+                        }
+                    } else {
+                        cocos2d::CCPoint oldPos = positionsBefore[obj];
+                        float dx = obj->getPositionX() - oldPos.x;
+                        float dy = obj->getPositionY() - oldPos.y;
+                        if (dx != 0.f || dy != 0.f) {
+                            ActionSerializer::MoveData md;
+                            md.uuid = uuid;
+                            md.dx = dx;
+                            md.dy = dy;
+                            movedObjects.push_back(md);
+                        }
                     }
-                } else if (state.pos.x != obj->getPositionX() || state.pos.y != obj->getPositionY()) {
-                    ActionSerializer::MoveData md;
-                    md.uuid = uuid;
-                    md.dx = obj->getPositionX() - state.pos.x;
-                    md.dy = obj->getPositionY() - state.pos.y;
-                    movedObjects.push_back(md);
                 }
             }
         }
 
+        // Send updates
         if (!placedObjects.empty()) {
             auto msg = ActionSerializer::serializePlaceObjects(placedObjects);
             NetworkManager::get().send(msg);
+            log::info("EditorHooks: Synced redo/undo placement of {} objects", placedObjects.size());
         }
         if (!deletedUuids.empty()) {
             auto msg = ActionSerializer::serializeDeleteObjects(deletedUuids);
             NetworkManager::get().send(msg);
+            log::info("EditorHooks: Synced redo/undo deletion of {} objects", deletedUuids.size());
         }
         if (!movedObjects.empty()) {
             auto msg = ActionSerializer::serializeMoveObjects(movedObjects);
