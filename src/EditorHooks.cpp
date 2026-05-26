@@ -613,9 +613,12 @@ class $modify(MPLevelEditorLayer, LevelEditorLayer) {
         }
 
         // 3. Execute base handleAction
+        // NOTE: m_inUndoRedo stays true until AFTER the set comparison and message
+        // sending below. This prevents the addToSection hook from firing for
+        // deferred section updates between the base call and our sync logic,
+        // which would cause duplicate placement messages.
         m_fields->m_inUndoRedo = true;
         LevelEditorLayer::handleAction(undo, undoObjects);
-        m_fields->m_inUndoRedo = false;
 
         // 4. Gather active objects after action
         std::unordered_set<GameObject*> objectsAfter;
@@ -710,6 +713,9 @@ class $modify(MPLevelEditorLayer, LevelEditorLayer) {
             auto msg = ActionSerializer::serializeUpdateObjects(updatedObjects);
             NetworkManager::get().send(msg);
         }
+
+        // All sync messages sent — safe to allow addToSection hook again
+        m_fields->m_inUndoRedo = false;
     }
 
     void networkUpdate(float dt) {
