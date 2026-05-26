@@ -1,4 +1,4 @@
-# 0.1.2
+# 0.2.0
 - Added proper support for macOS and Android.
 - Fixed TLS handshake connection failures on Android and macOS.
 - Fixed selector-based scheduler crashes (DEP violations) in the MultiplayerPopup UI.
@@ -12,8 +12,9 @@
 - Fixed selection highlights and object locks when copy-pasting or duplicating objects by correcting the host's active session checks in object placement hooks.
 - Fixed host level duplication issue when a guest joins.
 - Fixed server keeping zombie connections in between hosting levels, causing hosting to break in certain cirumstances.
-- Fixed crash when editing triggers
-- Fixed the redo button not bringing back objects when they were deleted
+- Fixed crash when editing triggers.
+- Fixed the redo button not bringing back objects when they were deleted.
+- Fixed input for server URL to make it possible to actually input URLs manually.
 
 # 0.1.1
 - Fixed an EXCEPTION_ACCESS_VIOLATION (DEP violation) crash on Windows/Wine caused by using `schedule_selector` in `$modify` wrapper classes.

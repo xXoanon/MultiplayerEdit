@@ -533,14 +533,15 @@ class $modify(MPLevelEditorLayer, LevelEditorLayer) {
 
         // 1. Gather ONLY objects affected by this specific action to prevent O(N) lag spikes
         std::unordered_set<GameObject*> affectedObjects;
-        for (auto* undoObjRaw : CCArrayExt<UndoObject*>(undoObjects)) {
-            if (undoObjRaw->m_objects) {
-                for (auto* gObj : CCArrayExt<GameObject*>(undoObjRaw->m_objects)) {
+        auto* lastItem = static_cast<UndoObject*>(undoObjects->lastObject());
+        if (lastItem) {
+            if (lastItem->m_objects) {
+                for (auto* gObj : CCArrayExt<GameObject*>(lastItem->m_objects)) {
                     affectedObjects.insert(gObj);
                 }
             }
-            if (undoObjRaw->m_objectCopy && undoObjRaw->m_objectCopy->m_object) {
-                affectedObjects.insert(undoObjRaw->m_objectCopy->m_object);
+            if (lastItem->m_objectCopy && lastItem->m_objectCopy->m_object) {
+                affectedObjects.insert(lastItem->m_objectCopy->m_object);
             }
         }
 
@@ -565,8 +566,7 @@ class $modify(MPLevelEditorLayer, LevelEditorLayer) {
 
         for (auto* obj : affectedObjects) {
             if (!obj) continue;
-            // Check if it's currently active in the level by checking if it has a UUID
-            if (!handler.getUUIDForObject(obj).empty()) {
+            if (this->m_objects && this->m_objects->containsObject(obj)) {
                 existedBefore.insert(obj);
                 positionsBefore[obj] = obj->getPosition();
                 saveStringsBefore[obj] = obj->getSaveString(this);
@@ -574,21 +574,46 @@ class $modify(MPLevelEditorLayer, LevelEditorLayer) {
         }
 
         // 4. Execute base handleAction
-        // We do NOT set m_inUndoRedo here anymore!
-        // We WANT addToSection and removeObject to run normally during undo/redo 
-        // to handle object creations and deletions natively.
+        m_fields->m_inUndoRedo = true;
         LevelEditorLayer::handleAction(undo, undoObjects);
 
-        // 5. Detect purely modified objects (existed before and still exist, but properties changed)
+        // 5. Detect changes using existedBefore vs existedAfter matrix
+        std::vector<ActionSerializer::ObjectData> placedObjects;
+        std::vector<std::string> deletedUuids;
         std::vector<ActionSerializer::MoveData> movedObjects;
         std::vector<ActionSerializer::ObjectData> updatedObjects;
 
         for (auto* obj : affectedObjects) {
             if (!obj) continue;
-            std::string uuid = handler.getUUIDForObject(obj);
-            if (uuid.empty()) continue; // Object was deleted by removeObject, or hasn't got UUID yet
-
-            if (existedBefore.find(obj) != existedBefore.end()) {
+            
+            bool existed_before = existedBefore.find(obj) != existedBefore.end();
+            bool existed_after = this->m_objects && this->m_objects->containsObject(obj);
+            
+            if (existed_before && !existed_after) {
+                // Object was DELETED by Undo
+                std::string uuid = handler.getUUIDForObject(obj);
+                if (!uuid.empty()) {
+                    deletedUuids.push_back(uuid);
+                    handler.unregisterObject(uuid);
+                }
+            } 
+            else if (!existed_before && existed_after) {
+                // Object was PLACED by Redo
+                std::string uuid = handler.getUUIDForObject(obj);
+                if (uuid.empty()) {
+                    uuid = RemoteActionHandler::generateUUID();
+                    handler.registerObject(uuid, obj);
+                }
+                placedObjects.push_back(ActionSerializer::extractObjectData(obj, uuid));
+            } 
+            else if (existed_before && existed_after) {
+                // Object was MODIFIED by Undo/Redo
+                std::string uuid = handler.getUUIDForObject(obj);
+                if (uuid.empty()) {
+                    uuid = RemoteActionHandler::generateUUID();
+                    handler.registerObject(uuid, obj);
+                }
+                
                 std::string currentSave = obj->getSaveString(this);
                 if (saveStringsBefore[obj] != currentSave) {
                     if (obj->m_objectID != 31) {
@@ -609,7 +634,17 @@ class $modify(MPLevelEditorLayer, LevelEditorLayer) {
             }
         }
 
-        // 6. Send property updates (addToSection/removeObject handle the rest)
+        // 6. Send updates
+        if (!placedObjects.empty()) {
+            auto msg = ActionSerializer::serializePlaceObjects(placedObjects);
+            NetworkManager::get().send(msg);
+            log::info("EditorHooks: Synced redo placement of {} objects", placedObjects.size());
+        }
+        if (!deletedUuids.empty()) {
+            auto msg = ActionSerializer::serializeDeleteObjects(deletedUuids);
+            NetworkManager::get().send(msg);
+            log::info("EditorHooks: Synced undo deletion of {} objects", deletedUuids.size());
+        }
         if (!movedObjects.empty()) {
             auto msg = ActionSerializer::serializeMoveObjects(movedObjects);
             NetworkManager::get().send(msg);
@@ -618,6 +653,8 @@ class $modify(MPLevelEditorLayer, LevelEditorLayer) {
             auto msg = ActionSerializer::serializeUpdateObjects(updatedObjects);
             NetworkManager::get().send(msg);
         }
+        
+        m_fields->m_inUndoRedo = false;
     }
 
     void networkUpdate(float dt) {

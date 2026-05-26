@@ -11,6 +11,30 @@ using namespace geode::prelude;
 
 namespace mpedit {
 
+    namespace {
+        std::vector<GameObject*> createObjectsFromSaveStringRobust(LevelEditorLayer* editor, std::string const& saveStr) {
+            std::vector<GameObject*> newObjects;
+            if (!editor || saveStr.empty()) return newObjects;
+            
+            size_t beforeCount = editor->m_objects ? editor->m_objects->count() : 0;
+            
+            editor->createObjectsFromString(saveStr, true, true);
+            
+            size_t afterCount = editor->m_objects ? editor->m_objects->count() : 0;
+            
+            if (afterCount > beforeCount && editor->m_objects) {
+                size_t addedCount = afterCount - beforeCount;
+                newObjects.reserve(addedCount);
+                for (size_t i = afterCount - addedCount; i < afterCount; ++i) {
+                    if (auto* obj = static_cast<GameObject*>(editor->m_objects->objectAtIndex(i))) {
+                        newObjects.push_back(obj);
+                    }
+                }
+            }
+            return newObjects;
+        }
+    }
+
     RemoteActionHandler& RemoteActionHandler::get() {
         static RemoteActionHandler instance;
         return instance;
@@ -186,9 +210,9 @@ namespace mpedit {
         for (auto& objData : objects) {
             // Recreate object using saveString if available to load all properties (e.g. text contents, custom colors, groups)
             if (!objData.saveString.empty()) {
-                auto arr = editor->createObjectsFromString(objData.saveString, true, true);
-                if (arr && arr->count() > 0) {
-                    auto* obj = static_cast<GameObject*>(arr->objectAtIndex(0));
+                auto newObjs = createObjectsFromSaveStringRobust(editor, objData.saveString);
+                if (!newObjs.empty()) {
+                    auto* obj = newObjs.front();
                     registerObject(objData.uuid, obj);
                     log::debug("RemoteActionHandler: Placed object {} via saveString (uuid={})", objData.objectID, objData.uuid);
                     continue;
@@ -372,9 +396,9 @@ namespace mpedit {
             unregisterObject(objData.uuid);
 
             // Recreate object using saveString to ensure ALL properties are loaded
-            auto arr = editor->createObjectsFromString(objData.saveString, true, true);
-            if (arr && arr->count() > 0) {
-                auto* newObj = static_cast<GameObject*>(arr->objectAtIndex(0));
+            auto newObjs = createObjectsFromSaveStringRobust(editor, objData.saveString);
+            if (!newObjs.empty()) {
+                auto* newObj = newObjs.front();
                 registerObject(objData.uuid, newObj);
                 log::debug("RemoteActionHandler: Updated object {} via saveString", objData.uuid);
 
@@ -457,9 +481,9 @@ namespace mpedit {
                                     editor->removeObject(oldObj, true);
                                     unregisterObject(uuid);
                                     
-                                    auto arr = editor->createObjectsFromString(saveStr, true, true);
-                                    if (arr && arr->count() > 0) {
-                                        auto* newObj = static_cast<GameObject*>(arr->objectAtIndex(0));
+                                    auto newObjs = createObjectsFromSaveStringRobust(editor, saveStr);
+                                    if (!newObjs.empty()) {
+                                        auto* newObj = newObjs.front();
                                         registerObject(uuid, newObj);
                                         
                                         if (wasSelected && editorUI) {
@@ -614,17 +638,15 @@ namespace mpedit {
         
         // Spawn all objects via bulk creation
         if (!objectsString.empty()) {
-            auto arr = editor->createObjectsFromString(objectsString, true, true);
-            if (arr) {
-                int index = 0;
-                for (auto* obj : CCArrayExt<GameObject*>(arr)) {
-                    if (index < uuids.size()) {
-                        registerObject(uuids[index], obj);
-                        index++;
-                    } else {
-                        auto uuid = generateUUID();
-                        registerObject(uuid, obj);
-                    }
+            auto newObjs = createObjectsFromSaveStringRobust(editor, objectsString);
+            int index = 0;
+            for (auto* obj : newObjs) {
+                if (index < uuids.size()) {
+                    registerObject(uuids[index], obj);
+                    index++;
+                } else {
+                    auto uuid = generateUUID();
+                    registerObject(uuid, obj);
                 }
             }
         }
