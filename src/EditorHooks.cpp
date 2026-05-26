@@ -658,16 +658,15 @@ class $modify(MPLevelEditorLayer, LevelEditorLayer) {
         // C. Detect Modified/Moved Objects (existed in both, but properties changed)
         for (auto* obj : objectsAfter) {
             if (objectsBefore.find(obj) != objectsBefore.end()) {
-                std::string uuid = uuidsBefore[obj];
-                if (uuid.empty()) {
-                    uuid = RemoteActionHandler::generateUUID();
-                    handler.registerObject(uuid, obj);
-                }
-
                 // Only check if we recorded baseline state for this object
                 if (saveStringsBefore.find(obj) != saveStringsBefore.end()) {
                     std::string currentSave = obj->getSaveString(this);
                     if (saveStringsBefore[obj] != currentSave) {
+                        std::string uuid = uuidsBefore[obj];
+                        if (uuid.empty()) {
+                            uuid = RemoteActionHandler::generateUUID();
+                            handler.registerObject(uuid, obj);
+                        }
                         if (obj->m_objectID != 31) {
                             updatedObjects.push_back(ActionSerializer::extractObjectData(obj, uuid));
                         }
@@ -676,6 +675,11 @@ class $modify(MPLevelEditorLayer, LevelEditorLayer) {
                         float dx = obj->getPositionX() - oldPos.x;
                         float dy = obj->getPositionY() - oldPos.y;
                         if (dx != 0.f || dy != 0.f) {
+                            std::string uuid = uuidsBefore[obj];
+                            if (uuid.empty()) {
+                                uuid = RemoteActionHandler::generateUUID();
+                                handler.registerObject(uuid, obj);
+                            }
                             ActionSerializer::MoveData md;
                             md.uuid = uuid;
                             md.dx = dx;

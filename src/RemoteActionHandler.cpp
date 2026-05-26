@@ -730,11 +730,6 @@ namespace mpedit {
 
     std::string RemoteActionHandler::getUUIDForObject(GameObject* obj) const {
         if (!obj) return "";
-        if (auto* editor = LevelEditorLayer::get()) {
-            if (editor->m_objects && !editor->m_objects->containsObject(obj)) {
-                return "";
-            }
-        }
         auto it = m_objectToUuid.find(obj);
         return it != m_objectToUuid.end() ? it->second : "";
     }
