@@ -38,6 +38,18 @@ wss.on('connection', (clientWs, req) => {
             clientWs.send(data);
         }
     });
+
+    targetWs.on('ping', (data) => {
+        if (clientWs.readyState === WebSocket.OPEN) {
+            clientWs.ping(data);
+        }
+    });
+
+    targetWs.on('pong', (data) => {
+        if (clientWs.readyState === WebSocket.OPEN) {
+            clientWs.pong(data);
+        }
+    });
     
     targetWs.on('close', (code, reason) => {
         console.log(`[${new Date().toISOString()}] Target closed: ${code} ${reason}`);
@@ -63,6 +75,18 @@ wss.on('connection', (clientWs, req) => {
                     targetWs.send(data);
                 }
             });
+        }
+    });
+
+    clientWs.on('ping', (data) => {
+        if (targetWs.readyState === WebSocket.OPEN) {
+            targetWs.ping(data);
+        }
+    });
+
+    clientWs.on('pong', (data) => {
+        if (targetWs.readyState === WebSocket.OPEN) {
+            targetWs.pong(data);
         }
     });
     

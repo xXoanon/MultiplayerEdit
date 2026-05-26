@@ -1,3 +1,9 @@
+# 0.2.2
+- Fixed player icons not showing up when playtesting.
+- Fixed random host connection drops/disconnections by forwarding WebSocket `ping` and `pong` to server.
+- Added WebSocket ping heartbeats to detect and clean up stale and half-open connections.
+- Purged standard C++ exception handling (`try`/`catch`) and exception-prone parser calls (`std::stoi` / `std::stof`), replacing them with Geode's safe `numFromString` utility.
+
 # 0.2.1
 - Fixed Use-After-Free crashes (`EXCEPTION_ACCESS_VIOLATION` / DEP violation) during multiplayer editor playtesting and editing by nullifying dangling pointers to deleted objects (like gamemode portals, teleport portals, and rings) on player objects, layer states, and UI fields.
 - Fixed a C++ array-out-of-bounds `std::out_of_range` crash when extracting object groups by safely capping group extraction at 10.

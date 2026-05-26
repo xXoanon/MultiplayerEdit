@@ -147,6 +147,11 @@ app.get('/poll', (req, res) => {
 wss.on('connection', (ws) => {
     console.log(`[WS] New connection`);
 
+    ws.isAlive = true;
+    ws.on('pong', () => {
+        ws.isAlive = true;
+    });
+
     // Handshake timeout — if no valid message within 10s, terminate the socket.
     // This prevents zombie half-open connections from accumulating.
     ws._handshakeTimeout = setTimeout(() => {
@@ -421,6 +426,25 @@ setInterval(() => {
         }
     }
 }, 5 * 60 * 1000);
+
+// ============================================================
+// Broken Connection Detection (Heartbeat)
+// ============================================================
+
+const heartbeatInterval = setInterval(() => {
+    wss.clients.forEach((ws) => {
+        if (ws.isAlive === false) {
+            console.log(`[WS] Connection timed out, terminating (player=${ws._playerId || 'unregistered'})`);
+            return ws.terminate();
+        }
+        ws.isAlive = false;
+        ws.ping();
+    });
+}, 30000);
+
+wss.on('close', () => {
+    clearInterval(heartbeatInterval);
+});
 
 // ============================================================
 // Start Server

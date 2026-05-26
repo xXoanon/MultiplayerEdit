@@ -236,6 +236,7 @@ namespace mpedit {
                 }
                 
                 if (tokens.size() >= 23) {
+                    isPlaytesting = (tokens[1] == "1");
                     iconType = geode::utils::numFromString<int>(tokens[2]).unwrapOr(0);
                     rotation = geode::utils::numFromString<float>(tokens[3]).unwrapOr(0.f);
                     isUpsideDown = (tokens[4] == "1");

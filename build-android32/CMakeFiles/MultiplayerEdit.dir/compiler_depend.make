@@ -7224,6 +7224,7 @@ CMakeFiles/MultiplayerEdit.dir/src/EditorHooks.cpp.o: CMakeFiles/MultiplayerEdit
   bindings/bindings/Geode/binding/tk_spline.hpp \
   bindings/bindings/Geode/modify/EditorPauseLayer.hpp \
   bindings/bindings/Geode/modify/EditorUI.hpp \
+  bindings/bindings/Geode/modify/GJBaseGameLayer.hpp \
   bindings/bindings/Geode/modify/LevelBrowserLayer.hpp \
   bindings/bindings/Geode/modify/LevelEditorLayer.hpp \
   /home/d050/Coding/Me\ Coding/MultiplayerEdit/geode-main/loader/include/Geode/Bindings.hpp \
@@ -29576,6 +29577,8 @@ bindings/bindings/Geode/binding/GameObject.hpp:
 /home/d050/Coding/Me\ Coding/MultiplayerEdit/geode-main/loader/include/Geode/cocos/extensions/GUI/CCControlExtension/ColorPickerDelegate.h:
 
 /home/d050/Coding/Me\ Coding/MultiplayerEdit/geode-main/loader/include/Geode/cocos/extensions/GUI/CCEditBox/CCEditBox.h:
+
+bindings/bindings/Geode/modify/GJBaseGameLayer.hpp:
 
 /home/d050/Coding/Me\ Coding/MultiplayerEdit/geode-main/loader/include/Geode/cocos/extensions/GUI/CCScrollView/CCSorting.h:
 
