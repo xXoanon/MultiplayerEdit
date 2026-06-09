@@ -11,9 +11,9 @@ const server = http.createServer(app);
 const wss = new WebSocket.Server({ 
     server,
     // Handle both ws:// and wss:// (Render terminates TLS for us)
-    perMessageDeflate: false
+    perMessageDeflate: false,
+    maxPayload: 524288000
 });
-
 const PORT = process.env.PORT || 8765;
 const HOST = process.env.HOST || '0.0.0.0';
 
