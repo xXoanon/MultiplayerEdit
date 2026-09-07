@@ -598,5 +598,35 @@ namespace mpedit::proto {
         return msg;
     }
 
+    std::vector<uint8_t> serializePing(uint32_t timestamp) {
+        Writer w;
+        w.writeOpcode(Opcode::Ping);
+        w.writeU32(timestamp);
+        return w.takeData();
+    }
+    uint32_t deserializePing(Reader& r) {
+        return r.readU32();
+    }
+
+    std::vector<uint8_t> serializePong(uint32_t timestamp) {
+        Writer w;
+        w.writeOpcode(Opcode::Pong);
+        w.writeU32(timestamp);
+        return w.takeData();
+    }
+    uint32_t deserializePong(Reader& r) {
+        return r.readU32();
+    }
+
+    std::vector<uint8_t> serializePingUpdate(uint32_t ping) {
+        Writer w;
+        w.writeOpcode(Opcode::PingUpdate);
+        w.writeU32(ping);
+        return w.takeData();
+    }
+    uint32_t deserializePingUpdate(Reader& r) {
+        return r.readU32();
+    }
+
 
 }

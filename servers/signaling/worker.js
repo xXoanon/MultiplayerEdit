@@ -3,15 +3,18 @@ const kv = await Deno.openKv();
 const ROOM_TTL = 2 * 60 * 60 * 1000;
 const CHARS = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
 const lastPingCache = new Map();
+let roomListCache = null;
+let roomListCacheTime = 0;
+const bcSender = new BroadcastChannel("signal-wakeup");
+const bcReceiver = new BroadcastChannel("signal-wakeup");
 
 
 async function enqueueKv(code, queueName, msg) {
     const msgId = Date.now() + "_" + crypto.randomUUID();
-    const wakeupKey = ["rooms", code, queueName, "wakeup"];
-    let atomic = kv.atomic();
-    atomic = atomic.set(["rooms", code, queueName, msgId], msg, { expireIn: ROOM_TTL });
-    atomic = atomic.set(wakeupKey, Date.now(), { expireIn: ROOM_TTL });
-    await atomic.commit();
+    await kv.atomic()
+        .set(["rooms", code, queueName, msgId], msg, { expireIn: ROOM_TTL })
+        .commit();
+    bcSender.postMessage({ code, queueName });
 }
 
 async function dequeueKv(code, queueName) {
@@ -84,12 +87,17 @@ Deno.serve(async (req) => {
     if (parts[0] !== "rooms") return json({ error: "not found" }, 404);
 
     if (parts.length === 1 && req.method === "GET") {
+        const now = Date.now();
+        if (roomListCache && now - roomListCacheTime < 5000) {
+            return json(roomListCache);
+        }
+
         const rooms = [];
 
         for await (const entry of kv.list({ prefix: ["room_meta"] })) {
             const room = entry.value;
             if (!room.isPrivate && room.version && room.version !== "Unknown"
-                && room.lastPing && Date.now() - room.lastPing <= 3 * 60 * 1000) {
+                && room.lastPing && Date.now() - room.lastPing <= 5 * 60 * 1000) {
                 rooms.push({
                     roomCode: entry.key[1],
                     hostName: room.hostName,
@@ -106,6 +114,8 @@ Deno.serve(async (req) => {
         }
 
         rooms.sort((a, b) => b.created - a.created);
+        roomListCache = rooms;
+        roomListCacheTime = now;
         return json(rooms);
     }
 
@@ -269,11 +279,10 @@ Deno.serve(async (req) => {
         const role = url.searchParams.get("role");
         const playerId = Number(url.searchParams.get("playerId") || "0");
         const queueName = role === "host" ? "hostQueue" : `clientQueue_${playerId}`;
-        const target = role === "host" ? "host" : playerId;
 
         if (role === "host") {
             const cachedPing = lastPingCache.get(code) || 0;
-            if (Date.now() - cachedPing >= 120000) {
+            if (Date.now() - cachedPing >= 240000) {
                 let success = false;
                 let retries = 3;
                 while (!success && retries > 0) {
@@ -296,71 +305,42 @@ Deno.serve(async (req) => {
         if (initialMsgs.length > 0) return json(initialMsgs);
 
         const timeoutParam = Number(url.searchParams.get("timeout") || "0");
-        let actualTimeout;
-        if (timeoutParam <= 0) {
-            actualTimeout = 1000;
-        } else {
-            actualTimeout = Math.min(timeoutParam, 30000);
-        }
-
-        const stream = kv.watch([["rooms", code, queueName, "wakeup"]]);
-        const reader = stream.getReader();
+        const requestedTimeout = timeoutParam > 0 ? timeoutParam : 1000;
+        const actualTimeout = Math.min(requestedTimeout, 1500);
 
         return new Promise((resolve) => {
             let isResolved = false;
 
-            const timer = setTimeout(async () => {
+            const onMessage = async (event) => {
+                if (isResolved) return;
+                if (event.data.code !== code || event.data.queueName !== queueName) return;
+
+                isResolved = true;
+                clearTimeout(timer);
+                bcReceiver.removeEventListener("message", onMessage);
+                const msgs = await dequeueKv(code, queueName);
+                resolve(json(msgs));
+            };
+
+            bcReceiver.addEventListener("message", onMessage);
+
+            const timer = setTimeout(() => {
                 if (isResolved) return;
                 isResolved = true;
-                try { await reader.cancel(); } catch (_) {}
+                bcReceiver.removeEventListener("message", onMessage);
                 resolve(json([]));
             }, actualTimeout);
-
-            (async () => {
-                try {
-                    let isFirst = true;
-                    while (true) {
-                        const { done } = await reader.read();
-                        if (done || isResolved) break;
-                        if (isFirst) {
-                            isFirst = false;
-                            continue;
-                        }
-                        
-                        const msgs = await dequeueKv(code, queueName);
-                        if (msgs.length > 0) {
-                            if (!isResolved) {
-                                isResolved = true;
-                                clearTimeout(timer);
-                                try { await reader.cancel(); } catch (_) {}
-                                resolve(json(msgs));
-                            }
-                            break;
-                        }
-                    }
-                } catch (_) {
-                    if (!isResolved) {
-                        isResolved = true;
-                        clearTimeout(timer);
-                        try { await reader.cancel(); } catch (_) {}
-                        resolve(json([]));
-                    }
-                }
-            })();
         });
     }
 
     if (action === "signal" && req.method === "POST") {
         const msg = await req.json();
         let targetQueue = "";
-        let targetWake = null;
 
         if (msg.type === "offer" || (msg.type === "candidate" && msg.targetPlayerId !== undefined)) {
             targetQueue = `clientQueue_${msg.targetPlayerId}`;
-            targetWake = msg.targetPlayerId;
         } else if (msg.type === "answer" || (msg.type === "candidate" && msg.playerId !== undefined)) {
             targetQueue = "hostQueue";
-            targetWake = "host";
         }
 
         if (targetQueue) {

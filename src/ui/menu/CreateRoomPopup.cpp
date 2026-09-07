@@ -1,4 +1,5 @@
 #include "CreateRoomPopup.hpp"
+#include "../../P2PManager.hpp"
 #include "MultiplayerMenuPopup.hpp"
 #include "../../SessionManager.hpp"
 #include <Geode/utils/web.hpp>
@@ -109,6 +110,7 @@ namespace mpedit {
 
         layoutNode->updateLayout();
 
+        
         auto hostBtnSprite = ButtonSprite::create("Create", "goldFont.fnt", "GJ_button_01.png", 0.8f);
         auto hostBtn = CCMenuItemSpriteExtra::create(hostBtnSprite, this, menu_selector(CreateRoomPopup::onCreate));
         hostBtn->setPosition(this->fromBottom(25.f));

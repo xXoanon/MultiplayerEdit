@@ -1,0 +1,11 @@
+{
+  "useConfig": 0,
+  "mode": "none",
+  "customPath": "",
+  "selectedLevels": [],
+  "port": 7575,
+  "maxPlayers": 0,
+  "password": "",
+  "autosaveInterval": 5,
+  "defaultViewOnly": false
+}

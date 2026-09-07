@@ -782,8 +782,14 @@ class $modify(MPLevelEditorLayer, LevelEditorLayer) {
         auto* lastItem = static_cast<UndoObject*>(undoObjects->lastObject());
         if (lastItem) {
             if (lastItem->m_objects) {
-                for (auto* gObj : CCArrayExt<GameObject*>(lastItem->m_objects)) {
-                    affectedObjects.insert(gObj);
+                for (auto* innerObj : geode::cocos::CCArrayExt<cocos2d::CCObject*>(lastItem->m_objects)) {
+                    if (auto* gObj = geode::cast::typeinfo_cast<GameObject*>(innerObj)) {
+                        affectedObjects.insert(gObj);
+                    } else if (auto* copy = geode::cast::typeinfo_cast<GameObjectCopy*>(innerObj)) {
+                        if (copy->m_object) {
+                            affectedObjects.insert(copy->m_object);
+                        }
+                    }
                 }
             }
             if (lastItem->m_objectCopy && lastItem->m_objectCopy->m_object) {
@@ -987,6 +993,10 @@ class $modify(MPLevelEditorLayer, LevelEditorLayer) {
                     } else {
                         ss << ":0:0:0:0:0:0:0";
                     }
+                    
+                    ss << ":" << (this->m_player1->m_isGoingLeft ? 1 : 0);
+                    ss << ":" << (this->m_player2 && this->m_player2->m_isGoingLeft ? 1 : 0);
+                    
                     statusStr = ss.str();
                 } else {
 #ifdef GEODE_IS_MOBILE

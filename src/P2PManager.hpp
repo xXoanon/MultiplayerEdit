@@ -234,6 +234,8 @@ namespace mpedit {
 
         bool m_isDedicated = false;
         std::shared_ptr<rtc::WebSocket> m_webSocket;
+        std::shared_ptr<std::atomic<bool>> m_waitingTimerFlag;
+        std::atomic<int> m_connectionAttemptId{0};
 
 
     };

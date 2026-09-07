@@ -16,7 +16,7 @@ namespace mpedit {
         CCMenuItemToggler* m_viewOnlyToggle = nullptr;
         
         MultiplayerMenuPopup* m_parentPopup = nullptr;
-
+        
         bool init(MultiplayerMenuPopup* parent);
 
         void onCreate(cocos2d::CCObject*);

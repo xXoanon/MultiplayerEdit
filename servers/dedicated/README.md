@@ -29,6 +29,27 @@ You can host **multiple levels simultaneously** on a single server instance, eac
 
 After starting, the server will display a summary table showing all hosted rooms with their unique room codes.
 
+## Auto-Configuration
+
+If you want to automate server hosting, you can use the `config.json` file located in the `servers/dedicated/` folder.
+
+By default, the server ignores this file because the `"useConfig"` setting is `0`.
+
+To automate your server:
+1. Open `config.json` and set `"useConfig": 1`.
+2. Configure the other settings:
+   - **`mode`**: Where to load levels from. Options are `"gd"` (loads from CCLocalLevels.dat), `"gmd"` (loads from the levels folder), `"custom"` (loads a specific file), or `"none"` (boots an empty server for remote uploads).
+   - **`customPath`**: The exact file path to a `.gmd` file if `mode` is set to `"custom"`.
+   - **`selectedLevels`**: A list of level names to host (e.g., `["Level 1", "Level 2"]`), or `["all"]` to host everything found.
+   - **`port`**: The port to host on.
+   - **`maxPlayers`**: Player limit per room (`0` for unlimited).
+   - **`password`**: Server password (leave blank for none).
+   - **`autosaveInterval`**: How often to autosave in minutes (`0` to disable).
+   - **`defaultViewOnly`**: Whether new players join in view-only mode (`true` or `false`).
+3. Run `npm start`. The server will instantly start using these settings without asking any questions.
+
+If you want to easily generate a config file based on your current settings, you can start the server normally, and once it's running, type `/makeconfig` in the terminal, and it will save all your settings into `config.json` and enable it for your next boot.
+
 ## Playing over the Internet
 
 To play with people outside your local network, you need a public address.
@@ -119,7 +140,7 @@ Use these commands in the server terminal. Commands that target a specific room 
 * `/rename <name>` - Rename the level.
 
 ### Server
-
+* `/makeconfig` - Save current startup settings to `config.json` and enable auto-configuration for next boot.
 * `/status` - Show server health info (uptime, rooms, players, memory usage).
 * `/help` - Show a list of all commands.
 * `/stop` - Shut down the server. Saves all rooms and disconnects all players.

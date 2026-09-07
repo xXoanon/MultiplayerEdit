@@ -15,6 +15,29 @@ let focusedRoomCode = null;
 let serverStartTime = Date.now();
 let globalAutosaveInterval = 5;
 let autosaveTimer = null;
+
+const configPath = path.join(process.cwd(), "config.json");
+const defaultConfig = {
+  useConfig: 0,
+  mode: "gmd",
+  customPath: "",
+  selectedLevels: ["all"],
+  port: 7575,
+  maxPlayers: 0,
+  password: "",
+  autosaveInterval: 0,
+  defaultViewOnly: false
+};
+let serverConfig = { ...defaultConfig };
+if (fs.existsSync(configPath)) {
+  try {
+    const parsed = JSON.parse(fs.readFileSync(configPath, "utf8"));
+    serverConfig = { ...defaultConfig, ...parsed };
+  } catch (e) {
+    console.error("\x1b[31m[ERROR]\x1b[0m Failed to parse config.json. Using defaults.");
+  }
+}
+
 function parseCommand(line) {
   const trimmed = line.trim();
   if (!trimmed.startsWith("/")) return null;
@@ -233,6 +256,31 @@ async function loadLevelsFromSource(mode) {
   return levels;
 }
 async function promptAndLoadLevels() {
+  if (serverConfig.useConfig === 1) {
+    if (serverConfig.mode === "none") return { _skip: true };
+    if (serverConfig.mode === "custom") {
+      const manualPath = serverConfig.customPath;
+      if (!manualPath || !fs.existsSync(manualPath)) {
+        console.error("\n\x1b[31m[ERROR]\x1b[0m Invalid customPath in config or file does not exist.");
+        return [];
+      }
+      if (!manualPath.endsWith(".gmd")) {
+        console.error("\n\x1b[31m[ERROR]\x1b[0m Only .gmd files are supported.");
+        return [];
+      }
+      try {
+        const xml = fs.readFileSync(manualPath, "utf8");
+        const parsed = saveReader.parseGmd(xml);
+        parsed.forEach((l) => (l.filename = path.basename(manualPath)));
+        return parsed;
+      } catch (e) {
+        console.error("\x1b[31m[ERROR]\x1b[0m Failed to read file:", e.message);
+        return [];
+      }
+    }
+    return await loadLevelsFromSource(serverConfig.mode);
+  }
+
   const modeResponse = await prompts({
     type: "select",
     name: "mode",
@@ -245,6 +293,8 @@ async function promptAndLoadLevels() {
     ],
   });
   if (!modeResponse.mode) return [];
+
+  serverConfig.mode = modeResponse.mode;
 
   if (modeResponse.mode === "none") {
       return { _skip: true };
@@ -259,6 +309,9 @@ async function promptAndLoadLevels() {
       rl.question("\x1b[33mEnter full path to a .gmd file:\x1b[0m ", resolve),
     );
     rl.close();
+    
+    serverConfig.customPath = manualPath;
+    
     if (!manualPath || !fs.existsSync(manualPath)) {
       console.error(
         "\n\x1b[31m[ERROR]\x1b[0m Invalid path or file does not exist.",
@@ -283,6 +336,10 @@ async function promptAndLoadLevels() {
 }
 async function selectLevels(levels) {
   if (levels.length === 0) return [];
+  if (serverConfig.useConfig === 1) {
+    if (serverConfig.selectedLevels.includes("all")) return levels;
+    return levels.filter(l => serverConfig.selectedLevels.includes(l.filename) || serverConfig.selectedLevels.includes(l.name));
+  }
   const response = await prompts({
     type: "multiselect",
     name: "selectedLevels",
@@ -296,7 +353,9 @@ async function selectLevels(levels) {
     }),
     hint: "- Space to select. Return to submit.",
   });
-  return response.selectedLevels || [];
+  const selected = response.selectedLevels || [];
+  serverConfig.selectedLevels = selected.map(l => l.filename || l.name);
+  return selected;
 }
 
 const HELP_CATEGORIES = [
@@ -356,6 +415,7 @@ const HELP_CATEGORIES = [
   {
     name: "Server",
     commands: [
+      { cmd: "/makeconfig", desc: "Save current startup settings to config.json" },
       { cmd: "/status", desc: "Server health info" },
       { cmd: "/help", desc: "Show this help" },
       { cmd: "/stop", desc: "Shut down  (-nosave -force)" },
@@ -411,8 +471,8 @@ async function handleCommand(parsed) {
           {
             type: "number",
             name: "maxPlayers",
-            message: "Max players per room",
-            initial: 100,
+            message: "Max players per room (0 for unlimited)",
+            initial: 0,
           },
           {
             type: "text",
@@ -432,9 +492,9 @@ async function handleCommand(parsed) {
         const maxPlayers =
           typeof settingsResponse.maxPlayers === "number" &&
           isFinite(settingsResponse.maxPlayers) &&
-          settingsResponse.maxPlayers > 0
+          settingsResponse.maxPlayers >= 0
             ? settingsResponse.maxPlayers
-            : 100;
+            : 0;
         const password = settingsResponse.password || "";
         const defaultViewOnly = !!settingsResponse.defaultViewOnly;
         console.log("");
@@ -843,6 +903,31 @@ async function handleCommand(parsed) {
       }
       break;
     }
+    case "/makeconfig": {
+      if (fs.existsSync(configPath)) {
+        if (rlAdmin) rlAdmin.pause();
+        const confirm = await prompts({
+          type: "confirm",
+          name: "proceed",
+          message: "This will overwrite the current config.json, proceed?",
+          initial: false,
+        });
+        if (rlAdmin) rlAdmin.resume();
+        if (!confirm.proceed) {
+          console.log("  \x1b[33mCancelled.\x1b[0m");
+          break;
+        }
+      }
+      
+      serverConfig.useConfig = 1;
+      try {
+        fs.writeFileSync(configPath, JSON.stringify(serverConfig, null, 2), "utf8");
+        console.log("  \x1b[32m\x1b[1m[CONFIG]\x1b[0m Saved current startup settings to config.json");
+      } catch (e) {
+        console.error("  \x1b[31m[ERROR]\x1b[0m Failed to save config.json:", e.message);
+      }
+      break;
+    }
     case "/help": {
       printHelp();
       break;
@@ -904,7 +989,7 @@ async function handleCommand(parsed) {
 }
 async function main() {
   console.log(
-    "\x1b[36m\x1b[1m MultiplayerEdit Dedicated Server v2.0 \x1b[0m\n",
+    "\x1b[36m\x1b[1m MultiplayerEdit Dedicated Server \x1b[0m\n",
   );
   const levels = await promptAndLoadLevels();
   if (levels.length === 0 && !levels._skip) {
@@ -914,7 +999,7 @@ async function main() {
     process.exit(1);
   }
   let selectedLevels = [];
-  let response = { port: 7575, maxPlayers: 100, password: '', autosaveInterval: 0 };
+  let response = { port: 7575, maxPlayers: 0, password: '', autosaveInterval: 0 };
   
   if (!levels._skip) {
       selectedLevels = await selectLevels(levels);
@@ -922,57 +1007,73 @@ async function main() {
         console.error("No levels selected. Exiting...");
         process.exit(0);
       }
-      response = await prompts([
-        {
-          type: "number",
-          name: "port",
-          message: "Port",
-          initial: 7575,
-        },
-        {
-          type: "number",
-          name: "maxPlayers",
-          message: "Max Players per room (0 for unlimited)",
-          initial: 100,
-        },
-        {
-          type: "text",
-          name: "password",
-          message: "Server Password (leave blank for none)",
-        },
-        {
-          type: "number",
-          name: "autosaveInterval",
-          message: "Autosave interval in minutes (0 to disable)",
-          initial: 0,
-        },
-        {
-          type: "toggle",
-          name: "defaultViewOnly",
-          message: "Default new players to view-only mode?",
-          initial: false,
-          active: "yes",
-          inactive: "no",
-        }
-      ]);
+      
+      if (serverConfig.useConfig === 1) {
+        response = serverConfig;
+      } else {
+        response = await prompts([
+          {
+            type: "number",
+            name: "port",
+            message: "Port",
+            initial: 7575,
+          },
+          {
+            type: "number",
+            name: "maxPlayers",
+            message: "Max Players per room (0 for unlimited)",
+            initial: 0,
+          },
+          {
+            type: "text",
+            name: "password",
+            message: "Server Password (leave blank for none)",
+          },
+          {
+            type: "number",
+            name: "autosaveInterval",
+            message: "Autosave interval in minutes (0 to disable)",
+            initial: 0,
+          },
+          {
+            type: "toggle",
+            name: "defaultViewOnly",
+            message: "Default new players to view-only mode?",
+            initial: false,
+            active: "yes",
+            inactive: "no",
+          }
+        ]);
+      }
   } else {
-      response = await prompts([
-        {
-          type: "number",
-          name: "port",
-          message: "Port",
-          initial: 7575,
-        },
-        {
-          type: "number",
-          name: "autosaveInterval",
-          message: "Autosave interval in minutes (0 to disable)",
-          initial: 0,
-        }
-      ]);
-      response.maxPlayers = 100;
-      response.password = '';
-      response.defaultViewOnly = false;
+      if (serverConfig.useConfig === 1) {
+        response = serverConfig;
+      } else {
+        response = await prompts([
+          {
+            type: "number",
+            name: "port",
+            message: "Port",
+            initial: 7575,
+          },
+          {
+            type: "number",
+            name: "autosaveInterval",
+            message: "Autosave interval in minutes (0 to disable)",
+            initial: 0,
+          }
+        ]);
+        response.maxPlayers = 0;
+        response.password = '';
+        response.defaultViewOnly = false;
+      }
+  }
+  if (serverConfig.useConfig !== 1) {
+    serverConfig.port = response.port || 7575;
+    serverConfig.maxPlayers = response.maxPlayers ?? 0;
+    serverConfig.password = response.password || "";
+    serverConfig.autosaveInterval = response.autosaveInterval ?? 0;
+    serverConfig.defaultViewOnly = !!response.defaultViewOnly;
   }
   const port =
     typeof response.port === "number" &&
@@ -983,9 +1084,9 @@ async function main() {
   const maxPlayers =
     typeof response.maxPlayers === "number" &&
     isFinite(response.maxPlayers) &&
-    response.maxPlayers > 0
+    response.maxPlayers >= 0
       ? response.maxPlayers
-      : 100;
+      : 0;
   const roomPassword = response.password || "";
   globalAutosaveInterval =
     typeof response.autosaveInterval === "number" &&

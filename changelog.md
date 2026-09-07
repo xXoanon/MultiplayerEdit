@@ -1,3 +1,15 @@
+# 0.6.2
+- Added a config file for starting pre-configured dedicated servers. You can find this file (config.json) and more information about how it works in the README in /servers/dedicated.
+- Now shows the ping of every user connected in the player list.
+- Added a profanity filter for lobby names and chat (this can be disabled in the mod settings).
+- Added more feedback when connecting to a host.
+- Fixed ship, ufo, and jetpack not showing the cube icon overlay when playtesting.
+- Fixed icons in platformer mode not flipping properly when going left.
+- Fixed desync happening when players try to edit an object being moved with a move trigger while someone is in playtest and activating the move trigger.
+- Fixed crash that happens if you try to undo when someone deletes an object at the same time.
+- Optimized signaling server even more to reduce usage.
+- Updated to Geode 5.10.1.
+
 # 0.6.1
 - Added cloud hosting! Players can now upload their levels directly to a dedicated server in-game. You can of course host your own and do this for free (Read the documentation to learn how), but there will be a paid dedicated server service hosted officially by me (in the future) which will be set up by default.
 - Players can view and manage their cloud hosted rooms from the "Dedicated Servers" menu.

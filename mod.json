@@ -1,5 +1,5 @@
 {
-    "geode": "5.9.0",
+    "geode": "5.10.1",
     "gd": {
         "win": "2.2081",
         "android": "2.2081",
@@ -64,6 +64,12 @@
             "type": "bool",
             "name": "Show Notifications",
             "description": "Show notifications when players join/leave.",
+            "default": true
+        },
+        "chat-filter": {
+            "type": "bool",
+            "name": "Chat Filter",
+            "description": "Filters profanity in lobby names and chat.",
             "default": true
         },
         "check-updates": {

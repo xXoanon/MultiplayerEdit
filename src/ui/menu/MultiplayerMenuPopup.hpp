@@ -57,6 +57,7 @@ namespace mpedit {
         void promptPassword(P2PManager::RoomInfo const& room);
         void onConnecting();
         void updateStatus(std::string const& status);
+        void update(float dt) override;
         void forceClose() { this->onClose(nullptr); }
     };
 

@@ -206,6 +206,17 @@ namespace mpedit {
                 
                 this->addChild(descLabel);
             }
+            
+            std::string display = info.serverUrl;
+            if (display.find("://") != std::string::npos) {
+                display = display.substr(display.find("://") + 3);
+            }
+            auto srvLabel = CCLabelBMFont::create(display.c_str(), "chatFont.fnt");
+            srvLabel->setAnchorPoint({1.f, 1.f});
+            srvLabel->setPosition({width - 5.f, 43.f});
+            srvLabel->setScale(0.35f);
+            srvLabel->setOpacity(120);
+            this->addChild(srvLabel);
 
             if (info.hasPassword) {
                 auto lock = CCSprite::createWithSpriteFrameName("GJ_lock_001.png");
@@ -297,14 +308,28 @@ namespace mpedit {
             name->setColor(nameColor);
             this->addChild(name);
             
+            float nextLabelX = name->getPositionX() + name->getScaledContentSize().width + 10.f;
             if (info.isViewOnly) {
                 auto viewOnlyLabel = CCLabelBMFont::create("[View Only]", "chatFont.fnt");
                 viewOnlyLabel->setAnchorPoint({0, 0.5f});
                 viewOnlyLabel->setScale(0.35f);
                 viewOnlyLabel->setColor({255, 200, 100});
-                viewOnlyLabel->setPosition({name->getPositionX() + name->getScaledContentSize().width + 10.f, 15.f});
+                viewOnlyLabel->setPosition({nextLabelX, 15.f});
                 this->addChild(viewOnlyLabel);
+                nextLabelX += viewOnlyLabel->getScaledContentSize().width + 10.f;
             }
+            
+            auto pingLabel = CCLabelBMFont::create(fmt::format("{} ms", info.ping).c_str(), "chatFont.fnt");
+            pingLabel->setID("ping-label");
+            pingLabel->setAnchorPoint({0, 0.5f});
+            pingLabel->setScale(0.35f);
+            if (info.ping < 100) pingLabel->setColor({100, 255, 100});
+            else if (info.ping < 200) pingLabel->setColor({255, 255, 100});
+            else pingLabel->setColor({255, 100, 100});
+            pingLabel->setPosition({nextLabelX, 15.f});
+            this->addChild(pingLabel);
+            
+            this->setID(fmt::format("player-cell-{}", info.id));
             
             float nextX = width - 20.f;
             auto menu = CCMenu::create();
@@ -501,7 +526,26 @@ namespace mpedit {
             });
         });
 
+        this->scheduleUpdate();
+
         return true;
+    }
+
+    void MultiplayerMenuPopup::update(float dt) {
+        if (!SessionManager::get().isInSession() || !m_scrollLayer) return;
+        
+        auto players = SessionManager::get().getPlayers();
+        for (auto const& p : players) {
+            auto cell = m_scrollLayer->m_contentLayer->getChildByID(fmt::format("player-cell-{}", p.id));
+            if (cell) {
+                if (auto pingLabel = typeinfo_cast<CCLabelBMFont*>(cell->getChildByID("ping-label"))) {
+                    pingLabel->setString(fmt::format("{} ms", p.ping).c_str());
+                    if (p.ping < 100) pingLabel->setColor({100, 255, 100});
+                    else if (p.ping < 200) pingLabel->setColor({255, 255, 100});
+                    else pingLabel->setColor({255, 100, 100});
+                }
+            }
+        }
     }
 
     MultiplayerMenuPopup::~MultiplayerMenuPopup() {

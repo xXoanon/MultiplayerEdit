@@ -41,7 +41,7 @@ jobs:
     - name: Build Mod
       uses: geode-sdk/build-geode-mod@main
       with:
-        sdk: v5.9.0
+        sdk: v5.10.1
         combine: true
         target: ${{ matrix.config.target }}
         configure-args: "-DCMAKE_POLICY_VERSION_MINIMUM=3.5"

@@ -16,6 +16,7 @@ namespace mpedit {
         std::string status;
         bool isViewOnly = false;
         bool isBanned = false;
+        int ping = 0;
     };
 
     struct RoomSettings {
@@ -61,6 +62,7 @@ namespace mpedit {
         std::vector<ChatMessage> const& getChatHistory() const;
 
         void setPlayerViewOnly(int id, bool viewOnly);
+        void setPlayerPing(int id, int ping);
         std::vector<PlayerInfo> const& getPlayers() const;
         PlayerInfo const* getPlayer(int id) const;
         void updatePlayerCursor(int playerId, float x, float y, std::string const& status);

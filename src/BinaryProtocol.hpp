@@ -42,6 +42,9 @@ namespace mpedit::proto {
         ChatMessage       = 0x42,
 
         Heartbeat         = 0x50,
+        Ping              = 0x51,
+        Pong              = 0x52,
+        PingUpdate        = 0x53,
 
         Error             = 0xFF,
 
@@ -408,5 +411,14 @@ namespace mpedit::proto {
         std::string message;
     };
     ChatMessageMsg deserializeChatMessage(Reader& r);
+
+    std::vector<uint8_t> serializePing(uint32_t timestamp);
+    uint32_t deserializePing(Reader& r);
+
+    std::vector<uint8_t> serializePong(uint32_t timestamp);
+    uint32_t deserializePong(Reader& r);
+
+    std::vector<uint8_t> serializePingUpdate(uint32_t ping);
+    uint32_t deserializePingUpdate(Reader& r);
 
 }

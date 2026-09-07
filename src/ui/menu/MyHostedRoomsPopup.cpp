@@ -1,3 +1,4 @@
+#include "../../utils/ChatFilter.hpp"
 #include "MyHostedRoomsPopup.hpp"
 #include <Geode/ui/TextInput.hpp>
 
@@ -27,7 +28,7 @@ protected:
         this->addChild(bg);
 
         std::string name = "Unnamed";
-        if (roomObj.contains("name")) name = roomObj["name"].asString().unwrapOr("Unnamed");
+        if (roomObj.contains("name")) name = ChatFilter::filter(roomObj["name"].asString().unwrapOr("Unnamed"));
         std::string code = "---";
         if (roomObj.contains("code")) code = roomObj["code"].asString().unwrapOr("---");
         int players = 0;
@@ -191,7 +192,7 @@ bool ManageRoomPopup::init(matjson::Value const& roomObj, std::string const& url
     m_url = url;
     m_token = token;
 
-    std::string name = roomObj.contains("name") ? roomObj["name"].asString().unwrapOr("Unnamed") : "Unnamed";
+    std::string name = roomObj.contains("name") ? ChatFilter::filter(roomObj["name"].asString().unwrapOr("Unnamed")) : "Unnamed";
 
     this->setTitle(name);
     

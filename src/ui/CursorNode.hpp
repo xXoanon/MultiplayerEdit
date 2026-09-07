@@ -16,7 +16,9 @@ namespace mpedit {
             cocos2d::CCLabelBMFont* label = nullptr;
             cocos2d::CCNode* toolIndicator = nullptr;
             SimplePlayer* playtestIcon = nullptr;
+            SimplePlayer* playtestInnerCube = nullptr;
             SimplePlayer* playtestIcon2 = nullptr;
+            SimplePlayer* playtestInnerCube2 = nullptr;
             cocos2d::CCSprite* lockIcon = nullptr;
             cocos2d::extension::CCScale9Sprite* chatBubble = nullptr;
             cocos2d::CCLabelBMFont* chatLabel = nullptr;

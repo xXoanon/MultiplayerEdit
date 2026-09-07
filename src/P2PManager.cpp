@@ -1,4 +1,5 @@
 #include "P2PManager.hpp"
+#include "utils/ChatFilter.hpp"
 #include "BinaryProtocol.hpp"
 #include "RemoteActionHandler.hpp"
 
@@ -123,17 +124,17 @@ namespace mpedit {
         if (m_dispatching) return;
         m_dispatching = true;
 
-        if (!m_isDedicated) {
-            static auto lastHeartbeatTime = std::chrono::steady_clock::now();
-            auto now = std::chrono::steady_clock::now();
-            if (now - lastHeartbeatTime > std::chrono::seconds(10)) {
-                lastHeartbeatTime = now;
-                std::vector<uint8_t> heartbeatData = { static_cast<uint8_t>(proto::Opcode::Heartbeat) };
-                if (m_role == Role::Host) {
-                    broadcast(heartbeatData, ChannelType::Unreliable);
-                } else if (m_role == Role::Client) {
-                    sendTo(0, heartbeatData, ChannelType::Unreliable);
-                }
+        static auto lastPingTime = std::chrono::steady_clock::now();
+        auto now = std::chrono::steady_clock::now();
+        if (now - lastPingTime > std::chrono::seconds(2)) {
+            lastPingTime = now;
+            auto nowMs = static_cast<uint32_t>(std::chrono::duration_cast<std::chrono::milliseconds>(
+                now.time_since_epoch()).count());
+            
+            if (m_role == Role::Client) {
+                sendTo(0, proto::serializePing(nowMs), ChannelType::Unreliable);
+            } else if (m_role == Role::Host) {
+                broadcast(proto::serializePingUpdate(0), ChannelType::Unreliable);
             }
         }
 
@@ -261,11 +262,14 @@ namespace mpedit {
 
         if (m_role == Role::Host) {
             uint8_t opcode = data[0];
-            if (opcode == static_cast<uint8_t>(proto::Opcode::Heartbeat)) return;
+            if (opcode == static_cast<uint8_t>(proto::Opcode::Heartbeat) ||
+                opcode == static_cast<uint8_t>(proto::Opcode::Ping) ||
+                opcode == static_cast<uint8_t>(proto::Opcode::Pong)) return;
 
             ChannelType ch = ChannelType::Reliable;
             if (opcode == static_cast<uint8_t>(proto::Opcode::CursorUpdate) ||
-                opcode == static_cast<uint8_t>(proto::Opcode::MoveBatch)) {
+                opcode == static_cast<uint8_t>(proto::Opcode::MoveBatch) ||
+                opcode == static_cast<uint8_t>(proto::Opcode::PingUpdate)) {
                 ch = ChannelType::Unreliable;
             }
             relayMessage(fromPlayerId, data, len, ch);
@@ -473,8 +477,8 @@ namespace mpedit {
                             RoomInfo info;
                             info.roomCode = roomJson.get<std::string>("roomCode").unwrapOr("");
                             info.hostName = roomJson.get<std::string>("hostName").unwrapOr("Unknown");
-                            info.roomName = roomJson.get<std::string>("roomName").unwrapOr("Room");
-                            info.description = roomJson.get<std::string>("description").unwrapOr("");
+                            info.roomName = ChatFilter::filter(roomJson.get<std::string>("roomName").unwrapOr("Room"));
+                            info.description = ChatFilter::filter(roomJson.get<std::string>("description").unwrapOr(""));
                             info.playerCount = roomJson.get<int>("playerCount").unwrapOr(0);
                             info.playerLimit = roomJson.get<int>("playerLimit").unwrapOr(100);
                             info.isPrivate = roomJson.get<bool>("isPrivate").unwrapOr(false);
@@ -502,10 +506,7 @@ namespace mpedit {
     void P2PManager::pollSignalOnce(std::string const& code, std::string const& role, int playerId) {
         if (!m_signalingActive.load()) return;
 
-        float timeoutSec = 5.0f;
-        if (std::chrono::steady_clock::now() < m_fastPollEndTime) {
-            timeoutSec = 2.0f;
-        }
+        float timeoutSec = 1.0f;
 
         auto url = getSignalingUrl() + "/rooms/" + code + "/signal?role=" + role + "&playerId=" + std::to_string(playerId) + "&timeout=" + std::to_string(static_cast<int>(timeoutSec * 1000));
 
@@ -528,7 +529,7 @@ namespace mpedit {
                 if (m_signalingActive.load()) {
                     float delay = 25.0f;
                     if (std::chrono::steady_clock::now() < m_fastPollEndTime) {
-                        delay = 8.0f;
+                        delay = 1.0f;
                     }
                     
                     std::thread([this, code, role, playerId, delay]() {
@@ -543,7 +544,7 @@ namespace mpedit {
     }
 
     void P2PManager::extendFastPoll() {
-        m_fastPollEndTime = std::chrono::steady_clock::now() + std::chrono::seconds(10);
+        m_fastPollEndTime = std::chrono::steady_clock::now() + std::chrono::seconds(30);
     }
 
     void P2PManager::stopSignalPolling() {
@@ -647,6 +648,7 @@ namespace mpedit {
                             it->second.pc->setLocalDescription();
                             
                             if (m_role == Role::Client) {
+                                if (m_waitingTimerFlag) m_waitingTimerFlag->store(false);
                                 queueInMainThread([this]() {
                                     for (auto& cb : m_onStatus) cb("Host found! Synchronizing...");
                                 });
@@ -676,9 +678,10 @@ namespace mpedit {
                         }
                         
                         if (m_role == Role::Client && m_state.load() == State::Connecting && fromId == 0) {
-                            queueInMainThread([this, localCount = it->second.localIceCount, remoteCount = it->second.remoteIceCount]() {
+                            if (m_waitingTimerFlag) m_waitingTimerFlag->store(false);
+                            queueInMainThread([this, totalCount = it->second.localIceCount + it->second.remoteIceCount]() {
                                 for (auto& cb : m_onStatus) {
-                                    cb(fmt::format("Finding best connection route ({}/{})...", localCount, remoteCount));
+                                    cb(fmt::format("Checking routes ({} found)...", totalCount));
                                 }
                             });
                         }
@@ -763,7 +766,30 @@ namespace mpedit {
                         return;
                     }
 
-                    for (auto& cb : m_onStatus) cb("Waiting for Host...");
+                    int attemptId = ++m_connectionAttemptId;
+                    m_waitingTimerFlag = std::make_shared<std::atomic<bool>>(true);
+                    auto timerFlag = m_waitingTimerFlag;
+                    
+                    std::thread([this, attemptId, timerFlag]() {
+                        int secondsLeft = 30;
+                        while (secondsLeft > 0 && timerFlag->load() && m_connectionAttemptId.load() == attemptId) {
+                            geode::queueInMainThread([this, attemptId, timerFlag, secondsLeft]() {
+                                if (timerFlag->load() && m_connectionAttemptId.load() == attemptId) {
+                                    for (auto& cb : m_onStatus) cb(fmt::format("Waiting for Host (can take up to {}s)...", secondsLeft));
+                                }
+                            });
+                            std::this_thread::sleep_for(std::chrono::seconds(1));
+                            secondsLeft--;
+                        }
+                        if (secondsLeft == 0 && timerFlag->load() && m_connectionAttemptId.load() == attemptId) {
+                            geode::queueInMainThread([this, attemptId, timerFlag]() {
+                                if (timerFlag->load() && m_connectionAttemptId.load() == attemptId) {
+                                    for (auto& cb : m_onStatus) cb("Waiting for Host (Host might be unresponsive)...");
+                                }
+                            });
+                        }
+                    }).detach();
+                    
                     log::info("P2PManager: Joined room {} as player {}", roomCode, m_localPlayerId);
 
                     auto pc = std::make_shared<rtc::PeerConnection>(makeRtcConfig());
@@ -823,7 +849,7 @@ namespace mpedit {
                                     m_peers[0].localIceCount++;
                                     if (m_state.load() == State::Connecting) {
                                         for (auto& cb : m_onStatus) {
-                                            cb(fmt::format("Finding best connection route ({}/{})...", m_peers[0].localIceCount, m_peers[0].remoteIceCount));
+                                            cb(fmt::format("Checking routes ({} found)...", m_peers[0].localIceCount + m_peers[0].remoteIceCount));
                                         }
                                     }
                                 }
@@ -888,15 +914,14 @@ namespace mpedit {
                             switch (state) {
                                 case rtc::PeerConnection::State::New: stateStr = "New"; break;
                                 case rtc::PeerConnection::State::Connecting: {
-                                    int l = 0, r = 0;
+                                    int total = 0;
                                     {
                                         std::lock_guard lock(m_peersMutex);
                                         if (m_peers.find(0) != m_peers.end()) {
-                                            l = m_peers.at(0).localIceCount;
-                                            r = m_peers.at(0).remoteIceCount;
+                                            total = m_peers.at(0).localIceCount + m_peers.at(0).remoteIceCount;
                                         }
                                     }
-                                    stateStr = fmt::format("Finding best connection route ({}/{})...", l, r);
+                                    stateStr = fmt::format("Checking routes ({} found)...", total);
                                     break;
                                 }
                                 case rtc::PeerConnection::State::Connected: stateStr = "Route found! Securing connection..."; break;
@@ -1259,6 +1284,7 @@ namespace mpedit {
 
 
     void P2PManager::leaveSession() {
+        m_connectionAttemptId++;
         stopSignalPolling();
 
         {

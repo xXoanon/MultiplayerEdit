@@ -1,5 +1,6 @@
 #include "SessionManager.hpp"
 #include "P2PManager.hpp"
+#include "utils/ChatFilter.hpp"
 #include "RemoteActionHandler.hpp"
 #include "BinaryProtocol.hpp"
 #include <Geode/loader/Log.hpp>
@@ -145,8 +146,8 @@ namespace mpedit {
 
     void SessionManager::onChatMessageReceived(int playerId, std::string const& message) {
         std::string senderName = "Unknown";
-        if (auto p = getPlayer(playerId)) senderName = p->name;
-        ChatMessage chatMsg{playerId, senderName, message};
+        if (auto p = getPlayer(playerId)) senderName = ChatFilter::filter(p->name);
+        ChatMessage chatMsg{playerId, senderName, ChatFilter::filter(message)};
         m_chatHistory.push_back(chatMsg);
         if (m_chatHistory.size() > 50) m_chatHistory.erase(m_chatHistory.begin());
         auto callbacks = m_onChatMessage;
@@ -165,6 +166,15 @@ namespace mpedit {
         for (auto& p : m_players) {
             if (p.id == id) {
                 p.isViewOnly = viewOnly;
+                return;
+            }
+        }
+    }
+
+    void SessionManager::setPlayerPing(int id, int ping) {
+        for (auto& p : m_players) {
+            if (p.id == id) {
+                p.ping = ping;
                 return;
             }
         }
@@ -273,9 +283,10 @@ namespace mpedit {
         });
 
         net.onPeerConnected([this](int playerId, std::string const& name, int colorIndex, std::string const& iconStr) {
+            std::string filteredName = ChatFilter::filter(name);
             for (auto& p : m_players) {
                 if (p.id == playerId) {
-                    p.name = name;
+                    p.name = filteredName;
                     p.colorIndex = colorIndex;
                     p.iconStr = iconStr;
                     return;
@@ -284,7 +295,7 @@ namespace mpedit {
 
             PlayerInfo info;
             info.id = playerId;
-            info.name = name;
+            info.name = filteredName;
             info.colorIndex = colorIndex;
             info.iconStr = iconStr;
             m_players.push_back(info);
@@ -292,8 +303,8 @@ namespace mpedit {
             auto callbacks = m_onPlayerJoined;
             for (auto& [id, cb] : callbacks) cb(info);
             
-            geode::queueInMainThread([name] {
-                geode::Notification::create(name + " joined", cocos2d::CCSprite::createWithSpriteFrameName("GJ_completesIcon_001.png"))->show();
+            geode::queueInMainThread([filteredName] {
+                geode::Notification::create(filteredName + " joined", cocos2d::CCSprite::createWithSpriteFrameName("GJ_completesIcon_001.png"))->show();
             });
             
             if (m_role == Role::Host && m_defaultViewOnly) {
@@ -313,6 +324,7 @@ namespace mpedit {
         net.on(proto::Opcode::PlayerJoined, [this](int fromPlayerId, proto::Reader& reader) {
             auto msg = proto::deserializePlayerJoined(reader);
             if (msg.name.empty()) return;
+            msg.name = ChatFilter::filter(msg.name);
 
             for (auto& p : m_players) {
                 if (p.id == msg.playerId) {
@@ -436,6 +448,26 @@ namespace mpedit {
         net.on(proto::Opcode::CursorUpdate, [this](int playerId, proto::Reader& reader) {
             auto msg = proto::deserializeCursorUpdate(reader);
             updatePlayerCursor(playerId, msg.x, msg.y, msg.status);
+        });
+
+        net.on(proto::Opcode::Ping, [](int playerId, proto::Reader& reader) {
+            auto ts = proto::deserializePing(reader);
+            P2PManager::get().sendTo(playerId, proto::serializePong(ts), ChannelType::Unreliable);
+        });
+
+        net.on(proto::Opcode::Pong, [this](int playerId, proto::Reader& reader) {
+            auto ts = proto::deserializePong(reader);
+            auto nowMs = static_cast<uint32_t>(std::chrono::duration_cast<std::chrono::milliseconds>(
+                std::chrono::steady_clock::now().time_since_epoch()).count());
+            uint32_t rtt = nowMs - ts;
+            this->setPlayerPing(this->m_localPlayerId, static_cast<int>(rtt));
+            
+            P2PManager::get().send(proto::serializePingUpdate(static_cast<uint32_t>(rtt)), ChannelType::Unreliable);
+        });
+
+        net.on(proto::Opcode::PingUpdate, [this](int playerId, proto::Reader& reader) {
+            auto ping = proto::deserializePingUpdate(reader);
+            this->setPlayerPing(playerId, static_cast<int>(ping));
         });
 
         net.on(proto::Opcode::RoomInfo, [this](int playerId, proto::Reader& reader) {
