@@ -7,6 +7,7 @@
 - Fixed icons in platformer mode not flipping properly when going left.
 - Fixed desync happening when players try to edit an object being moved with a move trigger while someone is in playtest and activating the move trigger.
 - Fixed crash that happens if you try to undo when someone deletes an object at the same time.
+- Tried to fix crash that happens when android users connect to a dedicated server with more than 1 player.
 - Optimized signaling server even more to reduce usage.
 - Updated to Geode 5.10.1.
 
