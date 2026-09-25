@@ -4,6 +4,7 @@
 #include "RevertManager.hpp"
 #include "SessionManager.hpp"
 #include <Geode/loader/Log.hpp>
+#include <algorithm>
 
 namespace mpedit {
 
@@ -38,8 +39,13 @@ namespace mpedit {
 
         if (!moves.empty()) {
             RevertManager::get().onObjectsMoved(SessionManager::get().getLocalPlayerId(), moves);
-            auto data = proto::serializeMoveBatch(moves);
-            P2PManager::get().send(std::move(data), ChannelType::Reliable);
+            constexpr size_t MAX_MOVES_PER_MESSAGE = 300;
+            for (size_t i = 0; i < moves.size(); i += MAX_MOVES_PER_MESSAGE) {
+                size_t count = std::min(MAX_MOVES_PER_MESSAGE, moves.size() - i);
+                std::vector<ActionSerializer::MoveData> chunk(moves.begin() + i, moves.begin() + i + count);
+                auto data = proto::serializeMoveBatch(chunk);
+                P2PManager::get().send(std::move(data), ChannelType::Reliable);
+            }
         }
     }
 
@@ -56,8 +62,13 @@ namespace mpedit {
 
         if (!transforms.empty()) {
             RevertManager::get().onObjectsTransformed(SessionManager::get().getLocalPlayerId(), transforms);
-            auto data = proto::serializeTransformObjects(transforms);
-            P2PManager::get().send(std::move(data), ChannelType::Reliable);
+            constexpr size_t MAX_TRANSFORMS_PER_MESSAGE = 300;
+            for (size_t i = 0; i < transforms.size(); i += MAX_TRANSFORMS_PER_MESSAGE) {
+                size_t count = std::min(MAX_TRANSFORMS_PER_MESSAGE, transforms.size() - i);
+                std::vector<ActionSerializer::TransformData> chunk(transforms.begin() + i, transforms.begin() + i + count);
+                auto data = proto::serializeTransformObjects(chunk);
+                P2PManager::get().send(std::move(data), ChannelType::Reliable);
+            }
         }
     }
 

@@ -3,6 +3,7 @@
 #include "ActionSerializer.hpp"
 #include <string>
 #include <unordered_map>
+#include <unordered_set>
 #include <Geode/binding/MusicDownloadDelegate.hpp>
 
 #include <optional>
@@ -53,6 +54,10 @@ namespace mpedit {
         GameObject* getObjectByUUID(std::string const& uuid) const;
         std::string getUUIDForObject(GameObject* obj) const;
         std::string getOrCreateUUID(GameObject* obj);
+        bool isObjectAlive(GameObject* obj) const;
+        void markObjectActive(GameObject* obj);
+        void markObjectInactive(GameObject* obj);
+        void clearActiveObjects();
 
         static std::string generateUUID();
 
@@ -103,6 +108,7 @@ namespace mpedit {
 
         std::unordered_map<std::string, GameObject*> m_uuidToObject;
         std::unordered_map<GameObject*, std::string> m_objectToUuid;
+        std::unordered_set<GameObject*> m_activeObjects;
 
         std::unordered_map<std::string, LockInfo> m_objectLocks;
         std::unordered_map<GameObject*, std::string> m_preSelectSaveStrings;

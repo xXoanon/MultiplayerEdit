@@ -18,6 +18,9 @@
 #include <Geode/binding/CCMenuItemToggler.hpp>
 #include <Geode/binding/SliderThumb.hpp>
 #include <Geode/binding/TextArea.hpp>
+#include <Geode/binding/GameLevelManager.hpp>
+#include <Geode/binding/LevelBrowserLayer.hpp>
+#include <Geode/binding/GJSearchObject.hpp>
 
 
 using namespace geode::prelude;
@@ -200,7 +203,6 @@ namespace mpedit {
             m_updateBtn->setEnabled(false);
             m_laterBtn->setEnabled(false);
             m_discordBtn->setEnabled(false);
-            m_updateSpr->setString("Downloading...");
 
             if (m_textArea) {
                 m_textArea->setString("Downloading update, please wait...\n\nDo not close the game.");
@@ -215,7 +217,7 @@ namespace mpedit {
                         if (m_textArea) {
                             m_textArea->setString("<cr>Failed to download update.</c>\n\nPlease check your internet connection\nor download manually from Discord.");
                         }
-                        if (m_updateBtn) m_updateBtn->setEnabled(false);
+                        if (m_updateBtn) m_updateBtn->setEnabled(true);
                         if (m_laterBtn) m_laterBtn->setEnabled(true);
                         if (m_discordBtn) m_discordBtn->setEnabled(true);
                         return;
@@ -232,6 +234,7 @@ namespace mpedit {
                         if (m_textArea) {
                             m_textArea->setString("<cr>Failed to save update file.</c>\n\nPlease check file permissions\nor download manually.");
                         }
+                        if (m_updateBtn) m_updateBtn->setEnabled(true);
                         if (m_laterBtn) m_laterBtn->setEnabled(true);
                         if (m_discordBtn) m_discordBtn->setEnabled(true);
                         return;
@@ -2347,6 +2350,7 @@ namespace mpedit {
     void MultiplayerMenuPopup::onLeave(CCObject*) {
         if (SessionManager::get().isInSession()) {
             bool isHost = SessionManager::get().getRole() == SessionManager::Role::Host;
+            bool isDedicated = P2PManager::get().isDedicatedServer();
             SessionManager::get().leaveSession();
             geode::Notification::create("Left session", geode::NotificationIcon::Info)->show();
 
@@ -2355,8 +2359,16 @@ namespace mpedit {
                 this->onClose(nullptr);
             } else {
                 this->onClose(nullptr);
-                if (LevelEditorLayer::get()) {
+                if (auto* editor = LevelEditorLayer::get()) {
                     auto* director = cocos2d::CCDirector::sharedDirector();
+                    if (isDedicated && editor->m_level) {
+                        if (auto* glm = GameLevelManager::sharedState()) {
+                            glm->deleteLevel(editor->m_level);
+                        }
+                        auto* scene = LevelBrowserLayer::scene(GJSearchObject::create(SearchType::MyLevels));
+                        director->replaceScene(cocos2d::CCTransitionFade::create(0.5f, scene));
+                        return;
+                    }
                     if (auto* runningScene = director->getRunningScene()) {
                         std::function<EditorPauseLayer*(cocos2d::CCNode*)> findPauseLayer = [&](cocos2d::CCNode* parent) -> EditorPauseLayer* {
                             if (!parent) return nullptr;

@@ -5,6 +5,8 @@
 #include <Geode/modify/LevelBrowserLayer.hpp>
 #include <Geode/modify/GJBaseGameLayer.hpp>
 #include <Geode/binding/TeleportPortalObject.hpp>
+#include <Geode/binding/GameLevelManager.hpp>
+#include <Geode/binding/GJSearchObject.hpp>
 #include <Geode/utils/file.hpp>
 #include <Geode/loader/Dirs.hpp>
 
@@ -227,7 +229,19 @@ class $modify(MPEditorPauseLayer, EditorPauseLayer) {
     void onExitEditor(CCObject* sender) {
         auto& session = SessionManager::get();
         if (session.isInSession()) {
+            bool isDedicated = P2PManager::get().isDedicatedServer();
+            auto* editor = m_editorLayer ? m_editorLayer : LevelEditorLayer::get();
+            auto* level = editor ? editor->m_level : nullptr;
             session.leaveSession();
+
+            if (isDedicated && level) {
+                if (auto* glm = GameLevelManager::sharedState()) {
+                    glm->deleteLevel(level);
+                }
+                auto* scene = LevelBrowserLayer::scene(GJSearchObject::create(SearchType::MyLevels));
+                cocos2d::CCDirector::sharedDirector()->replaceScene(cocos2d::CCTransitionFade::create(0.5f, scene));
+                return;
+            }
         }
         EditorPauseLayer::onExitEditor(sender);
     }
@@ -572,6 +586,14 @@ class $modify(MPLevelEditorLayer, LevelEditorLayer) {
         auto& handler = RemoteActionHandler::get();
         handler.clearMappings();
         RevertManager::get().captureBaseline();
+
+        if (this->m_objects) {
+            for (auto* obj : CCArrayExt<GameObject*>(this->m_objects)) {
+                if (obj) {
+                    handler.markObjectActive(obj);
+                }
+            }
+        }
 
         SessionManager::get().onSessionStarted(this, [this]() {
             auto& session = SessionManager::get();
@@ -939,7 +961,7 @@ class $modify(MPLevelEditorLayer, LevelEditorLayer) {
 
         for (auto* obj : affectedObjects) {
             if (!obj) continue;
-            if (this->m_objects && this->m_objects->containsObject(obj)) {
+            if (handler.isObjectAlive(obj)) {
                 existedBefore.insert(obj);
                 positionsBefore[obj] = obj->getPosition();
                 saveStringsBefore[obj] = obj->getSaveString(this);
@@ -948,6 +970,13 @@ class $modify(MPLevelEditorLayer, LevelEditorLayer) {
 
         m_fields->m_inUndoRedo = true;
         LevelEditorLayer::handleAction(undo, undoObjects);
+
+        std::unordered_set<GameObject*> levelObjectsAfter;
+        if (this->m_objects) {
+            for (auto* obj : CCArrayExt<GameObject*>(this->m_objects)) {
+                if (obj) levelObjectsAfter.insert(obj);
+            }
+        }
 
         std::vector<ActionSerializer::ObjectData> placedObjects;
         std::vector<std::string> deletedUuids;
@@ -958,7 +987,7 @@ class $modify(MPLevelEditorLayer, LevelEditorLayer) {
             if (!obj) continue;
             
             bool existed_before = existedBefore.find(obj) != existedBefore.end();
-            bool existed_after = this->m_objects && this->m_objects->containsObject(obj);
+            bool existed_after = levelObjectsAfter.find(obj) != levelObjectsAfter.end();
             
             if (existed_before && !existed_after) {
                 std::string uuid = handler.getUUIDForObject(obj);
@@ -1465,7 +1494,7 @@ class $modify(MPEditorUI, EditorUI) {
                 auto& tracked = handler.getTrackedSelections();
                 
                 for (auto& [obj, savedString] : tracked) {
-                    if (!editor || !editor->m_objects || !editor->m_objects->containsObject(obj)) {
+                    if (!editor || !editor->m_objects || !handler.isObjectAlive(obj)) {
                         continue;
                     }
 
@@ -1658,17 +1687,17 @@ class $modify(MPEditorUI, EditorUI) {
         auto const& locks = handler.getObjectLocks();
         int localId = session.getLocalPlayerId();
 
-        std::vector<GameObject*> currentSelection;
+        std::unordered_set<GameObject*> currentSelection;
         if (m_selectedObject) {
-            currentSelection.push_back(m_selectedObject);
+            currentSelection.insert(m_selectedObject);
         }
         if (m_selectedObjects) {
             for (auto* obj : CCArrayExt<GameObject*>(m_selectedObjects)) {
-                if (obj) currentSelection.push_back(obj);
+                if (obj) currentSelection.insert(obj);
             }
         }
 
-        std::vector<GameObject*> toDeselect;
+        std::unordered_set<GameObject*> toDeselect;
         std::vector<std::string> toLockUuids;
 
         for (auto* obj : currentSelection) {
@@ -1680,7 +1709,7 @@ class $modify(MPEditorUI, EditorUI) {
 
             auto it = locks.find(uuid);
             if (it != locks.end() && it->second.playerId != localId) {
-                toDeselect.push_back(obj);
+                toDeselect.insert(obj);
             } else {
                 if (tracked.find(obj) == tracked.end()) {
                     tracked[obj] = obj->getSaveString(editor);
@@ -1708,7 +1737,7 @@ class $modify(MPEditorUI, EditorUI) {
             m_fields->m_lockRefreshTimer = 0.f;
             std::vector<std::string> refreshUuids;
             for (auto const& [obj, _] : tracked) {
-                if (editor->m_objects->containsObject(obj)) {
+                if (handler.isObjectAlive(obj)) {
                     auto uuid = handler.getUUIDForObject(obj);
                     if (!uuid.empty()) {
                         refreshUuids.push_back(uuid);
@@ -1727,13 +1756,12 @@ class $modify(MPEditorUI, EditorUI) {
         for (auto it = tracked.begin(); it != tracked.end(); ) {
             GameObject* obj = it->first;
 
-            if (!editor->m_objects->containsObject(obj)) {
+            if (!handler.isObjectAlive(obj)) {
                 it = tracked.erase(it);
                 continue;
             }
 
-            bool isSelected = (std::find(currentSelection.begin(), currentSelection.end(), obj) != currentSelection.end()) &&
-                              (std::find(toDeselect.begin(), toDeselect.end(), obj) == toDeselect.end());
+            bool isSelected = currentSelection.count(obj) > 0 && toDeselect.count(obj) == 0;
 
             if (handler.isObjectPendingPlacement(obj)) {
                 handler.flushPendingPlacements();
@@ -1793,7 +1821,7 @@ class $modify(MPEditorUI, EditorUI) {
 
         for (auto it = s_startPosObjects.begin(); it != s_startPosObjects.end(); ) {
             GameObject* obj = *it;
-            if (!editor->m_objects->containsObject(obj)) {
+            if (!handler.isObjectAlive(obj)) {
                 s_startPosSaveStrings.erase(obj);
                 it = s_startPosObjects.erase(it);
                 continue;

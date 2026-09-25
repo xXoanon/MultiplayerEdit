@@ -7,6 +7,8 @@
 #include "ui/menu/MultiplayerMenuPopup.hpp"
 #include <Geode/binding/GJAccountManager.hpp>
 #include <Geode/binding/GameLevelManager.hpp>
+#include <Geode/binding/LevelBrowserLayer.hpp>
+#include <Geode/binding/GJSearchObject.hpp>
 #include <Geode/cocos/support/zip_support/ZipUtils.h>
 #include <Geode/Geode.hpp>
 #include <Geode/utils/file.hpp>
@@ -266,11 +268,20 @@ namespace mpedit {
             if (reader.hasError()) return;
             if (targetId == SessionManager::get().getLocalPlayerId()) {
                 geode::Notification::create("You have been kicked by the host.", cocos2d::CCSprite::createWithSpriteFrameName("GJ_deleteIcon_001.png"))->show();
+                bool isDedicated = P2PManager::get().isDedicatedServer();
                 SessionManager::get().leaveSession();
                 
-                geode::queueInMainThread([] {
-                    if (LevelEditorLayer::get()) {
+                geode::queueInMainThread([isDedicated] {
+                    if (auto* editor = LevelEditorLayer::get()) {
                         auto* director = cocos2d::CCDirector::sharedDirector();
+                        if (isDedicated && editor->m_level) {
+                            if (auto* glm = GameLevelManager::sharedState()) {
+                                glm->deleteLevel(editor->m_level);
+                            }
+                            auto* scene = LevelBrowserLayer::scene(GJSearchObject::create(SearchType::MyLevels));
+                            director->replaceScene(cocos2d::CCTransitionFade::create(0.5f, scene));
+                            return;
+                        }
                         if (auto* runningScene = director->getRunningScene()) {
                             std::function<EditorPauseLayer*(cocos2d::CCNode*)> findPauseLayer = [&](cocos2d::CCNode* parent) -> EditorPauseLayer* {
                                 if (!parent) return nullptr;
@@ -303,11 +314,20 @@ namespace mpedit {
             if (reader.hasError()) return;
             if (targetId == SessionManager::get().getLocalPlayerId()) {
                 geode::Notification::create("You have been banned by the host.", cocos2d::CCSprite::createWithSpriteFrameName("GJ_deleteIcon_001.png"))->show();
+                bool isDedicated = P2PManager::get().isDedicatedServer();
                 SessionManager::get().leaveSession();
                 
-                geode::queueInMainThread([] {
-                    if (LevelEditorLayer::get()) {
+                geode::queueInMainThread([isDedicated] {
+                    if (auto* editor = LevelEditorLayer::get()) {
                         auto* director = cocos2d::CCDirector::sharedDirector();
+                        if (isDedicated && editor->m_level) {
+                            if (auto* glm = GameLevelManager::sharedState()) {
+                                glm->deleteLevel(editor->m_level);
+                            }
+                            auto* scene = LevelBrowserLayer::scene(GJSearchObject::create(SearchType::MyLevels));
+                            director->replaceScene(cocos2d::CCTransitionFade::create(0.5f, scene));
+                            return;
+                        }
                         if (auto* runningScene = director->getRunningScene()) {
                             std::function<EditorPauseLayer*(cocos2d::CCNode*)> findPauseLayer = [&](cocos2d::CCNode* parent) -> EditorPauseLayer* {
                                 if (!parent) return nullptr;
@@ -1071,9 +1091,10 @@ namespace mpedit {
             }
 
             GJGameLevel* level = nullptr;
-            auto* glm = GameLevelManager::sharedState();
-            if (glm) {
-                level = glm->createNewLevel();
+            if (P2PManager::get().isDedicatedServer()) {
+                if (auto* glm = GameLevelManager::sharedState()) {
+                    level = glm->createNewLevel();
+                }
             }
             if (!level) {
                 level = GJGameLevel::create();
@@ -1144,7 +1165,7 @@ namespace mpedit {
                 }
 
                 for (auto* obj : CCArrayExt<GameObject*>(copy)) {
-                    if (editor->m_objects->containsObject(obj)) {
+                    if (isObjectAlive(obj)) {
                         editor->removeObject(obj, true);
                     }
                 }
@@ -1237,6 +1258,9 @@ namespace mpedit {
         }
         m_uuidToObject[uuid] = obj;
         m_objectToUuid[obj] = uuid;
+        if (obj) {
+            m_activeObjects.insert(obj);
+        }
     }
 
     void RemoteActionHandler::unregisterObject(std::string const& uuid) {
@@ -1244,8 +1268,29 @@ namespace mpedit {
         if (it != m_uuidToObject.end()) {
             GameObject* obj = it->second;
             m_objectToUuid.erase(obj);
+            m_activeObjects.erase(obj);
             m_uuidToObject.erase(it);
         }
+    }
+
+    bool RemoteActionHandler::isObjectAlive(GameObject* obj) const {
+        return obj && m_activeObjects.find(obj) != m_activeObjects.end();
+    }
+
+    void RemoteActionHandler::markObjectActive(GameObject* obj) {
+        if (obj) {
+            m_activeObjects.insert(obj);
+        }
+    }
+
+    void RemoteActionHandler::markObjectInactive(GameObject* obj) {
+        if (obj) {
+            m_activeObjects.erase(obj);
+        }
+    }
+
+    void RemoteActionHandler::clearActiveObjects() {
+        m_activeObjects.clear();
     }
 
     void RemoteActionHandler::pruneObjectFromHistory(LevelEditorLayer* editor, GameObject* obj) {
@@ -1296,10 +1341,8 @@ namespace mpedit {
         auto it = m_uuidToObject.find(uuid);
         if (it != m_uuidToObject.end()) {
             auto* obj = it->second;
-            if (auto* editor = LevelEditorLayer::get()) {
-                if (editor->m_objects && editor->m_objects->containsObject(obj)) {
-                    return obj;
-                }
+            if (m_activeObjects.find(obj) != m_activeObjects.end()) {
+                return obj;
             }
         }
         return nullptr;
@@ -1342,6 +1385,7 @@ namespace mpedit {
     void RemoteActionHandler::clearMappings() {
         m_uuidToObject.clear();
         m_objectToUuid.clear();
+        m_activeObjects.clear();
         m_objectLocks.clear();
         m_preSelectSaveStrings.clear();
         m_pendingPlacements.clear();
@@ -1374,7 +1418,7 @@ namespace mpedit {
         std::vector<ActionSerializer::ObjectData> objects;
         objects.reserve(m_pendingPlacements.size());
         for (auto& p : m_pendingPlacements) {
-            if (!p.obj || !editor->m_objects->containsObject(p.obj)) continue;
+            if (!p.obj || !isObjectAlive(p.obj)) continue;
             objects.push_back(ActionSerializer::extractObjectData(p.obj, p.uuid));
             
             MessageBatcher::get().removePending(p.uuid);
