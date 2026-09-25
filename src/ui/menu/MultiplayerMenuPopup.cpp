@@ -26,6 +26,7 @@
 using namespace geode::prelude;
 
 namespace mpedit {
+    static inline std::unordered_set<std::string> s_knownDeadRooms;
 
 
     class JoinPasswordPopup : public BasePopup {
@@ -1858,6 +1859,9 @@ namespace mpedit {
                     fakeRoom.hasPassword = true;
                     this->promptPassword(fakeRoom);
                 } else {
+                    if (!m_lastJoinCode.empty()) {
+                        s_knownDeadRooms.insert(m_lastJoinCode);
+                    }
                     FLAlertLayer::create("Error", error, "OK")->show();
                 }
             });
@@ -2050,12 +2054,26 @@ namespace mpedit {
     void MultiplayerMenuPopup::populateRooms(std::vector<P2PManager::RoomInfo> const& rooms) {
         if (!m_scrollLayer) return;
         m_scrollLayer->m_contentLayer->removeAllChildren();
-        if (m_statusLabel) m_statusLabel->setVisible(rooms.empty());
 
-        float totalHeight = rooms.size() * 45.f;
+        std::vector<P2PManager::RoomInfo> activeRooms;
+        activeRooms.reserve(rooms.size());
+        for (auto const& r : rooms) {
+            if (s_knownDeadRooms.find(r.roomCode) == s_knownDeadRooms.end()) {
+                activeRooms.push_back(r);
+            }
+        }
+
+        if (m_statusLabel) {
+            m_statusLabel->setVisible(activeRooms.empty());
+            if (activeRooms.empty()) {
+                m_statusLabel->setString("No rooms found");
+            }
+        }
+
+        float totalHeight = activeRooms.size() * 45.f;
         m_scrollLayer->m_contentLayer->setContentHeight(std::max(m_scrollLayer->getContentSize().height, totalHeight));
 
-        for (auto const& r : rooms) {
+        for (auto const& r : activeRooms) {
             auto cell = RoomCell::create(r, this, m_scrollLayer->getContentSize().width);
             m_scrollLayer->m_contentLayer->addChild(cell);
         }
@@ -2065,6 +2083,7 @@ namespace mpedit {
     }
 
     void MultiplayerMenuPopup::onRefresh(CCObject*) {
+        s_knownDeadRooms.clear();
         if (m_scrollLayer) {
             m_scrollLayer->m_contentLayer->removeAllChildren();
             if (m_statusLabel) {

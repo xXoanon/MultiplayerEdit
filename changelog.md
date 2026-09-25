@@ -1,7 +1,9 @@
 # 0.7.2
 - Fixed major issue where leaving a session saves the level into your game.
 - Fixed the update popup having some weird button formatting when updating the mod.
-- Fixed massive lag and stuttering when selecting, moving, or editing a lot of objects at once.
+- Fixed massive lag and freezing when selecting, moving, or editing a lot of objects at once.
+- Fixed dead lobbies showing up in the room browser.
+- Fixed crash and level corruption when creating custom objects.
 
 # 0.7.1
 - Added options in settings to manually choose between STUN and TURN connections.

@@ -36,6 +36,11 @@ namespace {
     bool s_isTouching = false;
     std::set<GameObject*> s_startPosObjects;
     std::unordered_map<GameObject*, std::string> s_startPosSaveStrings;
+    int s_previewDepth = 0;
+    struct PreviewScope {
+        PreviewScope() { ++s_previewDepth; }
+        ~PreviewScope() { --s_previewDepth; }
+    };
 }
 
 namespace mpedit {
@@ -794,6 +799,8 @@ class $modify(MPLevelEditorLayer, LevelEditorLayer) {
             auto uuid = handler.getUUIDForObject(obj);
             if (!uuid.empty()) {
                 handler.unregisterObject(uuid);
+            } else {
+                handler.markObjectInactive(obj);
             }
             handler.getTrackedSelections().erase(obj);
         }
@@ -994,6 +1001,10 @@ class $modify(MPLevelEditorLayer, LevelEditorLayer) {
                 if (!uuid.empty()) {
                     deletedUuids.push_back(uuid);
                 }
+                handler.getTrackedSelections().erase(obj);
+                handler.markObjectInactive(obj);
+                s_startPosObjects.erase(obj);
+                s_startPosSaveStrings.erase(obj);
             } 
             else if (!existed_before && existed_after) {
                 std::string uuid = handler.getUUIDForObject(obj);
@@ -1319,6 +1330,21 @@ class $modify(MPEditorUI, EditorUI) {
     struct Fields {
         float m_lockRefreshTimer = 0.f;
     };
+
+    cocos2d::CCArray* createCustomItems() {
+        PreviewScope scope;
+        return EditorUI::createCustomItems();
+    }
+
+    cocos2d::CCSprite* spriteFromObjectString(gd::string str, bool absoluteCenter, bool useGroup, int objLimit, cocos2d::CCArray* objects, cocos2d::CCArray* group, GameObject* groupParent) {
+        PreviewScope scope;
+        return EditorUI::spriteFromObjectString(str, absoluteCenter, useGroup, objLimit, objects, group, groupParent);
+    }
+
+    void onNewCustomItem(cocos2d::CCObject* sender) {
+        PreviewScope scope;
+        EditorUI::onNewCustomItem(sender);
+    }
 
     void onSettings(cocos2d::CCObject* sender) {
         if (SessionManager::get().isLocalPlayerViewOnly()) return;
@@ -1936,6 +1962,8 @@ class $modify(MPEditorUI, EditorUI) {
 class $modify(MPBaseGameLayer, GJBaseGameLayer) {
     void addToSection(GameObject* obj) {
         GJBaseGameLayer::addToSection(obj);
+
+        if (s_previewDepth > 0) return;
 
         if (obj && obj->m_objectID == 31) {
             auto* editor = LevelEditorLayer::get();

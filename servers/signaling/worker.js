@@ -2,7 +2,7 @@ import { DurableObject } from "cloudflare:workers";
 
 const CHARS = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
 const ROOM_TTL = 2 * 60 * 60 * 1000;
-const STALE_PING_TTL = 5 * 60 * 1000;
+const STALE_PING_TTL = 60 * 1000;
 
 const HEADERS = {
     "Content-Type": "application/json",
@@ -73,7 +73,7 @@ export class SignalingHub extends DurableObject {
 
         let changed = false;
         for (const [code, room] of this.rooms.entries()) {
-            if (now - room.created > ROOM_TTL || (room.lastPing && now - room.lastPing > 10 * 60 * 1000)) {
+            if (now - room.created > ROOM_TTL || (room.lastPing && now - room.lastPing > 90 * 1000)) {
                 this.deleteRoom(code);
                 changed = true;
             }
@@ -333,6 +333,13 @@ export class SignalingHub extends DurableObject {
             const { playerName, password } = await req.json().catch(() => ({}));
             const room = this.rooms.get(code);
             if (!room) return json({ error: "room not found" }, 404);
+
+            const now = Date.now();
+            if (room.lastPing && now - room.lastPing > 45000) {
+                this.deleteRoom(code);
+                this.saveRooms(true);
+                return json({ error: "room is no longer active" }, 410);
+            }
 
             if (room.hasPassword && room.password !== password) {
                 return json({ error: "invalid password" }, 403);

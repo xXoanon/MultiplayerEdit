@@ -643,7 +643,7 @@ namespace mpedit {
     }
 
     void P2PManager::extendFastPoll() {
-        m_fastPollEndTime = std::chrono::steady_clock::now() + std::chrono::seconds(30);
+        m_fastPollEndTime = std::chrono::steady_clock::now() + std::chrono::seconds(8);
     }
 
     void P2PManager::stopSignalPolling() {
@@ -893,7 +893,7 @@ namespace mpedit {
                     auto timerFlag = m_waitingTimerFlag;
                     
                     std::thread([this, attemptId, timerFlag]() {
-                        int secondsLeft = 30;
+                        int secondsLeft = 8;
                         while (secondsLeft > 0 && timerFlag->load() && m_connectionAttemptId.load() == attemptId) {
                             geode::queueInMainThread([this, attemptId, timerFlag, secondsLeft]() {
                                 if (timerFlag->load() && m_connectionAttemptId.load() == attemptId) {
@@ -1129,6 +1129,18 @@ namespace mpedit {
                     {
                         std::lock_guard lock(m_stateMutex);
                         m_error = "Room not found";
+                        m_state.store(State::Error);
+                        callbacks = m_onError;
+                        err = m_error;
+                    }
+                    for (auto& cb : callbacks) cb(err);
+                    m_signalingActive = false;
+                } else if (res.code() == 410) {
+                    std::vector<ErrorCb> callbacks;
+                    std::string err;
+                    {
+                        std::lock_guard lock(m_stateMutex);
+                        m_error = "Lobby is no longer active";
                         m_state.store(State::Error);
                         callbacks = m_onError;
                         err = m_error;
