@@ -54,7 +54,6 @@ namespace mpedit {
         void onRollback(cocos2d::CCObject*);
         void onHeaderUpdate(cocos2d::CCObject*);
 
-        void fetchRooms();
         void populateRooms(std::vector<P2PManager::RoomInfo> const& rooms);
 
     public:
@@ -64,6 +63,7 @@ namespace mpedit {
         static void checkUpdatesAndPatreon();
         void showHeaderUpdateButton();
         void hideHeaderUpdateButton();
+        void fetchRooms();
 
         void setupActiveSession();
 
