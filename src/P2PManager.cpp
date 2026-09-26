@@ -342,6 +342,7 @@ namespace mpedit {
                     std::lock_guard lock(m_peersMutex);
                     auto it = m_peers.find(fromPlayerId);
                     if (it != m_peers.end()) {
+                        it->second.playerName = pj.name;
                         it->second.colorIndex = pj.colorIndex;
                         it->second.iconStr = pj.iconStr;
                     }
@@ -466,6 +467,8 @@ namespace mpedit {
         matjson::Value body = matjson::makeObject({
             {"action", "create"},
             {"hostName", playerName},
+            {"iconStr", buildLocalIconStr()},
+            {"colorIndex", getLocalSavedCursorColor()},
             {"roomName", settings.roomName},
             {"description", settings.description},
             {"playerLimit", settings.playerLimit},
@@ -872,6 +875,8 @@ namespace mpedit {
                     auto json = res.json().unwrapOr(matjson::Value());
                     m_localPlayerId = json.get<int>("playerId").unwrapOr(-1);
                     auto hostName = json.get<std::string>("hostName").unwrapOr("Host");
+                    auto hostIconStr = json.get<std::string>("hostIconStr").unwrapOr("");
+                    int hostColorIndex = json.get<int>("hostColorIndex").unwrapOr(0);
 
                     if (m_localPlayerId < 0) {
                         std::vector<ErrorCb> callbacks;
@@ -933,7 +938,8 @@ namespace mpedit {
                     hostPeer.pc = pc;
                     hostPeer.playerId = 0;
                     hostPeer.playerName = hostName;
-                    hostPeer.colorIndex = 0;
+                    hostPeer.colorIndex = hostColorIndex;
+                    hostPeer.iconStr = hostIconStr;
 
                     int myId = m_localPlayerId;
 

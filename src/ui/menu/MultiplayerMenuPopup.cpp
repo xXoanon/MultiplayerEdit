@@ -369,6 +369,10 @@ namespace mpedit {
             s_patreonPopupOpen = false;
             BasePopup::onClose(sender);
 
+            if (MultiplayerMenuPopup::s_instance && !SessionManager::get().isInSession()) {
+                MultiplayerMenuPopup::s_instance->fetchRooms();
+            }
+
             if (!s_pendingUpdate.first.empty()) {
                 auto tag = s_pendingUpdate.first;
                 auto url = s_pendingUpdate.second;
@@ -1652,6 +1656,8 @@ namespace mpedit {
             icon->setSecondColor(col2);
             if (glowEnabled) {
                 icon->setGlowOutline(glowCol);
+            } else {
+                icon->disableGlowOutline();
             }
             icon->setScale(0.55f);
             icon->setPosition({15.f, 15.f});
@@ -1675,24 +1681,27 @@ namespace mpedit {
                 nextLabelX += viewOnlyLabel->getScaledContentSize().width + 10.f;
             }
             
+            auto pingLabel = CCLabelBMFont::create("", "chatFont.fnt");
+            pingLabel->setID("ping-label");
+            pingLabel->setAnchorPoint({0, 0.5f});
+            pingLabel->setScale(0.35f);
+            pingLabel->setPosition({nextLabelX, 15.f});
+            this->addChild(pingLabel);
+
             if (info.id != SessionManager::get().getLocalPlayerId()) {
-                auto pingLabel = CCLabelBMFont::create(fmt::format("{} ms", info.ping).c_str(), "chatFont.fnt");
-                pingLabel->setID("ping-label");
-                pingLabel->setAnchorPoint({0, 0.5f});
-                pingLabel->setScale(0.35f);
+                pingLabel->setString(fmt::format("{} ms", info.ping).c_str());
                 if (info.ping < 100) pingLabel->setColor({100, 255, 100});
                 else if (info.ping < 200) pingLabel->setColor({255, 255, 100});
                 else pingLabel->setColor({255, 100, 100});
-                pingLabel->setPosition({nextLabelX, 15.f});
-                this->addChild(pingLabel);
-
-                auto typeLabel = CCLabelBMFont::create("", "chatFont.fnt");
-                typeLabel->setID("type-label");
-                typeLabel->setAnchorPoint({0, 0.5f});
-                typeLabel->setScale(0.35f);
-                typeLabel->setPosition({pingLabel->getPositionX() + pingLabel->getScaledContentSize().width + 8.f, 15.f});
-                this->addChild(typeLabel);
+                nextLabelX += pingLabel->getScaledContentSize().width + 8.f;
             }
+
+            auto typeLabel = CCLabelBMFont::create("", "chatFont.fnt");
+            typeLabel->setID("type-label");
+            typeLabel->setAnchorPoint({0, 0.5f});
+            typeLabel->setScale(0.35f);
+            typeLabel->setPosition({nextLabelX, 15.f});
+            this->addChild(typeLabel);
             
             this->setID(fmt::format("player-cell-{}", info.id));
             
@@ -1876,30 +1885,52 @@ namespace mpedit {
         if (!SessionManager::get().isInSession() || !m_scrollLayer) return;
         
         auto players = SessionManager::get().getPlayers();
+        int localId = SessionManager::get().getLocalPlayerId();
+        bool isHost = SessionManager::get().getRole() == SessionManager::Role::Host;
+
         for (auto const& p : players) {
-            if (p.id == SessionManager::get().getLocalPlayerId()) continue;
             auto cell = m_scrollLayer->m_contentLayer->getChildByID(fmt::format("player-cell-{}", p.id));
-            if (cell) {
-                auto pingLabel = typeinfo_cast<CCLabelBMFont*>(cell->getChildByID("ping-label"));
-                if (pingLabel) {
+            if (!cell) continue;
+
+            auto pingLabel = typeinfo_cast<CCLabelBMFont*>(cell->getChildByID("ping-label"));
+            if (pingLabel) {
+                if (p.id == localId) {
+                    pingLabel->setString("");
+                } else {
                     pingLabel->setString(fmt::format("{} ms", p.ping).c_str());
                     if (p.ping < 100) pingLabel->setColor({100, 255, 100});
                     else if (p.ping < 200) pingLabel->setColor({255, 255, 100});
                     else pingLabel->setColor({255, 100, 100});
                 }
-                if (auto typeLabel = typeinfo_cast<CCLabelBMFont*>(cell->getChildByID("type-label"))) {
-                    if (pingLabel) {
-                        typeLabel->setPositionX(pingLabel->getPositionX() + pingLabel->getScaledContentSize().width + 8.f);
+            }
+
+            if (auto typeLabel = typeinfo_cast<CCLabelBMFont*>(cell->getChildByID("type-label"))) {
+                if (pingLabel && pingLabel->getString() && strlen(pingLabel->getString()) > 0) {
+                    typeLabel->setPositionX(pingLabel->getPositionX() + pingLabel->getScaledContentSize().width + 8.f);
+                } else if (pingLabel) {
+                    typeLabel->setPositionX(pingLabel->getPositionX());
+                }
+
+                std::string type;
+                if (p.id == 0) {
+                    type = "Host";
+                } else if (p.id == localId) {
+                    type = isHost ? "Host" : P2PManager::get().getConnectionType(0);
+                } else {
+                    type = P2PManager::get().getConnectionType(p.id);
+                    if (type.empty()) {
+                        type = p.connectionType;
                     }
-                    auto type = P2PManager::get().getConnectionType(p.id);
-                    if (!type.empty()) {
-                        typeLabel->setString(fmt::format("[{}]", type).c_str());
-                        if (type == "STUN" || type == "LAN") typeLabel->setColor({100, 255, 100});
-                        else if (type == "TURN") typeLabel->setColor({255, 180, 100});
-                        else typeLabel->setColor({200, 200, 200});
-                    } else {
-                        typeLabel->setString("");
-                    }
+                }
+
+                if (!type.empty()) {
+                    typeLabel->setString(fmt::format("[{}]", type).c_str());
+                    if (type == "Host") typeLabel->setColor({255, 200, 80});
+                    else if (type == "STUN" || type == "LAN") typeLabel->setColor({100, 255, 100});
+                    else if (type == "TURN") typeLabel->setColor({255, 180, 100});
+                    else typeLabel->setColor({200, 200, 200});
+                } else {
+                    typeLabel->setString("");
                 }
             }
         }
@@ -1913,6 +1944,11 @@ namespace mpedit {
         }
         session.removeListener(this);
         if (s_instance == this) s_instance = nullptr;
+    }
+
+    void MultiplayerMenuPopup::onClose(cocos2d::CCObject* sender) {
+        if (s_instance == this) s_instance = nullptr;
+        BasePopup::onClose(sender);
     }
 
     void MultiplayerMenuPopup::setupMenus() {
@@ -2041,7 +2077,7 @@ namespace mpedit {
         }
 
         P2PManager::get().fetchRooms([safeThis](std::vector<P2PManager::RoomInfo> const& rooms) {
-            if (safeThis->getParent()) {
+            if (safeThis->getParent() || MultiplayerMenuPopup::s_instance == safeThis) {
                 safeThis->populateRooms(rooms);
                 if (rooms.empty() && safeThis->m_statusLabel) {
                     safeThis->m_statusLabel->setVisible(true);
@@ -2085,7 +2121,6 @@ namespace mpedit {
     void MultiplayerMenuPopup::onRefresh(CCObject*) {
         s_knownDeadRooms.clear();
         if (m_scrollLayer) {
-            m_scrollLayer->m_contentLayer->removeAllChildren();
             if (m_statusLabel) {
                 m_statusLabel->setVisible(true);
                 m_statusLabel->setString("Fetching rooms...");

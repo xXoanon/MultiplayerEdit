@@ -4,6 +4,10 @@
 - Fixed massive lag and freezing when selecting, moving, or editing a lot of objects at once.
 - Fixed dead lobbies showing up in the room browser.
 - Fixed crash and level corruption when creating custom objects.
+- Fixed player icons and colors not displaying properly in the player list.
+- Fixed connection type indicators not showing for all players in the lobby.
+- Fixed room browser staying empty after closing the support popup.
+- Fixed crash when refreshing the room browser and closing the menu.
 
 # 0.7.1
 - Added options in settings to manually choose between STUN and TURN connections.

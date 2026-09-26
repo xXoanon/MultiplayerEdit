@@ -250,6 +250,15 @@ namespace mpedit {
         }
     }
 
+    void SessionManager::setPlayerConnectionType(int id, std::string const& type) {
+        for (auto& p : m_players) {
+            if (p.id == id) {
+                p.connectionType = type;
+                return;
+            }
+        }
+    }
+
     std::vector<PlayerInfo> const& SessionManager::getPlayers() const {
         return m_players;
     }
@@ -436,9 +445,14 @@ namespace mpedit {
 
             for (auto& p : m_players) {
                 if (p.id == msg.playerId) {
+                    bool changed = (p.iconStr != msg.iconStr || p.colorIndex != msg.colorIndex || p.name != msg.name);
                     p.name = msg.name;
                     p.colorIndex = msg.colorIndex;
                     p.iconStr = msg.iconStr;
+                    if (changed) {
+                        auto callbacks = m_onPlayerJoined;
+                        for (auto& [id, cb] : callbacks) cb(p);
+                    }
                     return;
                 }
             }
@@ -582,13 +596,19 @@ namespace mpedit {
             uint32_t rtt = nowMs - ts;
             this->setPlayerPing(0, static_cast<int>(rtt));
             this->setPlayerPing(this->m_localPlayerId, 0);
+
+            auto myConnType = P2PManager::get().getConnectionType(0);
+            this->setPlayerConnectionType(this->m_localPlayerId, myConnType);
             
-            P2PManager::get().send(proto::serializePingUpdate(static_cast<uint32_t>(rtt)), ChannelType::Unreliable);
+            P2PManager::get().send(proto::serializePingUpdate(static_cast<uint32_t>(rtt), myConnType), ChannelType::Unreliable);
         });
 
         net.on(proto::Opcode::PingUpdate, [this](int playerId, proto::Reader& reader) {
-            auto ping = proto::deserializePingUpdate(reader);
-            this->setPlayerPing(playerId, static_cast<int>(ping));
+            auto pingData = proto::deserializePingUpdate(reader);
+            this->setPlayerPing(playerId, static_cast<int>(pingData.ping));
+            if (!pingData.connectionType.empty()) {
+                this->setPlayerConnectionType(playerId, pingData.connectionType);
+            }
         });
 
         net.on(proto::Opcode::RoomInfo, [this](int playerId, proto::Reader& reader) {

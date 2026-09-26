@@ -418,7 +418,12 @@ namespace mpedit::proto {
     std::vector<uint8_t> serializePong(uint32_t timestamp);
     uint32_t deserializePong(Reader& r);
 
-    std::vector<uint8_t> serializePingUpdate(uint32_t ping);
-    uint32_t deserializePingUpdate(Reader& r);
+    struct PingUpdateData {
+        uint32_t ping = 0;
+        std::string connectionType;
+    };
+
+    std::vector<uint8_t> serializePingUpdate(uint32_t ping, std::string const& connectionType = "");
+    PingUpdateData deserializePingUpdate(Reader& r);
 
 }

@@ -618,14 +618,22 @@ namespace mpedit::proto {
         return r.readU32();
     }
 
-    std::vector<uint8_t> serializePingUpdate(uint32_t ping) {
+    std::vector<uint8_t> serializePingUpdate(uint32_t ping, std::string const& connectionType) {
         Writer w;
         w.writeOpcode(Opcode::PingUpdate);
         w.writeU32(ping);
+        if (!connectionType.empty()) {
+            w.writeString(connectionType);
+        }
         return w.takeData();
     }
-    uint32_t deserializePingUpdate(Reader& r) {
-        return r.readU32();
+    PingUpdateData deserializePingUpdate(Reader& r) {
+        PingUpdateData data;
+        data.ping = r.readU32();
+        if (r.hasRemaining()) {
+            data.connectionType = r.readString();
+        }
+        return data;
     }
 
 

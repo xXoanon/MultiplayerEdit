@@ -278,7 +278,7 @@ export class SignalingHub extends DurableObject {
 
         if (parts.length === 1 && req.method === "POST") {
             const body = await req.json().catch(() => ({}));
-            const { hostName, playerName, roomName, description, playerLimit, isPrivate, hasPassword, password, version } = body;
+            const { hostName, playerName, roomName, description, playerLimit, isPrivate, hasPassword, password, version, iconStr, colorIndex } = body;
             const code = this.genCode();
             const roomId = crypto.randomUUID();
             const host = hostName || playerName || "Unknown";
@@ -286,6 +286,8 @@ export class SignalingHub extends DurableObject {
             const roomObj = {
                 roomId,
                 hostName: host,
+                iconStr: iconStr || "",
+                colorIndex: typeof colorIndex === "number" ? colorIndex : 0,
                 roomName: roomName || "Room",
                 description: description || "",
                 playerLimit: playerLimit || 0,
@@ -330,7 +332,7 @@ export class SignalingHub extends DurableObject {
         }
 
         if (action === "join" && req.method === "POST") {
-            const { playerName, password } = await req.json().catch(() => ({}));
+            const { playerName, password, iconStr, colorIndex } = await req.json().catch(() => ({}));
             const room = this.rooms.get(code);
             if (!room) return json({ error: "room not found" }, 404);
 
@@ -356,12 +358,23 @@ export class SignalingHub extends DurableObject {
             const playerId = room.nextId++;
             room.players.push({ id: playerId, name: playerName });
 
-            const joinMsg = { type: "client_joined", playerId, playerName };
+            const joinMsg = {
+                type: "client_joined",
+                playerId,
+                playerName,
+                iconStr: iconStr || "",
+                colorIndex: typeof colorIndex === "number" ? colorIndex : 0
+            };
             this.enqueue(code, "hostQueue", joinMsg);
             this.saveRooms();
 
             const turnServers = await this.getTurnServers();
-            const resData = { playerId, hostName: room.hostName };
+            const resData = {
+                playerId,
+                hostName: room.hostName,
+                hostIconStr: room.iconStr || "",
+                hostColorIndex: typeof room.colorIndex === "number" ? room.colorIndex : 0
+            };
             if (turnServers) resData.turnServers = turnServers;
             return json(resData);
         }

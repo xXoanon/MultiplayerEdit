@@ -72,6 +72,7 @@ namespace mpedit {
         void onConnecting();
         void updateStatus(std::string const& status);
         void update(float dt) override;
+        void onClose(cocos2d::CCObject* sender = nullptr) override;
         void forceClose() { this->onClose(nullptr); }
     };
 

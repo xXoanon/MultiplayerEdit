@@ -35,6 +35,7 @@ namespace mpedit {
         bool isViewOnly = false;
         bool isBanned = false;
         int ping = 0;
+        std::string connectionType;
     };
 
     struct DisconnectedPlayerInfo {
@@ -88,6 +89,7 @@ namespace mpedit {
 
         void setPlayerViewOnly(int id, bool viewOnly);
         void setPlayerPing(int id, int ping);
+        void setPlayerConnectionType(int id, std::string const& type);
         std::vector<PlayerInfo> const& getPlayers() const;
         std::vector<DisconnectedPlayerInfo> const& getDisconnectedPlayers() const;
         void addDisconnectedPlayer(PlayerInfo const& player);

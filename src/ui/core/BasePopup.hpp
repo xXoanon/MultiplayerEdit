@@ -10,24 +10,39 @@ namespace mpedit {
 
 class BasePopup : public geode::Popup {
 public:
-    ~BasePopup() override {
-        this->m_forcePrioRegistered = false;
-        cocos2d::CCDirector::sharedDirector()->getTouchDispatcher()->removeDelegate(this);
-    }
+    ~BasePopup() override = default;
 
     void onExit() override {
-        cocos2d::CCDirector::sharedDirector()->getTouchDispatcher()->removeDelegate(this);
         geode::Popup::onExit();
     }
 
+    bool m_isClosing = false;
+
     void onClose(cocos2d::CCObject* sender = nullptr) override {
-        geode::Popup::onClose(sender);
+        if (m_isClosing) return;
+        m_isClosing = true;
+        geode::Popup::CloseEvent(this).send();
+        this->setKeypadEnabled(false);
+        this->setTouchEnabled(false);
+        if (this->m_forcePrioRegistered) {
+            cocos2d::CCDirector::sharedDirector()->getTouchDispatcher()->unregisterForcePrio(this);
+            this->m_forcePrioRegistered = false;
+        }
+        this->setVisible(false);
+        geode::Loader::get()->queueInMainThread([self = geode::Ref(this)]() {
+            if (self->getParent()) {
+                self->removeFromParent();
+            }
+        });
     }
 
     void registerWithTouchDispatcher() override {
         auto dispatcher = cocos2d::CCDirector::sharedDirector()->getTouchDispatcher();
         int targetPrio = dispatcher->getTargetPrio();
         dispatcher->addTargetedDelegate(this, targetPrio, true);
+        if (this->m_forcePrioRegistered) {
+            dispatcher->registerForcePrio(this, 2);
+        }
         syncTouchPriority(this);
     }
 
