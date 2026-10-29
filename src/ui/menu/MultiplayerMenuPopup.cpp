@@ -84,8 +84,208 @@ namespace mpedit {
     class PatreonPopup;
     static void showPatreonNoticeInternal();
 
+    static bool s_updatePopupOpen = false;
     static bool s_patreonPopupOpen = false;
+    static bool s_pendingPatreon = false;
+    static std::pair<std::string, std::string> s_pendingUpdate = {"", ""};
     static bool s_patreonShown = false;
+    static bool s_updateAvailable = false;
+    static std::string s_updateTagName = "";
+    static std::string s_updateDownloadUrl = "";
+
+    class UpdatePopup : public BasePopup {
+    protected:
+        std::string m_downloadUrl;
+        std::string m_latestVer;
+        bool m_isDownloaded = false;
+        geode::async::TaskHolder<geode::utils::web::WebResponse> m_downloadTask;
+        TextArea* m_textArea = nullptr;
+        CCMenuItemSpriteExtra* m_updateBtn = nullptr;
+        CCMenuItemSpriteExtra* m_laterBtn = nullptr;
+        CCMenuItemSpriteExtra* m_discordBtn = nullptr;
+        ButtonSprite* m_updateSpr = nullptr;
+
+        bool init(std::string const& latestVer, std::string const& downloadUrl) {
+            if (!BasePopup::init(360.f, 225.f)) return false;
+
+            m_latestVer = latestVer;
+            m_downloadUrl = downloadUrl;
+
+            this->setTitle("Update Available!");
+
+            std::string cleanCurrent;
+            auto currentVer = geode::Mod::get()->getVersion();
+            cleanCurrent = fmt::format("v{}.{}.{}", currentVer.getMajor(), currentVer.getMinor(), currentVer.getPatch());
+
+            std::string cleanLatest = latestVer;
+            if (auto latestVerRes = geode::VersionInfo::parse(latestVer)) {
+                auto v = latestVerRes.unwrap();
+                cleanLatest = fmt::format("v{}.{}.{}", v.getMajor(), v.getMinor(), v.getPatch());
+            } else {
+                if (auto dashPos = cleanLatest.find('-'); dashPos != std::string::npos) {
+                    cleanLatest = cleanLatest.substr(0, dashPos);
+                }
+                if (!cleanLatest.starts_with('v')) {
+                    cleanLatest = "v" + cleanLatest;
+                }
+            }
+
+            auto msg = fmt::format(
+                "A <cy>new version</c> of Multiplayer Edit is available!\n\n"
+                "Your version: <cg>{}</c>\n"
+                "Latest version: <cy>{}</c>\n\n"
+                "Consider joining our <cl>Discord server</c> to stay\n"
+                "updated and talk to the community!",
+                cleanCurrent, cleanLatest
+            );
+
+            m_textArea = TextArea::create(
+                msg,
+                "chatFont.fnt",
+                1.0f,
+                360.f,
+                ccp(0.5f, 0.5f),
+                21.f,
+                false
+            );
+            m_textArea->setScale(0.85f);
+            m_mainLayer->addChildAtPosition(m_textArea, Anchor::Center, ccp(0.f, 5.f));
+
+            auto btnMenu = CCMenu::create();
+            btnMenu->setContentSize({260.f, 35.f});
+            btnMenu->setPosition(this->fromBottom(25.f));
+            btnMenu->setAnchorPoint({0.5f, 0.5f});
+            btnMenu->setLayout(RowLayout::create()->setAxisAlignment(AxisAlignment::Center)->setGap(10.f));
+            m_mainLayer->addChild(btnMenu);
+
+            auto discordSpr = CCSprite::createWithSpriteFrameName("gj_discordIcon_001.png");
+            m_discordBtn = CCMenuItemSpriteExtra::create(discordSpr, this, menu_selector(UpdatePopup::onDiscord));
+            btnMenu->addChild(m_discordBtn);
+
+            auto laterSpr = ButtonSprite::create("Later", "goldFont.fnt", "GJ_button_06.png", 0.8f);
+            m_laterBtn = CCMenuItemSpriteExtra::create(laterSpr, this, menu_selector(UpdatePopup::onClose));
+            btnMenu->addChild(m_laterBtn);
+
+            m_updateSpr = ButtonSprite::create("Update", "goldFont.fnt", "GJ_button_01.png", 0.8f);
+            m_updateBtn = CCMenuItemSpriteExtra::create(m_updateSpr, this, menu_selector(UpdatePopup::onUpdate));
+            btnMenu->addChild(m_updateBtn);
+
+            btnMenu->updateLayout();
+
+            return true;
+        }
+
+        void onClose(CCObject* sender) override {
+            s_updatePopupOpen = false;
+            BasePopup::onClose(sender);
+
+            if (s_updateAvailable && MultiplayerMenuPopup::s_instance) {
+                MultiplayerMenuPopup::s_instance->showHeaderUpdateButton();
+            }
+
+            if (s_pendingPatreon) {
+                s_pendingPatreon = false;
+                showPatreonNoticeInternal();
+            }
+        }
+
+        void onDiscord(CCObject*) {
+            geode::utils::web::openLinkInBrowser("https://discord.gg/mdsuxYu2YP");
+        }
+
+        void onUpdate(CCObject*) {
+            if (m_isDownloaded) {
+                geode::utils::game::restart(true);
+                return;
+            }
+
+            if (m_downloadUrl.empty()) return;
+
+            m_updateBtn->setEnabled(false);
+            m_laterBtn->setEnabled(false);
+            m_discordBtn->setEnabled(false);
+
+            if (m_textArea) {
+                m_textArea->setString("Downloading update, please wait...\n\nDo not close the game.");
+            }
+
+            auto req = geode::utils::web::WebRequest();
+            req.header("User-Agent", "MultiplayerEdit-GeodeMod");
+            m_downloadTask.spawn(
+                req.get(m_downloadUrl),
+                [this](geode::utils::web::WebResponse res) {
+                    if (!res.ok()) {
+                        if (m_textArea) {
+                            m_textArea->setString("<cr>Failed to download update.</c>\n\nPlease check your internet connection\nor download manually from Discord.");
+                        }
+                        if (m_updateBtn) m_updateBtn->setEnabled(true);
+                        if (m_laterBtn) m_laterBtn->setEnabled(true);
+                        if (m_discordBtn) m_discordBtn->setEnabled(true);
+                        return;
+                    }
+
+                    auto data = std::move(res).data();
+                    auto targetPath = geode::Mod::get()->getPackagePath();
+                    if (targetPath.empty()) {
+                        targetPath = geode::dirs::getModsDir() / "d050.multiplayeredit.geode";
+                    }
+
+                    auto ok = geode::utils::file::writeBinary(targetPath, data);
+                    if (!ok) {
+                        if (m_textArea) {
+                            m_textArea->setString("<cr>Failed to save update file.</c>\n\nPlease check file permissions\nor download manually.");
+                        }
+                        if (m_updateBtn) m_updateBtn->setEnabled(true);
+                        if (m_laterBtn) m_laterBtn->setEnabled(true);
+                        if (m_discordBtn) m_discordBtn->setEnabled(true);
+                        return;
+                    }
+
+                    m_isDownloaded = true;
+                    s_updateAvailable = false;
+                    if (MultiplayerMenuPopup::s_instance) {
+                        MultiplayerMenuPopup::s_instance->hideHeaderUpdateButton();
+                    }
+                    this->setTitle("Update Complete!");
+
+                    if (m_textArea) {
+                        m_textArea->setString(fmt::format(
+                            "Multiplayer Edit has been updated to <cg>{}</c>!\n\n"
+                            "Restart Geometry Dash now to apply the update?",
+                            m_latestVer
+                        ));
+                    }
+
+                    if (m_discordBtn) m_discordBtn->setVisible(false);
+                    if (m_laterBtn) {
+                        m_laterBtn->setEnabled(true);
+                        m_laterBtn->setVisible(true);
+                    }
+                    if (m_updateBtn) {
+                        m_updateBtn->setEnabled(true);
+                        if (m_updateSpr) {
+                            m_updateSpr->setString("Restart");
+                        }
+                    }
+
+                    if (auto* menu = typeinfo_cast<CCMenu*>(m_updateBtn->getParent())) {
+                        menu->updateLayout();
+                    }
+                }
+            );
+        }
+
+    public:
+        static UpdatePopup* create(std::string const& latestVer, std::string const& downloadUrl) {
+            auto ret = new UpdatePopup();
+            if (ret->init(latestVer, downloadUrl)) {
+                ret->autorelease();
+                return ret;
+            }
+            delete ret;
+            return nullptr;
+        }
+    };
 
     class PatreonPopup : public BasePopup {
     protected:
@@ -173,7 +373,17 @@ namespace mpedit {
                 MultiplayerMenuPopup::s_instance->fetchRooms();
             }
 
-
+            if (!s_pendingUpdate.first.empty()) {
+                auto tag = s_pendingUpdate.first;
+                auto url = s_pendingUpdate.second;
+                s_pendingUpdate = {"", ""};
+                geode::queueInMainThread([tag, url]() {
+                    if (auto* popup = UpdatePopup::create(tag, url)) {
+                        s_updatePopupOpen = true;
+                        popup->show();
+                    }
+                });
+            }
         }
 
         void keyBackClicked() override {
@@ -207,6 +417,11 @@ namespace mpedit {
     static void showPatreonNoticeInternal() {
         if (s_patreonShown) return;
 
+        if (s_updatePopupOpen) {
+            s_pendingPatreon = true;
+            return;
+        }
+
         s_patreonShown = true;
         s_patreonPopupOpen = true;
         geode::queueInMainThread([]() {
@@ -215,6 +430,119 @@ namespace mpedit {
             }
         });
     }
+
+    static geode::async::TaskHolder<geode::utils::web::WebResponse> s_globalUpdateTask;
+    static bool s_hasCheckedForUpdates = false;
+
+    void MultiplayerMenuPopup::checkUpdatesAndPatreon() {
+        if (!s_hasCheckedForUpdates && geode::Mod::get()->getSettingValue<bool>("check-updates")) {
+            s_hasCheckedForUpdates = true;
+
+            std::thread([]() {
+                std::this_thread::sleep_for(std::chrono::milliseconds(1500));
+                geode::queueInMainThread([]() {
+                    if (!s_updatePopupOpen && !s_patreonShown) {
+                        showPatreonNoticeInternal();
+                    }
+                });
+            }).detach();
+
+            auto req = geode::utils::web::WebRequest();
+            req.header("User-Agent", "MultiplayerEdit-GeodeMod");
+            s_globalUpdateTask.spawn(
+                req.get("https://api.github.com/repos/xXoanon/MultiplayerEdit/releases?per_page=1"),
+                [](geode::utils::web::WebResponse res) {
+                    bool needsUpdate = false;
+                    std::string tagName;
+                    std::string downloadUrl;
+
+                    if (res.ok()) {
+                        auto json = res.json().unwrapOr(matjson::Value());
+                        if (json.isArray() && !json.asArray().unwrap().empty()) {
+                            auto release = json[0];
+                            tagName = release.get<std::string>("tag_name").unwrapOr("");
+                            if (!tagName.empty() && release.contains("assets") && release["assets"].isArray()) {
+                                for (auto const& asset : release["assets"].asArray().unwrap()) {
+                                    auto name = asset.get<std::string>("name").unwrapOr("");
+                                    if (name.ends_with(".geode")) {
+                                        downloadUrl = asset.get<std::string>("browser_download_url").unwrapOr("");
+                                        break;
+                                    }
+                                }
+                            }
+
+                            if (!downloadUrl.empty()) {
+                                auto currentVer = geode::Mod::get()->getVersion();
+
+                                auto stripSuffix = [](std::string const& str) -> std::string {
+                                    std::string s = str;
+                                    if (!s.empty() && (s[0] == 'v' || s[0] == 'V')) {
+                                        s = s.substr(1);
+                                    }
+                                    auto dashPos = s.find('-');
+                                    if (dashPos != std::string::npos) {
+                                        s = s.substr(0, dashPos);
+                                    }
+                                    auto plusPos = s.find('+');
+                                    if (plusPos != std::string::npos) {
+                                        s = s.substr(0, plusPos);
+                                    }
+                                    return s;
+                                };
+
+                                auto strippedLatest = stripSuffix(tagName);
+                                auto strippedCurrent = stripSuffix(currentVer.toNonVString());
+
+                                if (auto latestVerRes = geode::VersionInfo::parse(strippedLatest)) {
+                                    auto latestVer = latestVerRes.unwrap();
+                                    if (auto curVerRes = geode::VersionInfo::parse(strippedCurrent)) {
+                                        auto cur = curVerRes.unwrap();
+                                        if (latestVer.getMajor() != cur.getMajor() ||
+                                            latestVer.getMinor() != cur.getMinor() ||
+                                            latestVer.getPatch() != cur.getPatch()) {
+                                            needsUpdate = true;
+                                        }
+                                    } else {
+                                        if (latestVer.getMajor() != currentVer.getMajor() ||
+                                            latestVer.getMinor() != currentVer.getMinor() ||
+                                            latestVer.getPatch() != currentVer.getPatch()) {
+                                            needsUpdate = true;
+                                        }
+                                    }
+                                } else {
+                                    if (strippedLatest != strippedCurrent) {
+                                        needsUpdate = true;
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    if (needsUpdate) {
+                        s_updateAvailable = true;
+                        s_updateTagName = tagName;
+                        s_updateDownloadUrl = downloadUrl;
+                        s_pendingPatreon = true;
+                        if (s_patreonPopupOpen) {
+                            s_pendingUpdate = { tagName, downloadUrl };
+                        } else {
+                            geode::queueInMainThread([tagName, downloadUrl]() {
+                                if (auto* popup = UpdatePopup::create(tagName, downloadUrl)) {
+                                    s_updatePopupOpen = true;
+                                    popup->show();
+                                }
+                            });
+                        }
+                    } else {
+                        showPatreonNoticeInternal();
+                    }
+                }
+            );
+        } else {
+            showPatreonNoticeInternal();
+        }
+    }
+
 
     class RevertPlayerPopup : public BasePopup {
     protected:
@@ -1494,7 +1822,11 @@ namespace mpedit {
             this->setupRoomBrowser();
         }
 
-        showPatreon();
+        checkUpdatesAndPatreon();
+
+        if (s_updateAvailable) {
+            this->showHeaderUpdateButton();
+        }
 
 
         auto* helper = UpdateHelperNode::create([](float dt) {
@@ -2132,13 +2464,57 @@ namespace mpedit {
         );
     }
 
-    void MultiplayerMenuPopup::showPatreon() {
+    void MultiplayerMenuPopup::showPatreonNoticeIfNeeded() {
         showPatreonNoticeInternal();
+    }
+
+    void MultiplayerMenuPopup::onUpdateCheckTimeout(float) {
+        if (!s_updatePopupOpen && !s_patreonShown) {
+            showPatreonNoticeIfNeeded();
+        }
     }
 
     void MultiplayerMenuPopup::onPatreon(CCObject*) {
         if (auto* popup = PatreonPopup::create()) {
             s_patreonPopupOpen = true;
+            popup->show();
+        }
+    }
+
+    void MultiplayerMenuPopup::showHeaderUpdateButton() {
+        if (!s_updateAvailable) return;
+        if (m_headerUpdateBtn) {
+            m_headerUpdateBtn->setVisible(true);
+            return;
+        }
+
+        auto* updateMenu = CCMenu::create();
+        updateMenu->setPosition({this->m_size.width / 2.f, this->top() - 34.f});
+        updateMenu->setID("header-update-menu"_spr);
+        this->m_mainLayer->addChild(updateMenu, 15);
+
+        auto* spr = ButtonSprite::create("Update", "goldFont.fnt", "GJ_button_01.png", 0.5f);
+        spr->setScale(0.55f);
+        auto* pulse = CCRepeatForever::create(CCSequence::create(
+            CCEaseInOut::create(CCScaleTo::create(0.7f, 0.62f), 2.0f),
+            CCEaseInOut::create(CCScaleTo::create(0.7f, 0.50f), 2.0f),
+            nullptr
+        ));
+        spr->runAction(pulse);
+
+        m_headerUpdateBtn = CCMenuItemSpriteExtra::create(spr, this, menu_selector(MultiplayerMenuPopup::onHeaderUpdate));
+        updateMenu->addChild(m_headerUpdateBtn);
+    }
+
+    void MultiplayerMenuPopup::hideHeaderUpdateButton() {
+        if (m_headerUpdateBtn) {
+            m_headerUpdateBtn->setVisible(false);
+        }
+    }
+
+    void MultiplayerMenuPopup::onHeaderUpdate(CCObject*) {
+        if (auto* popup = UpdatePopup::create(s_updateTagName, s_updateDownloadUrl)) {
+            s_updatePopupOpen = true;
             popup->show();
         }
     }

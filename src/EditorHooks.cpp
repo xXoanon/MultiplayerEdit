@@ -154,7 +154,7 @@ class $modify(MPEditorPauseLayer, EditorPauseLayer) {
     }
 
     void onMultiplayer(CCObject*) {
-        MultiplayerMenuPopup::showPatreon();
+        MultiplayerMenuPopup::checkUpdatesAndPatreon();
         if (SessionManager::get().isInSession()) {
             if (auto* popup = MultiplayerMenuPopup::create()) {
                 popup->show();
@@ -286,7 +286,7 @@ class $modify(MPLevelBrowserLayer, LevelBrowserLayer) {
     }
 
     void onMultiplayer(CCObject*) {
-        MultiplayerMenuPopup::showPatreon();
+        MultiplayerMenuPopup::checkUpdatesAndPatreon();
         MultiplayerMenuPopup::create()->show();
     }
 };

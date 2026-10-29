@@ -219,7 +219,7 @@ namespace mpedit {
     bool DedicatedServersPopup::init(std::function<void(std::string const&)> onConnect) {
         if (!BasePopup::init(360.f, 240.f)) return false;
         m_onConnect = onConnect;
-        MultiplayerMenuPopup::showPatreon();
+        MultiplayerMenuPopup::checkUpdatesAndPatreon();
         this->setTitle("Dedicated Servers");
 
         m_statusLabel = CCLabelBMFont::create("No saved servers.", "chatFont.fnt");
