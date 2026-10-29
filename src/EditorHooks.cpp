@@ -1688,6 +1688,59 @@ class $modify(MPEditorUI, EditorUI) {
         }
     }
 
+    void onQuickChat(CCObject*) {
+        auto& session = SessionManager::get();
+        if (!session.isInSession()) {
+            Notification::create("Not in a multiplayer session", NotificationIcon::Info)->show();
+            return;
+        }
+        if (auto* popup = QuickChatPopup::create()) {
+            popup->show();
+        }
+    }
+
+    void setupQuickChatButton() {
+        CCMenu* settingsMenu = nullptr;
+        if (auto* node = this->getChildByIDRecursive("settings-menu")) {
+            settingsMenu = typeinfo_cast<CCMenu*>(node);
+        }
+        if (!settingsMenu) {
+            if (auto* btn = typeinfo_cast<CCMenuItemSpriteExtra*>(this->getChildByIDRecursive("settings-button"))) {
+                settingsMenu = typeinfo_cast<CCMenu*>(btn->getParent());
+            }
+        }
+        if (!settingsMenu) return;
+        if (settingsMenu->getChildByID("quick-chat-button"_spr)) return;
+
+        cocos2d::CCNode* spriteNode = nullptr;
+        bool isIcon = false;
+        if (auto* icon = cocos2d::CCSprite::createWithSpriteFrameName("GJ_chatBtn_001.png")) {
+            icon->setScale(0.72f);
+            spriteNode = icon;
+            isIcon = true;
+        } else if (auto* icon = cocos2d::CCSprite::createWithSpriteFrameName("gj_chatBtn_001.png")) {
+            icon->setScale(0.72f);
+            spriteNode = icon;
+            isIcon = true;
+        } else if (auto* icon = cocos2d::CCSprite::createWithSpriteFrameName("GJ_commentBtn_001.png")) {
+            icon->setScale(0.72f);
+            spriteNode = icon;
+            isIcon = true;
+        } else {
+            auto* btnSprite = ButtonSprite::create("Chat", "goldFont.fnt", "GJ_button_01.png", 0.7f);
+            btnSprite->setScale(0.62f);
+            spriteNode = btnSprite;
+        }
+
+        auto* chatBtn = CCMenuItemSpriteExtra::create(spriteNode, this, menu_selector(MPEditorUI::onQuickChat));
+        chatBtn->setID("quick-chat-button"_spr);
+        if (isIcon) {
+            chatBtn->setContentSize({36.f, 36.f});
+        }
+        settingsMenu->addChild(chatBtn);
+        settingsMenu->updateLayout();
+    }
+
     bool init(LevelEditorLayer* editorLayer) {
         if (!EditorUI::init(editorLayer)) return false;
 
@@ -1698,6 +1751,32 @@ class $modify(MPEditorUI, EditorUI) {
             helper->setID("sync-deselect-helper"_spr);
             this->addChild(helper);
         }
+
+        // Defer creation to ensure NodeIDs has finished setting up settings-menu
+        this->runAction(cocos2d::CCSequence::create(
+            cocos2d::CCDelayTime::create(0.f),
+            cocos2d::CCCallFunc::create(this, callfunc_selector(MPEditorUI::setupQuickChatButton)),
+            nullptr
+        ));
+
+        // Fallback + playtest visibility: ensure button exists and hide during playtest
+        auto* chatHelper = UpdateHelperNode::create([this](float) {
+            if (!this->getChildByIDRecursive("quick-chat-button"_spr)) {
+                this->setupQuickChatButton();
+            }
+            if (auto* btn = this->getChildByIDRecursive("quick-chat-button"_spr)) {
+                if (auto* editor = LevelEditorLayer::get()) {
+                    // Only hide while actually playing; show when paused (editor UI is visible)
+                    bool isPlaying = editor->m_playbackMode == PlaybackMode::Playing;
+                    btn->setVisible(!isPlaying);
+                }
+            }
+        }, 0.05f);
+        if (chatHelper) {
+            chatHelper->setID("quick-chat-helper"_spr);
+            this->addChild(chatHelper);
+        }
+
         return true;
     }
 
