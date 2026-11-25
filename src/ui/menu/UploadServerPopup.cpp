@@ -22,6 +22,7 @@ bool UploadServerPopup::init(GJGameLevel* level) {
 
     m_maxPlayersInput = TextInput::create(200.f, "Max Players (100)");
     m_maxPlayersInput->setFilter("0123456789");
+    m_maxPlayersInput->setNumericMode(true);
     m_maxPlayersInput->setPosition({m_size.width / 2, m_size.height / 2 + 25});
     m_mainLayer->addChild(m_maxPlayersInput);
 
@@ -54,7 +55,6 @@ bool UploadServerPopup::init(GJGameLevel* level) {
     );
     hostBtnMenu->addChild(hostBtn);
 
-    this->syncTouchPriority();
     return true;
 }
 

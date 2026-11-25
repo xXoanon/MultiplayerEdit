@@ -20,6 +20,14 @@ namespace mpedit {
         float timeLeft;
     };
 
+    struct ExpectedObjectMeta {
+        std::string uuid;
+        int objectID = 0;
+        float x = 0.f;
+        float y = 0.f;
+        bool hasCoords = false;
+    };
+
     /**
      * Handles incoming remote actions and applies them to the local editor.
      * Maintains a UUID-to-GameObject mapping for tracking remote objects.
@@ -60,6 +68,9 @@ namespace mpedit {
         void clearActiveObjects();
 
         static std::string generateUUID();
+        static std::string orangePortalUUID(std::string const& blueUuid);
+        static std::vector<ExpectedObjectMeta> buildExpectedObjects(std::string const& objectsString, std::vector<std::string> const& uuids);
+        void registerSyncedObjects(LevelEditorLayer* editor, std::vector<ExpectedObjectMeta> const& expected);
 
         void clearMappings();
 
@@ -84,6 +95,13 @@ namespace mpedit {
         void setExpectedUuids(std::vector<std::string> const& uuids) { m_expectedUuids = uuids; }
         void clearExpectedUuids() { m_expectedUuids.clear(); }
 
+        std::vector<ExpectedObjectMeta> const& getExpectedObjects() const { return m_expectedObjects; }
+        void setExpectedObjects(std::vector<ExpectedObjectMeta> objects) { m_expectedObjects = std::move(objects); }
+        void clearExpectedObjects() { m_expectedObjects.clear(); }
+
+        void flushQueuedActions();
+        void applyPendingInitialLocks();
+
         void downloadSongFinished(int id) override;
         void downloadSongFailed(int id, GJSongError error) override;
         void downloadSongStarted(int id) override {}
@@ -92,6 +110,7 @@ namespace mpedit {
 
         void sendSnapshotToServer(std::function<void()> onComplete = nullptr);
         std::unordered_map<GameObject*, std::string>& getTrackedSelections() { return m_preSelectSaveStrings; }
+        std::unordered_set<GameObject*>& getDirtyTransforms() { return m_dirtyTransforms; }
 
     private:
         RemoteActionHandler() = default;
@@ -103,6 +122,9 @@ namespace mpedit {
         int getLocalPlayerId() const;
         LevelEditorLayer* getEditorLayer() const;
         void updateStatusNode();
+        bool shouldBufferLiveAction() const;
+        void queueLiveAction(uint8_t opcode, int playerId, const uint8_t* data, size_t len);
+        void dispatchLiveAction(uint8_t opcode, int playerId, const uint8_t* data, size_t len);
 
         void applyLevelSettings(LevelEditorLayer* editor, ActionSerializer::LevelSettingsData const& settings);
 
@@ -112,6 +134,7 @@ namespace mpedit {
 
         std::unordered_map<std::string, LockInfo> m_objectLocks;
         std::unordered_map<GameObject*, std::string> m_preSelectSaveStrings;
+        std::unordered_set<GameObject*> m_dirtyTransforms;
 
         std::vector<cocos2d::CCObject*> m_deferredDeletionObjects;
 
@@ -129,6 +152,15 @@ namespace mpedit {
         };
         std::optional<PendingSync> m_pendingSync;
         std::vector<std::string> m_expectedUuids;
+        std::vector<ExpectedObjectMeta> m_expectedObjects;
+        std::vector<ActionSerializer::LockData> m_pendingInitialLocks;
+
+        struct QueuedRemoteAction {
+            uint8_t opcode;
+            int playerId;
+            std::vector<uint8_t> payload;
+        };
+        std::vector<QueuedRemoteAction> m_queuedActions;
 
         struct ChunkedSyncState {
             int hostPlayerId = -1;
@@ -137,6 +169,7 @@ namespace mpedit {
             ActionSerializer::LevelSettingsData settings;
             std::vector<std::string> chunks;
             std::vector<std::vector<std::string>> uuidChunks;
+            std::vector<ActionSerializer::LockData> locks;
             bool active = false;
         };
         ChunkedSyncState m_chunkedSync;

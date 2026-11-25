@@ -1,5 +1,19 @@
 # 0.7.3
+- Updated to Geometry Dash 2.2091 and Geode 6.0.0.
+- Chat Rework! incoming messages now pop up above the bottom editor UI, `/` now opens the full chat window, added GD emoji support, and added a `[HOST]` tag for the room host.
+- Added a quick chat button in the top right of the editor (toggleable in mod settings - Thank you to datlun2k11-pixel!).
+- Fixed level desync where objects could randomly shift or replace other objects.
 - Fixed crash when playtesting after an object is placed by another player.
+- Fixed a lot of connection issues that could leave players stuck on connecting.
+- P2P connections are now always preferred.
+- Fixed TURN fallback not working properly when set to AUTO.
+- Fixed short connection drops ending the session immediately.
+- Fixed a crash when the host leaves.
+- Fixed players sometimes remaining in the player list after leaving.
+- Fixed active rooms being removed from the server list.
+- Fixed signaling server URLs using localhost not working.
+- Improved security on signaling and dedicated servers.
+- Fixed player icons and ping not updating correctly on dedicated servers.
 
 # 0.7.2
 - Fixed major issue where leaving a session saves the level into your game.

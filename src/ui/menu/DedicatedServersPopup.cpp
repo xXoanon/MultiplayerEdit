@@ -120,6 +120,7 @@ namespace mpedit {
             m_input = geode::TextInput::create(220.f, "", "chatFont.fnt");
             m_input->setPosition(this->center());
             m_input->setCommonFilter(geode::CommonFilter::Any);
+            m_input->setDisplayEmojis(false);
             m_mainLayer->addChild(m_input);
 
             auto joinBtnSprite = ButtonSprite::create("Connect", "goldFont.fnt", "GJ_button_01.png", 0.6f);
@@ -170,6 +171,7 @@ namespace mpedit {
             m_nameInput = geode::TextInput::create(220.f, "", "chatFont.fnt");
             m_nameInput->setPosition(this->center() + CCPoint{0, 20.f});
             m_nameInput->setCommonFilter(geode::CommonFilter::Any);
+            m_nameInput->setDisplayEmojis(false);
             m_mainLayer->addChild(m_nameInput);
 
             auto urlLabel = CCLabelBMFont::create("Server Address", "goldFont.fnt");
@@ -180,6 +182,7 @@ namespace mpedit {
             m_urlInput = geode::TextInput::create(220.f, "", "chatFont.fnt");
             m_urlInput->setPosition(this->center() + CCPoint{0, -40.f});
             m_urlInput->setCommonFilter(geode::CommonFilter::Any);
+            m_urlInput->setDisplayEmojis(false);
             m_mainLayer->addChild(m_urlInput);
 
             auto addBtnSprite = ButtonSprite::create("Add", "goldFont.fnt", "GJ_button_01.png", 0.6f);
@@ -275,11 +278,11 @@ namespace mpedit {
 
         auto listSize = CCSize{320.f, 130.f};
         m_scrollLayer = ScrollLayer::create(listSize);
-        m_scrollLayer->setPosition(this->center() - listSize / 2.f + CCPoint{0, 10.f});
+        m_scrollLayer->setPosition(this->center() + CCPoint{0, 10.f});
         
         m_bg = CCScale9Sprite::create("square02_small.png");
         m_bg->setContentSize(listSize);
-        m_bg->setPosition(m_scrollLayer->getPosition() + listSize / 2.f);
+        m_bg->setPosition(m_scrollLayer->getPosition());
         m_bg->setOpacity(75);
         m_mainLayer->addChild(m_bg, -1);
         m_mainLayer->addChild(m_scrollLayer);
@@ -300,7 +303,6 @@ namespace mpedit {
             i++;
         }
         m_scrollLayer->moveToTop();
-        this->syncTouchPriority();
     }
 
     void DedicatedServersPopup::onAddServer(CCObject*) {

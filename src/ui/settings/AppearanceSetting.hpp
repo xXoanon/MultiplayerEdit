@@ -10,7 +10,6 @@ namespace mpedit {
     class AppearanceSettingNodeV3 : public geode::SettingNodeV3 {
     protected:
         bool init(std::shared_ptr<AppearanceSettingV3> setting, float width);
-        void updateState(cocos2d::CCNode* invoker) override;
         void onCommit() override;
         void onResetToDefault() override;
         bool hasUncommittedChanges() const override;
@@ -20,6 +19,7 @@ namespace mpedit {
 
     public:
         static AppearanceSettingNodeV3* create(std::shared_ptr<AppearanceSettingV3> setting, float width);
+        void updateState(cocos2d::CCNode* invoker) override;
     };
 
     class AppearanceSettingV3 : public geode::SettingV3 {

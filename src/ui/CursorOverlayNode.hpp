@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cocos2d.h>
+#include <Geode/ui/Label.hpp>
 #include <unordered_map>
 #include <vector>
 #include <string>
@@ -12,7 +13,7 @@ namespace mpedit {
         struct BubbleItem {
             cocos2d::CCNode* root = nullptr;
             cocos2d::CCDrawNode* drawNode = nullptr;
-            cocos2d::CCLabelBMFont* label = nullptr;
+            geode::Label* label = nullptr;
             float timer = 0.f;
             float maxDuration = 5.f;
             float currentY = 0.f;

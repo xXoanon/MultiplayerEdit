@@ -1,10 +1,10 @@
 {
-    "geode": "5.10.1",
+    "geode": "6.0.0",
     "gd": {
-        "win": "2.2081",
-        "android": "2.2081",
-        "mac": "2.2081",
-        "ios": "2.2081"
+        "win": "2.2091",
+        "android": "2.2091",
+        "mac": "2.2091",
+        "ios": "2.2091"
     },
     "id": "d050.multiplayeredit",
     "name": "Multiplayer Edit",
@@ -12,7 +12,7 @@
     "developer": "d050",
     "description": "Collaborate with friends in real-time level editing! Host a session and build together.",
     "dependencies": {
-        "geode.node-ids": ">=1.0.0"
+        "geode.node-ids": ">=1.24.0-beta.1"
     },
     "tags": [
         "editor",
@@ -46,7 +46,7 @@
         "ice-transport-mode": {
             "type": "string",
             "name": "Connection Mode",
-            "description": "How to connect to other players. Auto is recommended. STUN Only is direct connection only. TURN Only routes through a relay.",
+            "description": "How to connect to other players. Auto prefers a STUN connection and only uses TURN as a fallback. STUN Only disables TURN. TURN Only should only be used for strict networks.",
             "default": "Auto",
             "one-of": ["Auto", "STUN Only", "TURN Only"]
         },
@@ -100,6 +100,17 @@
             "name": "Show Notifications",
             "description": "Show notifications when players join/leave.",
             "default": true
+        },
+        "show-chat-button": {
+            "type": "bool",
+            "name": "Editor Chat Button",
+            "description": "Show a quick chat button in the top right of the editor during multiplayer sessions.",
+            "default": {
+                "win": false,
+                "mac": false,
+                "android": true,
+                "ios": true
+            }
         },
         "chat-filter": {
             "type": "bool",

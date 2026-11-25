@@ -23,9 +23,9 @@ In Geometry Dash, go to the Multiplayer Edit mod settings and change the **Signa
 
 1. **Host** creates a room -> POSTs to `/rooms` and receives a 6-character room code.
 2. **Guests** join using the room code -> POSTs to `/rooms/:code/join` and gets the Host's metadata.
-3. **Guest** generates a WebRTC Offer and POSTs it to the signaling server.
-4. **Host** polls for Offers, retrieves the Guest's Offer, generates an Answer, and POSTs it back.
-5. **Guest** polls for Answers and retrieves the Host's Answer.
+3. **Host** generates a WebRTC Offer for each guest and POSTs it to the signaling server.
+4. **Guest** polls for the Offer, generates an Answer, and POSTs it back.
+5. **Host** polls for the Answer.
 6. Direct P2P connection is established! The signaling server is no longer used for this session.
 
 ## API Endpoints

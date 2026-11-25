@@ -114,13 +114,32 @@ class Room {
         if (data.length === 0) return;
         const opcode = data[0];
         if (opcode === proto.Opcode.Heartbeat) return;
+        if (opcode === proto.Opcode.Ping) {
+            const r = new proto.Reader(data.slice(1));
+            const ts = r.readU32();
+            if (r.error) return;
+            const player = this.players.get(playerId);
+            if (player && player.ws && player.ws.readyState === 1) {
+                const w = new proto.Writer();
+                w.writeOpcode(proto.Opcode.Pong);
+                w.writeU32(ts);
+                player.ws.send(w.finish());
+            }
+            return;
+        }
+        if (opcode === proto.Opcode.Pong) return;
         
         if (opcode === proto.Opcode.SyncLevelStart || opcode === proto.Opcode.SyncLevelChunk || opcode === proto.Opcode.SyncLevelEnd || opcode === proto.Opcode.SyncLocksChunk) {
             this._handleSnapshotResponse(playerId, opcode, data);
             return;
         }
-        if (opcode === proto.Opcode.CursorUpdate || opcode === proto.Opcode.MoveBatch) {
+        if (opcode === proto.Opcode.CursorUpdate) {
             this._relayFrom(playerId, data);
+            return;
+        }
+        if (opcode === proto.Opcode.MoveBatch) {
+            this._relayFrom(playerId, data);
+            this.history.push({ playerId, data });
             this.dirty = true;
             return;
         }
@@ -153,13 +172,18 @@ class Room {
                 this.history.push({ playerId, data });
                 break;
             case proto.Opcode.KickPlayer:
-                this._onKickPlayer(playerId, data);
-                break;
             case proto.Opcode.BanPlayer:
-                this._onBanPlayer(playerId, data);
-                break;
             case proto.Opcode.SetViewOnly:
-                this._relayFrom(playerId, data);
+            case proto.Opcode.PlayerLeft:
+            case proto.Opcode.RoomInfo:
+            case proto.Opcode.HostMigration:
+            case proto.Opcode.Reconnect:
+            case proto.Opcode.ServerMessage:
+            case proto.Opcode.Error:
+            case proto.Opcode.Relay:
+                break;
+            case proto.Opcode.PlayerJoined:
+                this._onPlayerJoined(playerId, data);
                 break;
             case proto.Opcode.ChatMessage:
                 this._onChatMessage(playerId, data);
@@ -171,13 +195,8 @@ class Room {
     }
     _onPlaceObjects(fromId, data) {
         const r = new proto.Reader(data.slice(1));
-        const msg = proto.deserializePlaceObjects(r);
+        proto.deserializePlaceObjects(r);
         if (r.error) return;
-        for (const obj of msg.objects) {
-            if (obj.uuid && !this.uuids.includes(obj.uuid)) {
-                this.uuids.push(obj.uuid);
-            }
-        }
         this._relayFrom(fromId, data);
         this.dirty = true;
     }
@@ -185,8 +204,6 @@ class Room {
         const r = new proto.Reader(data.slice(1));
         const msg = proto.deserializeDeleteObjects(r);
         if (r.error) return;
-        const toDelete = new Set(msg.uuids);
-        this.uuids = this.uuids.filter(u => !toDelete.has(u));
         for (const uuid of msg.uuids) {
             this.locks.delete(uuid);
         }
@@ -238,30 +255,19 @@ class Room {
         }
         this._relayFrom(fromId, data);
     }
-    _onKickPlayer(fromId, data) {
+    _onPlayerJoined(fromId, data) {
         const r = new proto.Reader(data.slice(1));
-        const targetId = r.readVarInt();
-        if (r.error) return;
-        const target = this.players.get(targetId);
-        if (target) {
-            const errBuf = proto.serializeError('You have been kicked');
-            target.ws.send(errBuf);
-            target.ws.close(1008, 'Kicked');
-            this.removePlayer(targetId);
-        }
-    }
-    _onBanPlayer(fromId, data) {
-        const r = new proto.Reader(data.slice(1));
-        const targetId = r.readVarInt();
-        if (r.error) return;
-        const target = this.players.get(targetId);
-        if (target) {
-            this.banned.add(target.name);
-            const errBuf = proto.serializeError('You have been banned');
-            target.ws.send(errBuf);
-            target.ws.close(1008, 'Banned');
-            this.removePlayer(targetId);
-        }
+        const msg = proto.deserializePlayerJoined(r);
+        if (r.error || !msg.name) return;
+        const player = this.players.get(fromId);
+        if (!player) return;
+        player.name = msg.name;
+        player.colorIndex = msg.colorIndex;
+        player.iconStr = msg.iconStr;
+        this._broadcastExcept(
+            proto.serializePlayerJoined(fromId, msg.name, msg.colorIndex, msg.iconStr),
+            fromId
+        );
     }
     _decayLocks() {
         const now = Date.now();

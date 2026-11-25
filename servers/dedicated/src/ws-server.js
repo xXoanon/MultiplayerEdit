@@ -9,7 +9,7 @@ class WSServer {
     this.server.headersTimeout = 0;
     this.wss = new WebSocket.Server({
       noServer: true,
-      maxPayload: 250 * 1024 * 1024,
+      maxPayload: 16 * 1024 * 1024,
     });
     this.server.on("upgrade", (request, socket, head) => {
       const url = new URL(request.url, `http://${request.headers.host}`);

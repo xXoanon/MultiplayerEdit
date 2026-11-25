@@ -12,6 +12,7 @@
 #include <memory>
 #include <atomic>
 #include <chrono>
+#include <thread>
 
 namespace rtc {
     class PeerConnection;
@@ -95,7 +96,8 @@ namespace mpedit {
             m_state.store(State::Connected);
             m_localPlayerId = localPlayerId;
             auto roomCode = getRoomCode();
-            for (auto& cb : m_onSessionStarted) {
+            auto callbacks = m_onSessionStarted;
+            for (auto& cb : callbacks) {
                 cb(roomCode, localPlayerId);
             }
         }
@@ -182,6 +184,7 @@ namespace mpedit {
             int localTurnCount = 0;
             int remoteStunCount = 0;
             int remoteTurnCount = 0;
+            int disconnectToken = 0;
         };
 
         rtc::Configuration makeRtcConfig();
@@ -193,10 +196,17 @@ namespace mpedit {
         void pollSignalOnce(std::string const& code, std::string const& role, int playerId);
         void stopSignalPolling();
         void sendSignalingMessage(std::string const& roomCode, matjson::Value const& msg);
+        void sendSignalingMessageImpl(std::string const& roomCode, matjson::Value const& msg, int attemptsLeft);
         void handleSignalingMessages(matjson::Value const& messages);
+        void fetchTurnServers(std::string const& roomCode);
+        void failSession(std::string const& error);
+        void sendLeaveForPlayer(int playerId);
+        void armConnectionWatchdog(int attemptId, int timeoutSeconds, std::string const& message);
 
         void onPeerMessage(int fromPlayerId, const uint8_t* data, size_t len);
         void onPeerDisconnected(int playerId, bool unexpected);
+        void scheduleDisconnectCheck(int playerId, int delayMs);
+        void cancelDisconnectCheck(int playerId);
 
         void relayMessage(int fromPlayerId, const uint8_t* data, size_t len, ChannelType channel);
         void checkPeerReady(int playerId);
@@ -237,6 +247,8 @@ namespace mpedit {
 
 
         geode::async::TaskHolder<geode::utils::web::WebResponse> m_signalingListener;
+        geode::async::TaskHolder<geode::utils::web::WebResponse> m_roomListListener;
+        geode::async::TaskHolder<geode::utils::web::WebResponse> m_turnListener;
         geode::async::TaskHolder<geode::utils::web::WebResponse> m_signalPollListener;
         std::atomic<bool> m_signalingActive{false};
         std::string m_signalingRoomId;
@@ -247,6 +259,12 @@ namespace mpedit {
         std::shared_ptr<rtc::WebSocket> m_webSocket;
         std::shared_ptr<std::atomic<bool>> m_waitingTimerFlag;
         std::atomic<int> m_connectionAttemptId{0};
+
+        std::string m_hostToken;
+        std::string m_playerToken;
+
+        std::atomic<bool> m_dispatchRunning{false};
+        std::thread m_dispatchThread;
 
 
     };

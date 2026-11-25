@@ -9,6 +9,7 @@
 #include <Geode/binding/GJSearchObject.hpp>
 #include <Geode/utils/file.hpp>
 #include <Geode/loader/Dirs.hpp>
+#include <asp/fs/fs.hpp>
 
 #include "SessionManager.hpp"
 #include "P2PManager.hpp"
@@ -19,9 +20,10 @@
 #include "RevertManager.hpp"
 #include "ui/menu/MultiplayerMenuPopup.hpp"
 #include "ui/menu/CreateRoomPopup.hpp"
-#include "ui/QuickChatPopup.hpp"
+#include "ui/menu/ChatPopup.hpp"
 
 #include "ui/SessionStatusNode.hpp"
+#include "ui/ChatFeedNode.hpp"
 #include "ui/CursorNode.hpp"
 #include "ui/CursorOverlayNode.hpp"
 #include "ui/UpdateHelperNode.hpp"
@@ -347,24 +349,114 @@ namespace {
         }
     }
 
+    std::string formatCoord(float value) {
+        int asInt = static_cast<int>(value);
+        if (static_cast<float>(asInt) == value) {
+            return std::to_string(asInt);
+        }
+        return fmt::format("{:.6g}", value);
+    }
+
+    std::string rewriteSaveStringPosition(std::string const& saveStr, cocos2d::CCPoint const& pos) {
+        auto ordered = ActionSerializer::parseSaveStringOrdered(saveStr);
+        bool replacedX = false;
+        bool replacedY = false;
+        std::string xStr = formatCoord(pos.x);
+        std::string yStr = formatCoord(pos.y - 90.0f);
+        for (auto& kv : ordered) {
+            if (kv.first == "2") {
+                kv.second = xStr;
+                replacedX = true;
+            } else if (kv.first == "3") {
+                kv.second = yStr;
+                replacedY = true;
+            }
+        }
+        if (!replacedX) ordered.push_back({"2", xStr});
+        if (!replacedY) ordered.push_back({"3", yStr});
+        return ActionSerializer::buildSaveStringOrdered(ordered);
+    }
+
+    void registerHostExistingObjects(LevelEditorLayer* editor) {
+        if (!editor || !editor->m_objects) return;
+        auto& handler = RemoteActionHandler::get();
+        for (auto* obj : CCArrayExt<GameObject*>(editor->m_objects)) {
+            if (!obj) continue;
+            if (obj == editor->m_player1CollisionBlock || obj == editor->m_player2CollisionBlock) {
+                continue;
+            }
+            if (auto* tpPortal = typeinfo_cast<TeleportPortalObject*>(obj)) {
+                if (tpPortal->m_isYellowPortal) {
+                    continue;
+                }
+            }
+            auto uuid = handler.getUUIDForObject(obj);
+            if (uuid.empty()) {
+                uuid = RemoteActionHandler::generateUUID();
+                handler.registerObject(uuid, obj);
+            }
+            if (auto* tpPortal = typeinfo_cast<TeleportPortalObject*>(obj)) {
+                if (!tpPortal->m_isYellowPortal && tpPortal->m_orangePortal) {
+                    handler.registerObject(RemoteActionHandler::orangePortalUUID(uuid), tpPortal->m_orangePortal);
+                }
+            }
+        }
+    }
+
     void sendChunkedSync(LevelEditorLayer* editor, int targetPlayerId, std::function<void()> onComplete = nullptr) {
         auto& handler = RemoteActionHandler::get();
+        MessageBatcher::get().flush();
+        handler.flushPendingPlacements();
 
         std::string fullObjectsString;
         std::vector<std::string> allUuids;
 
         if (editor->m_objects) {
-            int index = 0;
+            bool isPlaytesting = editor->m_playbackMode != PlaybackMode::Not;
+            int userCoinCount = 0;
             for (auto* obj : CCArrayExt<GameObject*>(editor->m_objects)) {
                 if (!obj) continue;
+                if (obj == editor->m_player1CollisionBlock || obj == editor->m_player2CollisionBlock) {
+                    continue;
+                }
+                if (auto* tpPortal = typeinfo_cast<TeleportPortalObject*>(obj)) {
+                    if (tpPortal->m_isYellowPortal) {
+                        continue;
+                    }
+                }
+                if (obj->m_objectID == 142) {
+                    continue;
+                }
+                if (obj->m_objectID == 1329) {
+                    userCoinCount++;
+                    if (userCoinCount > 3) {
+                        continue;
+                    }
+                }
+
+                std::string saveStr = obj->getSaveString(editor);
+                while (!saveStr.empty() && saveStr.back() == ';') {
+                    saveStr.pop_back();
+                }
+                if (saveStr.empty()) continue;
+
+                if (isPlaytesting) {
+                    saveStr = rewriteSaveStringPosition(saveStr, obj->m_startPosition);
+                }
+
                 auto uuid = handler.getUUIDForObject(obj);
                 if (uuid.empty()) {
                     uuid = RemoteActionHandler::generateUUID();
                     handler.registerObject(uuid, obj);
                 }
+                if (auto* tpPortal = typeinfo_cast<TeleportPortalObject*>(obj)) {
+                    if (!tpPortal->m_isYellowPortal && tpPortal->m_orangePortal) {
+                        handler.registerObject(RemoteActionHandler::orangePortalUUID(uuid), tpPortal->m_orangePortal);
+                    }
+                }
+
                 allUuids.push_back(uuid);
-                fullObjectsString += std::string(obj->getSaveString(editor)) + ";";
-                index++;
+                fullObjectsString += saveStr + ";";
             }
         }
 
@@ -386,8 +478,7 @@ namespace {
                 log::error("Failed to read compressed sync payload from temp file");
             }
 
-            std::error_code ec;
-            std::filesystem::remove(tempPath, ec);
+            (void)asp::fs::removeFile(tempPath);
         }
 
         constexpr size_t MAX_CHUNK_BYTES = 10000;
@@ -501,31 +592,15 @@ namespace {
         senderNode->setTag(9991 + targetPlayerId);
         
         if (auto* notifNode = cocos2d::CCDirector::sharedDirector()->getNotificationNode()) {
+            while (auto* existing = notifNode->getChildByTag(9991 + targetPlayerId)) {
+                existing->removeFromParentAndCleanup(true);
+            }
             notifNode->addChild(senderNode);
         } else {
-            editor->addChild(senderNode);
-        }
-    }
-
-    void registerObjectsWithUuids(LevelEditorLayer* editor,
-                                  std::vector<std::string> const& uuids) {
-        if (!editor || !editor->m_objects) return;
-        auto& handler = RemoteActionHandler::get();
-        int index = 0;
-        for (auto* obj : CCArrayExt<GameObject*>(editor->m_objects)) {
-            if (!obj) continue;
-            if (index < static_cast<int>(uuids.size()) && !uuids[index].empty()) {
-                handler.registerObject(uuids[index], obj);
-            } else {
-                if (handler.getUUIDForObject(obj).empty()) {
-                    handler.registerObject(RemoteActionHandler::generateUUID(), obj);
-                }
+            while (auto* existing = editor->getChildByTag(9991 + targetPlayerId)) {
+                existing->removeFromParentAndCleanup(true);
             }
-            index++;
-        }
-        if (index != static_cast<int>(uuids.size())) {
-            log::warn("EditorHooks: object/uuid count mismatch on sync "
-                      "(objects={}, uuids={})", index, uuids.size());
+            editor->addChild(senderNode);
         }
     }
 }
@@ -537,6 +612,7 @@ class $modify(MPLevelEditorLayer, LevelEditorLayer) {
         bool m_inUndoRedo = false;
         cocos2d::CCPoint m_lastSentLevelPos = {0.f, 0.f};
         bool m_wasPlaytesting = false;
+        std::unordered_set<int> m_syncedPlayers;
 
         ~Fields() {
             auto& session = SessionManager::get();
@@ -547,6 +623,24 @@ class $modify(MPLevelEditorLayer, LevelEditorLayer) {
             session.clearCallbacks();
         }
     };
+
+    void addSpecial(GameObject* obj) {
+        LevelEditorLayer::addSpecial(obj);
+
+        if (s_previewDepth > 0 || !obj) return;
+        auto& session = SessionManager::get();
+        auto& handler = RemoteActionHandler::get();
+        if (!session.isInSession() || handler.isProcessingRemote()) return;
+
+        if (auto* tpPortal = typeinfo_cast<TeleportPortalObject*>(obj)) {
+            if (!tpPortal->m_isYellowPortal && tpPortal->m_orangePortal) {
+                auto blueUuid = handler.getUUIDForObject(obj);
+                if (!blueUuid.empty()) {
+                    handler.registerObject(RemoteActionHandler::orangePortalUUID(blueUuid), tpPortal->m_orangePortal);
+                }
+            }
+        }
+    }
 
     void levelSettingsUpdated() {
         LevelEditorLayer::levelSettingsUpdated();
@@ -601,17 +695,12 @@ class $modify(MPLevelEditorLayer, LevelEditorLayer) {
         }
 
         SessionManager::get().onSessionStarted(this, [this]() {
-            auto& session = SessionManager::get();
-            if (this->m_objects) {
-                auto& handler = RemoteActionHandler::get();
-                int index = 0;
-                for (auto* obj : CCArrayExt<GameObject*>(this->m_objects)) {
-                    if (obj && handler.getUUIDForObject(obj).empty()) {
-                        handler.registerObject(RemoteActionHandler::generateUUID(), obj);
-                    }
-                    index++;
-                }
-            }
+            m_fields->m_syncedPlayers.clear();
+            registerHostExistingObjects(this);
+        });
+
+        SessionManager::get().onSessionEnded(this, [this]() {
+            m_fields->m_syncedPlayers.clear();
         });
 
         auto& session = SessionManager::get();
@@ -619,30 +708,43 @@ class $modify(MPLevelEditorLayer, LevelEditorLayer) {
             bool hasPending = handler.hasPendingSync();
 
             if (!hasPending) {
-                auto const& expected = handler.getExpectedUuids();
-                if (!expected.empty()) {
-                    if (this->m_objects) {
-                        registerObjectsWithUuids(this, expected);
-                    }
+                auto const& expectedObjects = handler.getExpectedObjects();
+                auto const& expectedUuids = handler.getExpectedUuids();
+                if (!expectedObjects.empty()) {
+                    handler.registerSyncedObjects(this, expectedObjects);
+                    handler.clearExpectedObjects();
                     handler.clearExpectedUuids();
-                } else if (this->m_objects) {
-                    int index = 0;
-                    for (auto* obj : CCArrayExt<GameObject*>(this->m_objects)) {
-                        if (obj && handler.getUUIDForObject(obj).empty()) {
-                            handler.registerObject(RemoteActionHandler::generateUUID(), obj);
-                        }
-                        index++;
+                } else if (!expectedUuids.empty()) {
+                    std::vector<ExpectedObjectMeta> metas;
+                    metas.reserve(expectedUuids.size());
+                    for (auto const& u : expectedUuids) {
+                        ExpectedObjectMeta m;
+                        m.uuid = u;
+                        metas.push_back(std::move(m));
                     }
+                    handler.registerSyncedObjects(this, metas);
+                    handler.clearExpectedUuids();
+                } else {
+                    registerHostExistingObjects(this);
                 }
+                handler.applyPendingInitialLocks();
             } else {
                 handler.clearExpectedUuids();
+                handler.clearExpectedObjects();
             }
 
             handler.setInitialSyncCompleted(true);
 
+            if (!hasPending) {
+                handler.setEditorForInit(this);
+                handler.flushQueuedActions();
+                handler.setEditorForInit(nullptr);
+            }
+
             if (session.getRole() == SessionManager::Role::Host) {
                 for (auto const& player : session.getPlayers()) {
                     if (player.id != session.getLocalPlayerId()) {
+                        m_fields->m_syncedPlayers.insert(player.id);
                         sendChunkedSync(this, player.id);
                         log::info("EditorHooks: Sent chunked sync_level to existing player {}", player.id);
                     }
@@ -653,9 +755,15 @@ class $modify(MPLevelEditorLayer, LevelEditorLayer) {
         SessionManager::get().onPlayerJoined(this, [this](PlayerInfo const& info) {
             auto& session = SessionManager::get();
             if (session.getRole() == SessionManager::Role::Host && info.id != session.getLocalPlayerId()) {
-                sendChunkedSync(this, info.id);
-                log::info("EditorHooks: Sent chunked sync_level to new player {}", info.id);
+                if (m_fields->m_syncedPlayers.insert(info.id).second) {
+                    sendChunkedSync(this, info.id);
+                    log::info("EditorHooks: Sent chunked sync_level to new player {}", info.id);
+                }
             }
+        });
+
+        SessionManager::get().onPlayerLeft(this, [this](PlayerInfo const& info) {
+            m_fields->m_syncedPlayers.erase(info.id);
         });
 
         if (handler.hasPendingSync()) {
@@ -675,6 +783,10 @@ class $modify(MPLevelEditorLayer, LevelEditorLayer) {
         auto* status = SessionStatusNode::create();
         status->setID("session-status"_spr);
         this->addChild(status, 1000);
+
+        auto* chatFeed = ChatFeedNode::create();
+        chatFeed->setID("chat-feed"_spr);
+        this->addChild(chatFeed, 1000);
 
         auto* cursorOverlay = CursorOverlayNode::create();
         cursorOverlay->setID("cursor-overlay-node"_spr);
@@ -803,6 +915,7 @@ class $modify(MPLevelEditorLayer, LevelEditorLayer) {
                 handler.markObjectInactive(obj);
             }
             handler.getTrackedSelections().erase(obj);
+            handler.getDirtyTransforms().erase(obj);
         }
 
         LevelEditorLayer::removeObject(obj, undo);
@@ -887,6 +1000,7 @@ class $modify(MPLevelEditorLayer, LevelEditorLayer) {
                     }
                 }
                 handler.getTrackedSelections().erase(obj);
+                handler.getDirtyTransforms().erase(obj);
             }
 
             if (!uuids.empty()) {
@@ -916,6 +1030,7 @@ class $modify(MPLevelEditorLayer, LevelEditorLayer) {
         LevelEditorLayer::removeAllObjectsOfType(objectID);
     }
 
+#ifndef GEODE_IS_INTEL_MAC
     void handleAction(bool undo, cocos2d::CCArray* undoObjects) {
         auto& handler = RemoteActionHandler::get();
         auto& session = SessionManager::get();
@@ -1002,17 +1117,30 @@ class $modify(MPLevelEditorLayer, LevelEditorLayer) {
                     deletedUuids.push_back(uuid);
                 }
                 handler.getTrackedSelections().erase(obj);
+                handler.getDirtyTransforms().erase(obj);
                 handler.markObjectInactive(obj);
                 s_startPosObjects.erase(obj);
                 s_startPosSaveStrings.erase(obj);
             } 
             else if (!existed_before && existed_after) {
+                if (auto* tpPortal = typeinfo_cast<TeleportPortalObject*>(obj)) {
+                    if (tpPortal->m_isYellowPortal) {
+                        continue;
+                    }
+                }
                 std::string uuid = handler.getUUIDForObject(obj);
                 if (uuid.empty()) {
                     uuid = RemoteActionHandler::generateUUID();
                     handler.registerObject(uuid, obj);
                 }
                 placedObjects.push_back(ActionSerializer::extractObjectData(obj, uuid));
+                if (auto* tpPortal = typeinfo_cast<TeleportPortalObject*>(obj)) {
+                    if (!tpPortal->m_isYellowPortal && tpPortal->m_orangePortal) {
+                        auto orangeUuid = RemoteActionHandler::orangePortalUUID(uuid);
+                        handler.registerObject(orangeUuid, tpPortal->m_orangePortal);
+                        placedObjects.push_back(ActionSerializer::extractObjectData(tpPortal->m_orangePortal, orangeUuid));
+                    }
+                }
             } 
             else if (existed_before && existed_after) {
                 std::string uuid = handler.getUUIDForObject(obj);
@@ -1040,8 +1168,13 @@ class $modify(MPLevelEditorLayer, LevelEditorLayer) {
         }
         if (!placedObjects.empty()) {
             RevertManager::get().onObjectsPlaced(SessionManager::get().getLocalPlayerId(), placedObjects);
-            auto data = proto::serializePlaceObjects(placedObjects);
-            P2PManager::get().send(std::move(data), ChannelType::Reliable);
+            constexpr size_t MAX_OBJECTS_PER_MESSAGE = 100;
+            for (size_t i = 0; i < placedObjects.size(); i += MAX_OBJECTS_PER_MESSAGE) {
+                size_t count = std::min(MAX_OBJECTS_PER_MESSAGE, placedObjects.size() - i);
+                std::vector<ActionSerializer::ObjectData> chunk(placedObjects.begin() + i, placedObjects.begin() + i + count);
+                auto data = proto::serializePlaceObjects(chunk);
+                P2PManager::get().send(std::move(data), ChannelType::Reliable);
+            }
             log::info("EditorHooks: Synced redo placement of {} objects", placedObjects.size());
         }
         if (!deletedUuids.empty()) {
@@ -1060,6 +1193,7 @@ class $modify(MPLevelEditorLayer, LevelEditorLayer) {
         
         m_fields->m_inUndoRedo = false;
     }
+#endif
 
     void networkUpdate(float dt) {
         auto& session = SessionManager::get();
@@ -1072,7 +1206,13 @@ class $modify(MPLevelEditorLayer, LevelEditorLayer) {
             MessageBatcher::get().flush();
             handler.flushPendingPlacements();
             if (auto* ui = this->m_editorUI) {
-                ui->deselectAll();
+                bool hasSelection = ui->m_selectedObject || (ui->m_selectedObjects && ui->m_selectedObjects->count() > 0);
+                if (hasSelection) {
+                    ui->deselectAll();
+                    if (this->m_playbackMode == PlaybackMode::Playing && GameManager::get()->getGameVariable(GameVar::PlaytestNoUI)) {
+                        ui->showUI(false);
+                    }
+                }
             }
         } else if (!isPlaytesting && m_fields->m_wasPlaytesting) {
             handler.flushDeferredDeletions();
@@ -1080,6 +1220,9 @@ class $modify(MPLevelEditorLayer, LevelEditorLayer) {
         m_fields->m_wasPlaytesting = isPlaytesting;
 
         P2PManager::get().dispatchMessages();
+        if (handler.isInitialSyncCompleted()) {
+            handler.flushQueuedActions();
+        }
 
         handler.updateLocks(dt);
         MessageBatcher::get().update(dt);
@@ -1210,6 +1353,19 @@ class $modify(MPLevelEditorLayer, LevelEditorLayer) {
 
 
 namespace {
+    cocos2d::CCArray* getEffectiveSelectedObjects(EditorUI* ui) {
+        if (!ui) return nullptr;
+        if (ui->m_selectedObjects && ui->m_selectedObjects->count() > 0) {
+            return ui->m_selectedObjects;
+        }
+        if (ui->m_selectedObject) {
+            auto* single = cocos2d::CCArray::create();
+            single->addObject(ui->m_selectedObject);
+            return single;
+        }
+        return ui->m_selectedObjects;
+    }
+
     void syncTransformedObjects(cocos2d::CCArray* objects,
                                 std::function<void()> applyBase) {
         if (s_inTransformSync) {
@@ -1278,6 +1434,11 @@ namespace {
             MessageBatcher::get().queueMove(m.uuid, m.dx, m.dy);
         }
 
+        auto& dirtyTransforms = handler.getDirtyTransforms();
+        for (auto const& state : selected) {
+            dirtyTransforms.insert(state.obj);
+        }
+
         auto& tracked = handler.getTrackedSelections();
         auto* editor = LevelEditorLayer::get();
         if (editor) {
@@ -1336,7 +1497,7 @@ class $modify(MPEditorUI, EditorUI) {
         return EditorUI::createCustomItems();
     }
 
-    cocos2d::CCSprite* spriteFromObjectString(gd::string str, bool absoluteCenter, bool useGroup, int objLimit, cocos2d::CCArray* objects, cocos2d::CCArray* group, GameObject* groupParent) {
+    cocos2d::CCSprite* spriteFromObjectString(std::string str, bool absoluteCenter, bool useGroup, int objLimit, cocos2d::CCArray* objects, cocos2d::CCArray* group, GameObject* groupParent) {
         PreviewScope scope;
         return EditorUI::spriteFromObjectString(str, absoluteCenter, useGroup, objLimit, objects, group, groupParent);
     }
@@ -1361,10 +1522,11 @@ class $modify(MPEditorUI, EditorUI) {
         EditorUI::redoLastAction(sender);
     }
 
-    void onCreateObject(int id) {
-        if (SessionManager::get().isLocalPlayerViewOnly()) return;
-        EditorUI::onCreateObject(id);
+    GameObject* onCreateObject(int id) {
+        if (SessionManager::get().isLocalPlayerViewOnly()) return nullptr;
+        auto* obj = EditorUI::onCreateObject(id);
         s_selectedObjectID = id;
+        return obj;
     }
 
     void toggleMode(cocos2d::CCObject* btn) {
@@ -1402,7 +1564,12 @@ class $modify(MPEditorUI, EditorUI) {
         if (key == cocos2d::enumKeyCodes::KEY_Slash) {
             auto& session = SessionManager::get();
             if (session.isInSession()) {
-                QuickChatPopup::create()->show();
+                auto* scene = cocos2d::CCDirector::sharedDirector()->getRunningScene();
+                if (!scene || !scene->getChildByType<ChatPopup>(0)) {
+                    if (auto* popup = ChatPopup::create(true)) {
+                        popup->show();
+                    }
+                }
                 return;
             }
         }
@@ -1468,6 +1635,7 @@ class $modify(MPEditorUI, EditorUI) {
         auto& session = SessionManager::get();
         if (session.isInSession() && obj) {
             auto& tracked = handler.getTrackedSelections();
+            auto& dirtyTransforms = handler.getDirtyTransforms();
             if (!handler.isProcessingRemote()) {
                 if (handler.isObjectPendingPlacement(obj)) {
                     handler.flushPendingPlacements();
@@ -1475,28 +1643,34 @@ class $modify(MPEditorUI, EditorUI) {
 
                 auto uuid = handler.getUUIDForObject(obj);
                 if (!uuid.empty()) {
+                    bool saveChanged = false;
+                    bool deepChanged = false;
                     auto tIt = tracked.find(obj);
                     if (tIt != tracked.end()) {
                         if (auto* editor = LevelEditorLayer::get()) {
                             std::string currentSave = obj->getSaveString(editor);
-                            if (ActionSerializer::hasDeepPropertyChanges(obj, tIt->second, currentSave)) {
+                            saveChanged = (tIt->second != currentSave);
+                            if (saveChanged && ActionSerializer::hasDeepPropertyChanges(obj, tIt->second, currentSave)) {
+                                deepChanged = true;
                                 auto objData = ActionSerializer::extractObjectData(obj, uuid);
                                 sendChunkedUpdateObjects({objData});
                             }
                         }
                     }
 
-                    ActionSerializer::ReconcileData rec;
-                    rec.uuid = uuid;
-                    rec.x = obj->getPositionX();
-                    rec.y = obj->getPositionY();
-                    rec.rotation = obj->getRotation();
-                    rec.scaleX = obj->getScaleX();
-                    rec.scaleY = obj->getScaleY();
-                    rec.flipX = obj->isFlipX();
-                    rec.flipY = obj->isFlipY();
-                    
-                    sendChunkedReconcileObjects({rec});
+                    bool needsReconcile = !deepChanged && (saveChanged || dirtyTransforms.count(obj) > 0 || MessageBatcher::get().hasPending(uuid));
+                    if (needsReconcile) {
+                        ActionSerializer::ReconcileData rec;
+                        rec.uuid = uuid;
+                        rec.x = obj->getPositionX();
+                        rec.y = obj->getPositionY();
+                        rec.rotation = obj->getRotation();
+                        rec.scaleX = obj->getScaleX();
+                        rec.scaleY = obj->getScaleY();
+                        rec.flipX = obj->isFlipX();
+                        rec.flipY = obj->isFlipY();
+                        sendChunkedReconcileObjects({rec});
+                    }
                     
                     MessageBatcher::get().removePending(uuid);
 
@@ -1504,6 +1678,7 @@ class $modify(MPEditorUI, EditorUI) {
                 }
             }
             tracked.erase(obj);
+            dirtyTransforms.erase(obj);
         }
     }
 
@@ -1518,6 +1693,7 @@ class $modify(MPEditorUI, EditorUI) {
                 std::vector<ActionSerializer::ObjectData> updates;
                 
                 auto& tracked = handler.getTrackedSelections();
+                auto& dirtyTransforms = handler.getDirtyTransforms();
                 
                 for (auto& [obj, savedString] : tracked) {
                     if (!editor || !editor->m_objects || !handler.isObjectAlive(obj)) {
@@ -1534,20 +1710,25 @@ class $modify(MPEditorUI, EditorUI) {
                     uuids.push_back(uuid);
                     
                     std::string currentSave = obj->getSaveString(editor);
-                    if (ActionSerializer::hasDeepPropertyChanges(obj, savedString, currentSave)) {
+                    bool saveChanged = (savedString != currentSave);
+                    bool deepChanged = false;
+                    if (saveChanged && ActionSerializer::hasDeepPropertyChanges(obj, savedString, currentSave)) {
+                        deepChanged = true;
                         updates.push_back(ActionSerializer::extractObjectData(obj, uuid));
                     }
 
-                    ActionSerializer::ReconcileData rec;
-                    rec.uuid = uuid;
-                    rec.x = obj->getPositionX();
-                    rec.y = obj->getPositionY();
-                    rec.rotation = obj->getRotation();
-                    rec.scaleX = obj->getScaleX();
-                    rec.scaleY = obj->getScaleY();
-                    rec.flipX = obj->isFlipX();
-                    rec.flipY = obj->isFlipY();
-                    reconciles.push_back(rec);
+                    if (!deepChanged && (saveChanged || dirtyTransforms.count(obj) > 0 || MessageBatcher::get().hasPending(uuid))) {
+                        ActionSerializer::ReconcileData rec;
+                        rec.uuid = uuid;
+                        rec.x = obj->getPositionX();
+                        rec.y = obj->getPositionY();
+                        rec.rotation = obj->getRotation();
+                        rec.scaleX = obj->getScaleX();
+                        rec.scaleY = obj->getScaleY();
+                        rec.flipX = obj->isFlipX();
+                        rec.flipY = obj->isFlipY();
+                        reconciles.push_back(rec);
+                    }
                     
                     MessageBatcher::get().removePending(uuid);
                 }
@@ -1563,6 +1744,7 @@ class $modify(MPEditorUI, EditorUI) {
                 }
             }
             handler.getTrackedSelections().clear();
+            handler.getDirtyTransforms().clear();
         }
         EditorUI::deselectAll();
     }
@@ -1610,6 +1792,7 @@ class $modify(MPEditorUI, EditorUI) {
         EditorUI::onDeleteSelectedType(sender);
     }
 
+#ifndef GEODE_IS_IOS
     bool shouldDeleteObject(GameObject* obj) {
         auto& handler = RemoteActionHandler::get();
         auto& session = SessionManager::get();
@@ -1626,6 +1809,7 @@ class $modify(MPEditorUI, EditorUI) {
         }
         return EditorUI::shouldDeleteObject(obj);
     }
+#endif
 
     void selectObjects(cocos2d::CCArray* objects, bool filter) {
         if (SessionManager::get().isLocalPlayerViewOnly()) return;
@@ -1688,6 +1872,110 @@ class $modify(MPEditorUI, EditorUI) {
         }
     }
 
+    void onPlaytest(cocos2d::CCObject* sender) {
+        if (SessionManager::get().isInSession() && m_editorLayer && m_editorLayer->m_playbackMode == PlaybackMode::Not) {
+            MessageBatcher::get().flush();
+            RemoteActionHandler::get().flushPendingPlacements();
+            if (m_selectedObject || (m_selectedObjects && m_selectedObjects->count() > 0)) {
+                this->deselectAll();
+            }
+        }
+        EditorUI::onPlaytest(sender);
+        this->updateChatButton();
+    }
+
+    void showUI(bool show) {
+        EditorUI::showUI(show);
+        this->updateChatButton();
+    }
+
+    void onOpenChat(cocos2d::CCObject*) {
+        if (!SessionManager::get().isInSession()) return;
+        auto* scene = cocos2d::CCDirector::sharedDirector()->getRunningScene();
+        if (scene && scene->getChildByType<ChatPopup>(0)) return;
+        if (auto* popup = ChatPopup::create(true)) {
+            popup->show();
+        }
+    }
+
+    void setupChatButton() {
+        CCMenu* settingsMenu = typeinfo_cast<CCMenu*>(this->getChildByID("settings-menu"));
+        if (!settingsMenu) {
+            settingsMenu = typeinfo_cast<CCMenu*>(this->getChildByIDRecursive("settings-menu"));
+        }
+        if (!settingsMenu) {
+            if (auto* settingsBtn = this->getChildByIDRecursive("settings-button")) {
+                settingsMenu = typeinfo_cast<CCMenu*>(settingsBtn->getParent());
+            }
+        }
+        if (!settingsMenu) return;
+        if (settingsMenu->getChildByID("quick-chat-button"_spr)) {
+            this->updateChatButton();
+            return;
+        }
+
+        auto* refBtn = settingsMenu->getChildByID("grid-controls-button");
+        if (!refBtn) refBtn = settingsMenu->getChildByID("edit-tools-button");
+
+        float targetSize = 24.f;
+        if (refBtn) {
+            auto refSize = refBtn->getScaledContentSize();
+            float refDim = std::max(refSize.width, refSize.height);
+            if (refDim > 0.f) {
+                targetSize = refDim;
+            }
+        }
+
+        cocos2d::CCNode* spr = cocos2d::CCSprite::createWithSpriteFrameName("GJ_chatBtn_001.png");
+        if (spr) {
+            auto sprSize = spr->getContentSize();
+            float maxDim = std::max(sprSize.width, sprSize.height);
+            if (maxDim > 0.f) {
+                spr->setScale(targetSize / maxDim);
+            }
+        } else {
+            auto* fallback = ButtonSprite::create("Chat", "goldFont.fnt", "GJ_button_01.png", 0.7f);
+            auto sprSize = fallback->getContentSize();
+            if (sprSize.height > 0.f) {
+                fallback->setScale(targetSize / sprSize.height);
+            }
+            spr = fallback;
+        }
+
+        auto* chatBtn = CCMenuItemSpriteExtra::create(spr, this, menu_selector(MPEditorUI::onOpenChat));
+        chatBtn->setID("quick-chat-button"_spr);
+        if (auto* gridBtn = settingsMenu->getChildByID("grid-controls-button")) {
+            settingsMenu->insertAfter(chatBtn, gridBtn);
+        } else {
+            settingsMenu->addChild(chatBtn);
+        }
+        this->updateChatButton();
+        settingsMenu->updateLayout();
+    }
+
+    void updateChatButton() {
+        auto* btn = this->getChildByIDRecursive("quick-chat-button"_spr);
+        if (!btn) return;
+        bool uiVisible = true;
+        if (auto* parent = btn->getParent()) {
+            if (auto* refBtn = parent->getChildByID("grid-controls-button")) {
+                uiVisible = refBtn->isVisible();
+            } else if (auto* editBtn = parent->getChildByID("edit-tools-button")) {
+                uiVisible = editBtn->isVisible();
+            }
+        }
+        bool showBtn = uiVisible
+            && Mod::get()->getSettingValue<bool>("show-chat-button")
+            && SessionManager::get().isInSession()
+            && (!m_editorLayer || m_editorLayer->m_playbackMode != PlaybackMode::Playing);
+        if (btn->isVisible() != showBtn) {
+            btn->setVisible(showBtn);
+            if (auto* parent = btn->getParent()) {
+                parent->updateLayout();
+            }
+        }
+    }
+
     bool init(LevelEditorLayer* editorLayer) {
         if (!EditorUI::init(editorLayer)) return false;
 
@@ -1698,10 +1986,19 @@ class $modify(MPEditorUI, EditorUI) {
             helper->setID("sync-deselect-helper"_spr);
             this->addChild(helper);
         }
+
+        geode::Loader::get()->queueInMainThread([self = geode::Ref(this)]() {
+            self->setupChatButton();
+        });
         return true;
     }
 
     void syncDeselections(float dt) {
+        if (!this->getChildByIDRecursive("quick-chat-button"_spr)) {
+            this->setupChatButton();
+        } else {
+            this->updateChatButton();
+        }
         auto* editor = LevelEditorLayer::get();
         if (!editor || !editor->m_objects || editor->m_playbackMode != PlaybackMode::Not) return;
 
@@ -1801,23 +2098,29 @@ class $modify(MPEditorUI, EditorUI) {
             if (!isSelected) {
                 unlockUuids.push_back(uuid);
 
-                ActionSerializer::ReconcileData rec;
-                rec.uuid = uuid;
-                rec.x = obj->getPositionX();
-                rec.y = obj->getPositionY();
-                rec.rotation = obj->getRotation();
-                rec.scaleX = obj->getScaleX();
-                rec.scaleY = obj->getScaleY();
-                rec.flipX = obj->isFlipX();
-                rec.flipY = obj->isFlipY();
-                reconciles.push_back(rec);
-
                 std::string currentSave = obj->getSaveString(editor);
-                if (ActionSerializer::hasDeepPropertyChanges(obj, it->second, currentSave)) {
+                bool saveChanged = (it->second != currentSave);
+                bool deepChanged = false;
+                if (saveChanged && ActionSerializer::hasDeepPropertyChanges(obj, it->second, currentSave)) {
+                    deepChanged = true;
                     updates.push_back(ActionSerializer::extractObjectData(obj, uuid));
+                }
+
+                if (!deepChanged && (saveChanged || handler.getDirtyTransforms().count(obj) > 0 || MessageBatcher::get().hasPending(uuid))) {
+                    ActionSerializer::ReconcileData rec;
+                    rec.uuid = uuid;
+                    rec.x = obj->getPositionX();
+                    rec.y = obj->getPositionY();
+                    rec.rotation = obj->getRotation();
+                    rec.scaleX = obj->getScaleX();
+                    rec.scaleY = obj->getScaleY();
+                    rec.flipX = obj->isFlipX();
+                    rec.flipY = obj->isFlipY();
+                    reconciles.push_back(rec);
                 }
                 
                 MessageBatcher::get().removePending(uuid);
+                handler.getDirtyTransforms().erase(obj);
 
                 it = tracked.erase(it);
             } else {
@@ -1825,10 +2128,12 @@ class $modify(MPEditorUI, EditorUI) {
                 if (ActionSerializer::hasDeepPropertyChanges(obj, it->second, currentSave)) {
                     updates.push_back(ActionSerializer::extractObjectData(obj, uuid));
                     it->second = currentSave;
+                    handler.getDirtyTransforms().erase(obj);
                 } else if (it->second != currentSave) {
                     it->second = currentSave;
                     
                     MessageBatcher::get().removePending(uuid);
+                    handler.getDirtyTransforms().erase(obj);
                     
                     ActionSerializer::ReconcileData rec;
                     rec.uuid = uuid;
@@ -1865,14 +2170,14 @@ class $modify(MPEditorUI, EditorUI) {
             ++it;
         }
 
-        if (!unlockUuids.empty()) {
-            sendChunkedLockObjects(unlockUuids, false);
+        if (!updates.empty()) {
+            sendChunkedUpdateObjects(updates);
         }
         if (!reconciles.empty()) {
             sendChunkedReconcileObjects(reconciles);
         }
-        if (!updates.empty()) {
-            sendChunkedUpdateObjects(updates);
+        if (!unlockUuids.empty()) {
+            sendChunkedLockObjects(unlockUuids, false);
         }
     }
 
@@ -1910,6 +2215,7 @@ class $modify(MPEditorUI, EditorUI) {
 
                 if ((move.dx != 0.f || move.dy != 0.f) && !s_inTransformSync) {
                     MessageBatcher::get().queueMove(uuid, move.dx, move.dy);
+                    handler.getDirtyTransforms().insert(obj);
 
                     auto& tracked = handler.getTrackedSelections();
                     auto tIt = tracked.find(obj);
@@ -1925,15 +2231,15 @@ class $modify(MPEditorUI, EditorUI) {
 
     void transformObjectCall(EditCommand command) {
         if (SessionManager::get().isLocalPlayerViewOnly()) return;
-        syncTransformedObjects(m_selectedObjects, [&]() {
+        syncTransformedObjects(getEffectiveSelectedObjects(this), [&]() {
             EditorUI::transformObjectCall(command);
         });
     }
 
-    void rotateObjects(cocos2d::CCArray* objects, float rotation, cocos2d::CCPoint pivotPoint) {
+    void rotateObjects(cocos2d::CCArray* objects, float rotation, cocos2d::CCPoint center, bool lock) {
         if (SessionManager::get().isLocalPlayerViewOnly()) return;
         syncTransformedObjects(objects, [&]() {
-            EditorUI::rotateObjects(objects, rotation, pivotPoint);
+            EditorUI::rotateObjects(objects, rotation, center, lock);
         });
     }
 
@@ -1944,6 +2250,7 @@ class $modify(MPEditorUI, EditorUI) {
         });
     }
 
+#ifndef GEODE_IS_MACOS
     void flipObjectsX(cocos2d::CCArray* objects) {
         if (SessionManager::get().isLocalPlayerViewOnly()) return;
         syncTransformedObjects(objects, [&]() {
@@ -1957,6 +2264,7 @@ class $modify(MPEditorUI, EditorUI) {
             EditorUI::flipObjectsY(objects);
         });
     }
+#endif
 };
 
 class $modify(MPBaseGameLayer, GJBaseGameLayer) {
@@ -2033,6 +2341,14 @@ class $modify(MPBaseGameLayer, GJBaseGameLayer) {
 
         auto* editor = LevelEditorLayer::get();
         if (!editor || static_cast<GJBaseGameLayer*>(editor) != this) {
+            return;
+        }
+
+        if (editor->m_playbackMode != PlaybackMode::Not) {
+            return;
+        }
+
+        if (obj == editor->m_player1CollisionBlock || obj == editor->m_player2CollisionBlock) {
             return;
         }
 
@@ -2122,6 +2438,7 @@ class $modify(MPGJColorSetupLayer, GJColorSetupLayer) {
         std::unordered_map<int, ActionSerializer::ColorChannelData> m_cachedColors;
     };
 
+#ifndef GEODE_IS_IOS
     bool init(LevelSettingsObject* p0) {
         if (!GJColorSetupLayer::init(p0)) return false;
 
@@ -2145,6 +2462,7 @@ class $modify(MPGJColorSetupLayer, GJColorSetupLayer) {
 
         return true;
     }
+#endif
 
     void syncColors() {
         auto& handler = RemoteActionHandler::get();
@@ -2180,10 +2498,12 @@ class $modify(MPGJColorSetupLayer, GJColorSetupLayer) {
         }
     }
 
+#ifndef GEODE_IS_IOS
     void onClose(cocos2d::CCObject* sender) {
         GJColorSetupLayer::onClose(sender);
         syncColors();
     }
+#endif
 
     void keyBackClicked() {
         GJColorSetupLayer::keyBackClicked();
@@ -2246,6 +2566,7 @@ class $modify(MPLevelSettingsLayer, LevelSettingsLayer) {
     }
 
 
+#ifndef GEODE_IS_IOS
     void onClose(cocos2d::CCObject* sender) {
         LevelSettingsLayer::onClose(sender);
 
@@ -2269,6 +2590,7 @@ class $modify(MPLevelSettingsLayer, LevelSettingsLayer) {
             P2PManager::get().send(std::move(packet), ChannelType::Reliable);
         }
     }
+#endif
 
     void keyBackClicked() {
         LevelSettingsLayer::keyBackClicked();
@@ -2300,7 +2622,7 @@ class $modify(MPCustomizeObjectLayer, CustomizeObjectLayer) {
     void syncSelected() {
         if (auto editor = LevelEditorLayer::get()) {
             if (auto ui = editor->m_editorUI) {
-                syncObjectProperties(ui->m_selectedObjects);
+                syncObjectProperties(getEffectiveSelectedObjects(ui));
             }
         }
     }
@@ -2321,7 +2643,7 @@ class $modify(MPSetGroupIDLayer, SetGroupIDLayer) {
         SetGroupIDLayer::onClose(sender);
         if (auto editor = LevelEditorLayer::get()) {
             if (auto ui = editor->m_editorUI) {
-                syncObjectProperties(ui->m_selectedObjects);
+                syncObjectProperties(getEffectiveSelectedObjects(ui));
             }
         }
     }
@@ -2329,7 +2651,7 @@ class $modify(MPSetGroupIDLayer, SetGroupIDLayer) {
         SetGroupIDLayer::keyBackClicked();
         if (auto editor = LevelEditorLayer::get()) {
             if (auto ui = editor->m_editorUI) {
-                syncObjectProperties(ui->m_selectedObjects);
+                syncObjectProperties(getEffectiveSelectedObjects(ui));
             }
         }
     }
@@ -2341,7 +2663,7 @@ class $modify(MPSetupTriggerPopup, SetupTriggerPopup) {
         SetupTriggerPopup::onClose(sender);
         if (auto editor = LevelEditorLayer::get()) {
             if (auto ui = editor->m_editorUI) {
-                syncObjectProperties(ui->m_selectedObjects);
+                syncObjectProperties(getEffectiveSelectedObjects(ui));
             }
         }
     }
@@ -2349,7 +2671,7 @@ class $modify(MPSetupTriggerPopup, SetupTriggerPopup) {
         SetupTriggerPopup::keyBackClicked();
         if (auto editor = LevelEditorLayer::get()) {
             if (auto ui = editor->m_editorUI) {
-                syncObjectProperties(ui->m_selectedObjects);
+                syncObjectProperties(getEffectiveSelectedObjects(ui));
             }
         }
     }
@@ -2357,10 +2679,12 @@ class $modify(MPSetupTriggerPopup, SetupTriggerPopup) {
 
 #include <Geode/modify/ColorSelectPopup.hpp>
 class $modify(MPColorSelectPopup, ColorSelectPopup) {
+#ifndef GEODE_IS_IOS
     void closeColorSelect(cocos2d::CCObject* sender) {
         ColorSelectPopup::closeColorSelect(sender);
         syncColor();
     }
+#endif
 
     void keyBackClicked() {
         ColorSelectPopup::keyBackClicked();
@@ -2387,10 +2711,12 @@ class $modify(MPColorSelectPopup, ColorSelectPopup) {
 
 #include <Geode/modify/ColorSelectLiveOverlay.hpp>
 class $modify(MPColorSelectLiveOverlay, ColorSelectLiveOverlay) {
+#ifndef GEODE_IS_ARM_MAC
     void closeColorSelect(cocos2d::CCObject* sender) {
         ColorSelectLiveOverlay::closeColorSelect(sender);
         syncColor();
     }
+#endif
 
     void keyBackClicked() {
         ColorSelectLiveOverlay::keyBackClicked();

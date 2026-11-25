@@ -138,11 +138,11 @@ void MyHostedRoomsPopup::setupList(matjson::Value const& rooms) {
     
     auto listSize = CCSize{320.f, 150.f};
     m_scrollLayer = ScrollLayer::create(listSize);
-    m_scrollLayer->setPosition(m_mainLayer->getContentSize() / 2 - listSize / 2 - CCPoint{0, 10.f});
+    m_scrollLayer->setPosition(m_mainLayer->getContentSize() / 2 - CCPoint{0, 10.f});
     
     auto bg = CCScale9Sprite::create("square02_small.png");
     bg->setContentSize(listSize);
-    bg->setPosition(m_scrollLayer->getPosition() + listSize / 2);
+    bg->setPosition(m_scrollLayer->getPosition());
     bg->setOpacity(75);
     m_mainLayer->addChild(bg, -1);
     m_mainLayer->addChild(m_scrollLayer);
@@ -175,7 +175,6 @@ void MyHostedRoomsPopup::setupList(matjson::Value const& rooms) {
         i++;
     }
     m_scrollLayer->moveToTop();
-    this->syncTouchPriority();
 }
 
 MyHostedRoomsPopup* MyHostedRoomsPopup::create() {
@@ -265,6 +264,7 @@ protected:
         m_input = TextInput::create(220.f, "New Password", "chatFont.fnt");
         m_input->setPosition(this->m_mainLayer->getContentSize() / 2);
         m_input->setCommonFilter(CommonFilter::Any);
+        m_input->setDisplayEmojis(false);
         this->m_mainLayer->addChild(m_input);
 
         auto btnSprite = ButtonSprite::create("Apply", "goldFont.fnt", "GJ_button_01.png", 0.8f);
@@ -334,6 +334,8 @@ protected:
         m_input = TextInput::create(220.f, "Max Players", "chatFont.fnt");
         m_input->setPosition(this->m_mainLayer->getContentSize() / 2);
         m_input->setFilter("0123456789");
+        m_input->setNumericMode(true);
+        m_input->setDisplayEmojis(false);
         this->m_mainLayer->addChild(m_input);
 
         auto btnSprite = ButtonSprite::create("Apply", "goldFont.fnt", "GJ_button_01.png", 0.8f);

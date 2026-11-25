@@ -202,6 +202,10 @@ namespace mpedit {
         return false;
     }
 
+    bool SessionManager::isDedicatedServer() const {
+        return P2PManager::get().isDedicatedServer();
+    }
+
     void SessionManager::sendChatMessage(std::string const& message) {
         if (!isInSession()) return;
         auto msg = proto::serializeChatMessage(message);
@@ -330,6 +334,10 @@ namespace mpedit {
         m_onPlayerJoined[id] = std::move(cb);
     }
 
+    void SessionManager::onPlayerUpdated(void* id, PlayerCallback cb) {
+        m_onPlayerUpdated[id] = std::move(cb);
+    }
+
     void SessionManager::onPlayerLeft(void* id, PlayerCallback cb) {
         m_onPlayerLeft[id] = std::move(cb);
     }
@@ -353,6 +361,7 @@ namespace mpedit {
         m_onSessionStarted.erase(id);
         m_onSessionEnded.erase(id);
         m_onPlayerJoined.erase(id);
+        m_onPlayerUpdated.erase(id);
         m_onPlayerLeft.erase(id);
         m_onError.erase(id);
         m_onStatus.erase(id);
@@ -363,6 +372,7 @@ namespace mpedit {
         m_onSessionStarted.clear();
         m_onSessionEnded.clear();
         m_onPlayerJoined.clear();
+        m_onPlayerUpdated.clear();
         m_onPlayerLeft.clear();
         m_onError.clear();
         m_onStatus.clear();
@@ -450,7 +460,7 @@ namespace mpedit {
                     p.colorIndex = msg.colorIndex;
                     p.iconStr = msg.iconStr;
                     if (changed) {
-                        auto callbacks = m_onPlayerJoined;
+                        auto callbacks = m_onPlayerUpdated;
                         for (auto& [id, cb] : callbacks) cb(p);
                     }
                     return;

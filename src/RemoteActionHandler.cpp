@@ -9,7 +9,6 @@
 #include <Geode/binding/GameLevelManager.hpp>
 #include <Geode/binding/LevelBrowserLayer.hpp>
 #include <Geode/binding/GJSearchObject.hpp>
-#include <Geode/cocos/support/zip_support/ZipUtils.h>
 #include <Geode/Geode.hpp>
 #include <Geode/utils/file.hpp>
 #include <random>
@@ -52,16 +51,9 @@ namespace mpedit {
             return newObjects;
         }
 
-        void applyTransformSafe(GameObject* obj, float rotation, float scaleX, float scaleY, bool flipX, bool flipY) {
+        void refreshObjectBounds(GameObject* obj) {
             if (!obj) return;
-            obj->setRotation(rotation);
-            obj->setFlipX(flipX);
-            obj->setFlipY(flipY);
-            obj->setScaleX(scaleX);
-            obj->setScaleY(scaleY);
-
             obj->dirtifyObjectRect();
-            
             obj->getObjectRect();
             obj->calculateOrientedBox();
 
@@ -71,6 +63,59 @@ namespace mpedit {
                 obj->updateStartValues();
             }
         }
+
+        void applyTransformSafe(GameObject* obj, float rotation, float scaleX, float scaleY, bool flipX, bool flipY) {
+            if (!obj) return;
+            bool isWarped = std::fabs(obj->getRotationX() - obj->getRotationY()) > 0.001f;
+            if (!isWarped || std::fabs(rotation - obj->getRotationX()) > 0.001f) {
+                obj->setRotation(rotation);
+            }
+            obj->setFlipX(flipX);
+            obj->setFlipY(flipY);
+            obj->setScaleX(scaleX);
+            obj->setScaleY(scaleY);
+            refreshObjectBounds(obj);
+        }
+
+        void parseObjectMeta(std::string_view entry, ExpectedObjectMeta& meta) {
+            size_t pos = 0;
+            size_t len = entry.size();
+            bool hasId = false;
+            bool hasX = false;
+            bool hasY = false;
+
+            while (pos < len) {
+                size_t comma1 = entry.find(',', pos);
+                if (comma1 == std::string_view::npos) break;
+                size_t valStart = comma1 + 1;
+                size_t comma2 = entry.find(',', valStart);
+                size_t valEnd = (comma2 == std::string_view::npos) ? len : comma2;
+
+                std::string_view key = entry.substr(pos, comma1 - pos);
+                std::string_view val = entry.substr(valStart, valEnd - valStart);
+
+                if (key == "1" && !val.empty()) {
+                    std::string tmp(val);
+                    meta.objectID = static_cast<int>(std::strtol(tmp.c_str(), nullptr, 10));
+                    hasId = true;
+                } else if (key == "2" && !val.empty()) {
+                    std::string tmp(val);
+                    meta.x = std::strtof(tmp.c_str(), nullptr);
+                    hasX = true;
+                } else if (key == "3" && !val.empty()) {
+                    std::string tmp(val);
+                    meta.y = std::strtof(tmp.c_str(), nullptr) + 90.0f;
+                    hasY = true;
+                }
+
+                if (hasId && hasX && hasY) {
+                    meta.hasCoords = true;
+                    break;
+                }
+                if (comma2 == std::string_view::npos) break;
+                pos = comma2 + 1;
+            }
+        }
     }
 
     RemoteActionHandler& RemoteActionHandler::get() {
@@ -78,112 +123,135 @@ namespace mpedit {
         return instance;
     }
 
+    bool RemoteActionHandler::shouldBufferLiveAction() const {
+        if (SessionManager::get().getRole() != SessionManager::Role::Client) {
+            return false;
+        }
+        return m_chunkedSync.active || !m_initialSyncCompleted || !getEditorLayer();
+    }
+
+    void RemoteActionHandler::queueLiveAction(uint8_t opcode, int playerId, const uint8_t* data, size_t len) {
+        constexpr size_t MAX_QUEUED_ACTIONS = 16384;
+        if (m_queuedActions.size() >= MAX_QUEUED_ACTIONS) {
+            m_queuedActions.erase(m_queuedActions.begin());
+        }
+        QueuedRemoteAction action;
+        action.opcode = opcode;
+        action.playerId = playerId;
+        if (data && len > 0) {
+            action.payload.assign(data, data + len);
+        }
+        m_queuedActions.push_back(std::move(action));
+    }
+
+    void RemoteActionHandler::dispatchLiveAction(uint8_t opcodeRaw, int playerId, const uint8_t* data, size_t len) {
+        proto::Reader reader(data, len);
+        auto opcode = static_cast<proto::Opcode>(opcodeRaw);
+
+        switch (opcode) {
+            case proto::Opcode::PlaceObjects: {
+                auto msg = proto::deserializePlaceObjects(reader);
+                if (!reader.hasError()) handleRemotePlaceObjects(playerId, msg.objects);
+                break;
+            }
+            case proto::Opcode::DeleteObjects: {
+                auto msg = proto::deserializeDeleteObjects(reader);
+                if (!reader.hasError()) handleRemoteDeleteObjects(playerId, msg.uuids);
+                break;
+            }
+            case proto::Opcode::MoveObjects: {
+                auto msg = proto::deserializeMoveObjects(reader);
+                if (!reader.hasError()) handleRemoteMoveObjects(playerId, msg.moves);
+                break;
+            }
+            case proto::Opcode::MoveBatch: {
+                auto msg = proto::deserializeMoveBatch(reader);
+                if (!reader.hasError()) handleRemoteMoveObjects(playerId, msg.moves);
+                break;
+            }
+            case proto::Opcode::TransformObjects: {
+                auto msg = proto::deserializeTransformObjects(reader);
+                if (!reader.hasError()) handleRemoteTransformObjects(playerId, msg.transforms);
+                break;
+            }
+            case proto::Opcode::ReconcileObjects: {
+                auto msg = proto::deserializeReconcileObjects(reader);
+                if (!reader.hasError()) handleRemoteReconcileObjects(playerId, msg.reconciles);
+                break;
+            }
+            case proto::Opcode::UpdateObjects: {
+                auto msg = proto::deserializeUpdateObjects(reader);
+                if (!reader.hasError()) handleRemoteUpdateObjects(playerId, msg.objects);
+                break;
+            }
+            case proto::Opcode::LockObjects: {
+                auto msg = proto::deserializeLockObjects(reader);
+                if (!reader.hasError()) handleRemoteLockObjects(playerId, msg.uuids, msg.locked);
+                break;
+            }
+            case proto::Opcode::UpdateSettings: {
+                auto msg = proto::deserializeUpdateSettings(reader);
+                if (!reader.hasError()) handleRemoteUpdateSettings(playerId, msg.settings);
+                break;
+            }
+            case proto::Opcode::UpdateColorChannel: {
+                auto msg = proto::deserializeUpdateColorChannel(reader);
+                if (!reader.hasError()) handleRemoteUpdateColorChannel(playerId, msg.data);
+                break;
+            }
+            default:
+                break;
+        }
+    }
+
+    void RemoteActionHandler::applyPendingInitialLocks() {
+        if (m_pendingInitialLocks.empty()) return;
+        for (auto const& lock : m_pendingInitialLocks) {
+            m_objectLocks[lock.uuid] = LockInfo { lock.playerId, lock.timeLeft > 0.f ? lock.timeLeft : 3.0f };
+        }
+        m_pendingInitialLocks.clear();
+    }
+
+    void RemoteActionHandler::flushQueuedActions() {
+        if (m_queuedActions.empty()) return;
+        if (!getEditorLayer()) return;
+
+        auto actions = std::move(m_queuedActions);
+        m_queuedActions.clear();
+
+        log::info("RemoteActionHandler: Replaying {} buffered live action(s) after initial sync", actions.size());
+        for (auto const& action : actions) {
+            dispatchLiveAction(action.opcode, action.playerId, action.payload.data(), action.payload.size());
+        }
+    }
+
     void RemoteActionHandler::setupHandlers() {
         MusicDownloadManager::sharedState()->addMusicDownloadDelegate(this);
 
         auto& net = P2PManager::get();
 
-        net.on(proto::Opcode::PlaceObjects, [this](int playerId, proto::Reader& reader) {
-            if (playerId == P2PManager::get().getLocalPlayerId()) return;
-            auto msg = proto::deserializePlaceObjects(reader);
-            if (reader.hasError()) {
-                log::error("RemoteActionHandler: Error deserializing PlaceObjects");
-                return;
-            }
-            handleRemotePlaceObjects(playerId, msg.objects);
-        });
+        auto registerLiveOp = [&](proto::Opcode op) {
+            uint8_t opRaw = static_cast<uint8_t>(op);
+            net.on(op, [this, opRaw](int playerId, proto::Reader& reader) {
+                if (playerId == P2PManager::get().getLocalPlayerId()) return;
+                if (shouldBufferLiveAction()) {
+                    queueLiveAction(opRaw, playerId, reader.currentPtr(), reader.remaining());
+                    return;
+                }
+                dispatchLiveAction(opRaw, playerId, reader.currentPtr(), reader.remaining());
+            });
+        };
 
-        net.on(proto::Opcode::DeleteObjects, [this](int playerId, proto::Reader& reader) {
-            if (playerId == P2PManager::get().getLocalPlayerId()) return;
-            auto msg = proto::deserializeDeleteObjects(reader);
-            if (reader.hasError()) {
-                log::error("RemoteActionHandler: Error deserializing DeleteObjects");
-                return;
-            }
-            handleRemoteDeleteObjects(playerId, msg.uuids);
-        });
-
-        net.on(proto::Opcode::MoveObjects, [this](int playerId, proto::Reader& reader) {
-            if (playerId == P2PManager::get().getLocalPlayerId()) return;
-            auto msg = proto::deserializeMoveObjects(reader);
-            if (reader.hasError()) {
-                log::error("RemoteActionHandler: Error deserializing MoveObjects");
-                return;
-            }
-            handleRemoteMoveObjects(playerId, msg.moves);
-        });
-
-        net.on(proto::Opcode::MoveBatch, [this](int playerId, proto::Reader& reader) {
-            if (playerId == P2PManager::get().getLocalPlayerId()) return;
-            auto msg = proto::deserializeMoveBatch(reader);
-            if (reader.hasError()) {
-                log::error("RemoteActionHandler: Error deserializing MoveBatch");
-                return;
-            }
-            handleRemoteMoveObjects(playerId, msg.moves);
-        });
-
-
-
-        net.on(proto::Opcode::TransformObjects, [this](int playerId, proto::Reader& reader) {
-            if (playerId == P2PManager::get().getLocalPlayerId()) return;
-            auto msg = proto::deserializeTransformObjects(reader);
-            if (reader.hasError()) {
-                log::error("RemoteActionHandler: Error deserializing TransformObjects");
-                return;
-            }
-            handleRemoteTransformObjects(playerId, msg.transforms);
-        });
-
-        net.on(proto::Opcode::ReconcileObjects, [this](int playerId, proto::Reader& reader) {
-            if (playerId == P2PManager::get().getLocalPlayerId()) return;
-            auto msg = proto::deserializeReconcileObjects(reader);
-            if (reader.hasError()) {
-                log::error("RemoteActionHandler: Error deserializing ReconcileObjects");
-                return;
-            }
-            handleRemoteReconcileObjects(playerId, msg.reconciles);
-        });
-
-        net.on(proto::Opcode::UpdateObjects, [this](int playerId, proto::Reader& reader) {
-            if (playerId == P2PManager::get().getLocalPlayerId()) return;
-            auto msg = proto::deserializeUpdateObjects(reader);
-            if (reader.hasError()) {
-                log::error("RemoteActionHandler: Error deserializing UpdateObjects");
-                return;
-            }
-            handleRemoteUpdateObjects(playerId, msg.objects);
-        });
-
-        net.on(proto::Opcode::LockObjects, [this](int playerId, proto::Reader& reader) {
-            if (playerId == P2PManager::get().getLocalPlayerId()) return;
-            auto msg = proto::deserializeLockObjects(reader);
-            if (reader.hasError()) {
-                log::error("RemoteActionHandler: Error deserializing LockObjects");
-                return;
-            }
-            handleRemoteLockObjects(playerId, msg.uuids, msg.locked);
-        });
-
-        net.on(proto::Opcode::UpdateSettings, [this](int playerId, proto::Reader& reader) {
-            if (playerId == P2PManager::get().getLocalPlayerId()) return;
-            auto msg = proto::deserializeUpdateSettings(reader);
-            if (reader.hasError()) {
-                log::error("RemoteActionHandler: Error deserializing UpdateSettings");
-                return;
-            }
-            handleRemoteUpdateSettings(playerId, msg.settings);
-        });
-
-        net.on(proto::Opcode::UpdateColorChannel, [this](int playerId, proto::Reader& reader) {
-            if (playerId == P2PManager::get().getLocalPlayerId()) return;
-            auto msg = proto::deserializeUpdateColorChannel(reader);
-            if (reader.hasError()) {
-                log::error("RemoteActionHandler: Error deserializing UpdateColorChannel");
-                return;
-            }
-            handleRemoteUpdateColorChannel(playerId, msg.data);
-        });
+        registerLiveOp(proto::Opcode::PlaceObjects);
+        registerLiveOp(proto::Opcode::DeleteObjects);
+        registerLiveOp(proto::Opcode::MoveObjects);
+        registerLiveOp(proto::Opcode::MoveBatch);
+        registerLiveOp(proto::Opcode::TransformObjects);
+        registerLiveOp(proto::Opcode::ReconcileObjects);
+        registerLiveOp(proto::Opcode::UpdateObjects);
+        registerLiveOp(proto::Opcode::LockObjects);
+        registerLiveOp(proto::Opcode::UpdateSettings);
+        registerLiveOp(proto::Opcode::UpdateColorChannel);
 
         net.on(proto::Opcode::SyncLevelStart, [this](int playerId, proto::Reader& reader) {
             auto msg = proto::deserializeSyncLevelStart(reader);
@@ -199,7 +267,9 @@ namespace mpedit {
             m_chunkedSync.chunks.resize(msg.totalChunks);
             m_chunkedSync.uuidChunks.clear();
             m_chunkedSync.uuidChunks.resize(msg.totalChunks);
+            m_chunkedSync.locks.clear();
             m_chunkedSync.active = true;
+            m_queuedActions.clear();
             
             SessionManager::get().updateStatus(fmt::format("Syncing {} objects (0/{})...", msg.totalObjects, msg.totalChunks));
 
@@ -363,7 +433,12 @@ namespace mpedit {
             auto msg = proto::deserializeSyncLocksChunk(reader);
             if (reader.hasError()) return;
             for (auto const& lock : msg.locks) {
-                m_objectLocks[lock.uuid] = {lock.playerId, 0.0f};
+                float ttl = lock.timeLeft > 0.f ? lock.timeLeft : 3.0f;
+                if (m_chunkedSync.active && playerId == m_chunkedSync.hostPlayerId) {
+                    m_chunkedSync.locks.push_back({lock.uuid, lock.playerId, ttl});
+                } else {
+                    m_objectLocks[lock.uuid] = {lock.playerId, ttl};
+                }
             }
         });
 
@@ -404,15 +479,18 @@ namespace mpedit {
                 uuids.insert(uuids.end(), uuidChunk.begin(), uuidChunk.end());
             }
 
+            auto locks = std::move(m_chunkedSync.locks);
+            auto settings = m_chunkedSync.settings;
+            m_chunkedSync.active = false;
+            m_chunkedSync.chunks.clear();
+            m_chunkedSync.uuidChunks.clear();
+            m_chunkedSync.locks.clear();
+
             SessionManager::get().updateStatus("Sync complete, loading level...");
 
             log::info("RemoteActionHandler: Reassembled sync string, size: {} bytes, {} objects",
                 objectsString.size(), uuids.size());
-            handleRemoteSyncLevel(playerId, objectsString, uuids, m_chunkedSync.settings, {});
-
-            m_chunkedSync.active = false;
-            m_chunkedSync.chunks.clear();
-            m_chunkedSync.uuidChunks.clear();
+            handleRemoteSyncLevel(playerId, objectsString, uuids, settings, locks);
         });
     }
 
@@ -420,12 +498,16 @@ namespace mpedit {
         MusicDownloadManager::sharedState()->removeMusicDownloadDelegate(this);
         clearMappings();
         m_expectedUuids.clear();
+        m_expectedObjects.clear();
+        m_pendingInitialLocks.clear();
+        m_queuedActions.clear();
         m_objectLocks.clear();
         m_pendingSync.reset();
         m_initialSyncCompleted = false;
         m_chunkedSync.active = false;
         m_chunkedSync.chunks.clear();
         m_chunkedSync.uuidChunks.clear();
+        m_chunkedSync.locks.clear();
         P2PManager::get().clearHandlers();
     }
 
@@ -557,7 +639,7 @@ namespace mpedit {
                         createdObj->m_editorLayer2 = objData.editorLayer2;
                     }
 
-                    applyTransformSafe(obj, objData.rotation, objData.scaleX, objData.scaleY, objData.flipX, objData.flipY);
+                    refreshObjectBounds(obj);
                     registerObject(objData.uuid, obj);
                     
                     if (obj->m_objectID == 31) {
@@ -568,17 +650,37 @@ namespace mpedit {
                     
                     if (auto* tpPortal = typeinfo_cast<TeleportPortalObject*>(obj)) {
                         if (!tpPortal->m_isYellowPortal && tpPortal->m_orangePortal) {
+                            auto* orange = tpPortal->m_orangePortal;
+                            auto expectedOrangeUuid = orangePortalUUID(objData.uuid);
+                            bool matchedOrange = false;
                             for (size_t j = 0; j < objects.size(); j++) {
                                 auto const& orangeData = objects[j];
-                                if (orangeData.objectID == 749 && !processedUUIDs.count(orangeData.uuid)) {
-                                    auto* orange = tpPortal->m_orangePortal;
+                                if (orangeData.uuid == expectedOrangeUuid && !processedUUIDs.count(orangeData.uuid)) {
                                     orange->setPositionOverride({orangeData.x, orangeData.y});
                                     applyTransformSafe(orange, orangeData.rotation, orangeData.scaleX,
                                                        orangeData.scaleY, orangeData.flipX, orangeData.flipY);
                                     registerObject(orangeData.uuid, orange);
                                     processedUUIDs.insert(orangeData.uuid);
+                                    matchedOrange = true;
                                     break;
                                 }
+                            }
+                            if (!matchedOrange) {
+                                for (size_t j = 0; j < objects.size(); j++) {
+                                    auto const& orangeData = objects[j];
+                                    if (orangeData.objectID == 749 && !processedUUIDs.count(orangeData.uuid)) {
+                                        orange->setPositionOverride({orangeData.x, orangeData.y});
+                                        applyTransformSafe(orange, orangeData.rotation, orangeData.scaleX,
+                                                           orangeData.scaleY, orangeData.flipX, orangeData.flipY);
+                                        registerObject(orangeData.uuid, orange);
+                                        processedUUIDs.insert(orangeData.uuid);
+                                        matchedOrange = true;
+                                        break;
+                                    }
+                                }
+                            }
+                            if (!matchedOrange) {
+                                registerObject(expectedOrangeUuid, orange);
                             }
                         }
                     }
@@ -601,17 +703,23 @@ namespace mpedit {
             
             if (auto* tpPortal = typeinfo_cast<TeleportPortalObject*>(obj)) {
                 if (!tpPortal->m_isYellowPortal && tpPortal->m_orangePortal) {
+                    auto* orange = tpPortal->m_orangePortal;
+                    auto expectedOrangeUuid = orangePortalUUID(objData.uuid);
+                    bool matchedOrange = false;
                     for (size_t j = 0; j < objects.size(); j++) {
                         auto const& orangeData = objects[j];
-                        if (orangeData.objectID == 749 && !processedUUIDs.count(orangeData.uuid)) {
-                            auto* orange = tpPortal->m_orangePortal;
+                        if ((orangeData.uuid == expectedOrangeUuid || orangeData.objectID == 749) && !processedUUIDs.count(orangeData.uuid)) {
                             orange->setPositionOverride({orangeData.x, orangeData.y});
                             applyTransformSafe(orange, orangeData.rotation, orangeData.scaleX,
                                                orangeData.scaleY, orangeData.flipX, orangeData.flipY);
                             registerObject(orangeData.uuid, orange);
                             processedUUIDs.insert(orangeData.uuid);
+                            matchedOrange = true;
                             break;
                         }
+                    }
+                    if (!matchedOrange) {
+                        registerObject(expectedOrangeUuid, orange);
                     }
                 }
             }
@@ -721,7 +829,15 @@ namespace mpedit {
                 };
             }
             
-            obj->setPosition({pos.x + move.dx, pos.y + move.dy});
+            if (auto* tpPortal = typeinfo_cast<TeleportPortalObject*>(obj)) {
+                if (tpPortal->m_isYellowPortal) {
+                    tpPortal->setPositionOverride({pos.x + move.dx, pos.y + move.dy});
+                } else {
+                    obj->setPosition({pos.x + move.dx, pos.y + move.dy});
+                }
+            } else {
+                obj->setPosition({pos.x + move.dx, pos.y + move.dy});
+            }
             obj->dirtifyObjectRect();
             
             obj->getObjectRect();
@@ -798,10 +914,22 @@ namespace mpedit {
                 continue;
             }
 
+            TeleportPortalObject* tpOrange = nullptr;
+            bool isYellowPortal = false;
+            if (auto* tpPortal = typeinfo_cast<TeleportPortalObject*>(obj)) {
+                isYellowPortal = tpPortal->m_isYellowPortal;
+                if (!tpPortal->m_isYellowPortal && tpPortal->m_orangePortal) {
+                    tpOrange = tpPortal->m_orangePortal;
+                    editor->removeObjectFromSection(tpOrange);
+                }
+            }
+
             editor->removeObjectFromSection(obj);
             
             if (editor->m_playbackMode != PlaybackMode::Not) {
                 obj->m_startPosition = cocos2d::CCPoint{r.x, r.y};
+            } else if (isYellowPortal) {
+                static_cast<TeleportPortalObject*>(obj)->setPositionOverride(cocos2d::CCPoint{r.x, r.y});
             } else {
                 obj->setPosition(cocos2d::CCPoint{r.x, r.y});
             }
@@ -812,6 +940,12 @@ namespace mpedit {
             obj->calculateOrientedBox();
             
             editor->addToSection(obj);
+
+            if (tpOrange) {
+                tpOrange->getObjectRect();
+                tpOrange->calculateOrientedBox();
+                editor->addToSection(tpOrange);
+            }
 
 
             log::debug("RemoteActionHandler: reconciled object (uuid={}..., pos=({}, {}), rot={:.1f})",
@@ -922,7 +1056,7 @@ namespace mpedit {
                     }
                 }
 
-                applyTransformSafe(newObj, objData.rotation, objData.scaleX, objData.scaleY, objData.flipX, objData.flipY);
+                refreshObjectBounds(newObj);
                 registerObject(objData.uuid, newObj);
                 
                 if (newObj->m_objectID == 31) {
@@ -933,11 +1067,12 @@ namespace mpedit {
                 
                 if (auto* tpPortal = typeinfo_cast<TeleportPortalObject*>(newObj)) {
                     if (!tpPortal->m_isYellowPortal && tpPortal->m_orangePortal) {
+                        auto* orange = tpPortal->m_orangePortal;
+                        auto expectedOrangeUuid = orangePortalUUID(objData.uuid);
                         bool foundInData = false;
                         for (size_t j = 0; j < objects.size(); j++) {
                             auto const& orangeData = objects[j];
-                            if (orangeData.objectID == 749 && !processedUUIDs.count(orangeData.uuid)) {
-                                auto* orange = tpPortal->m_orangePortal;
+                            if (orangeData.uuid == expectedOrangeUuid && !processedUUIDs.count(orangeData.uuid)) {
                                 orange->setPositionOverride({orangeData.x, orangeData.y});
                                 applyTransformSafe(orange, orangeData.rotation, orangeData.scaleX,
                                                    orangeData.scaleY, orangeData.flipX, orangeData.flipY);
@@ -947,14 +1082,27 @@ namespace mpedit {
                                 break;
                             }
                         }
+                        if (!foundInData) {
+                            for (size_t j = 0; j < objects.size(); j++) {
+                                auto const& orangeData = objects[j];
+                                if (orangeData.objectID == 749 && !processedUUIDs.count(orangeData.uuid)) {
+                                    orange->setPositionOverride({orangeData.x, orangeData.y});
+                                    applyTransformSafe(orange, orangeData.rotation, orangeData.scaleX,
+                                                       orangeData.scaleY, orangeData.flipX, orangeData.flipY);
+                                    registerObject(orangeData.uuid, orange);
+                                    processedUUIDs.insert(orangeData.uuid);
+                                    foundInData = true;
+                                    break;
+                                }
+                            }
+                        }
                         if (!foundInData && hadOldOrange) {
-                            auto* orange = tpPortal->m_orangePortal;
                             orange->setPositionOverride({oldOrangeData.x, oldOrangeData.y});
                             applyTransformSafe(orange, oldOrangeData.rotation, oldOrangeData.scaleX,
                                                oldOrangeData.scaleY, oldOrangeData.flipX, oldOrangeData.flipY);
-                            if (!orangeOldUuid.empty()) {
-                                registerObject(orangeOldUuid, orange);
-                            }
+                            registerObject(orangeOldUuid.empty() ? expectedOrangeUuid : orangeOldUuid, orange);
+                        } else if (!foundInData) {
+                            registerObject(expectedOrangeUuid, orange);
                         }
                     }
                 }
@@ -1075,13 +1223,10 @@ namespace mpedit {
 
             std::string fullLevelString = rawSettings + objectsString;
             m_expectedUuids = uuids;
+            m_expectedObjects = buildExpectedObjects(objectsString, uuids);
+            m_pendingInitialLocks = locks;
 
             m_pendingSync.reset();
-
-            m_objectLocks.clear();
-            for (auto const& lock : locks) {
-                m_objectLocks[lock.uuid] = LockInfo { lock.playerId, lock.timeLeft };
-            }
 
             GJGameLevel* level = nullptr;
             if (P2PManager::get().isDedicatedServer()) {
@@ -1158,7 +1303,7 @@ namespace mpedit {
                 }
 
                 for (auto* obj : CCArrayExt<GameObject*>(copy)) {
-                    if (isObjectAlive(obj)) {
+                    if (editor->m_objects && editor->m_objects->containsObject(obj)) {
                         editor->removeObject(obj, true);
                     }
                 }
@@ -1168,6 +1313,7 @@ namespace mpedit {
         }
         clearMappings();
         m_expectedUuids.clear();
+        m_expectedObjects.clear();
 
         log::info("RemoteActionHandler: Syncing level state ({} objects) from player {} (pending={})",
             uuids.size(), playerId, isPendingSync);
@@ -1175,39 +1321,11 @@ namespace mpedit {
         applyLevelSettings(editor, settings);
 
         if (!objectsString.empty()) {
-            std::vector<std::string> parts;
-            std::stringstream ss(objectsString);
-            std::string item;
-            while (std::getline(ss, item, ';')) {
-                if (!item.empty()) parts.push_back(item);
-            }
-
+            auto expected = buildExpectedObjects(objectsString, uuids);
             auto newObjs = createObjectsFromSaveStringRobust(editor, objectsString);
             log::info("RemoteActionHandler: Spawned {} objects from objectsString (len={})",
                 newObjs.size(), objectsString.size());
-            int index = 0;
-            for (auto* obj : newObjs) {
-                if (index < static_cast<int>(uuids.size())) {
-                    registerObject(uuids[index], obj);
-                } else {
-                    registerObject(generateUUID(), obj);
-                }
-                
-                if (obj->m_objectID == 31) {
-                    if (index < static_cast<int>(parts.size())) {
-                        if (auto* startPos = typeinfo_cast<StartPosObject*>(obj)) {
-                            startPos->loadSettingsFromString(parts[index]);
-                        }
-                    }
-                    updateStartPosCache(obj);
-                }
-                
-                index++;
-            }
-            if (index != static_cast<int>(uuids.size())) {
-                log::warn("RemoteActionHandler: object/uuid count mismatch on sync "
-                          "(spawned={}, uuids={})", index, uuids.size());
-            }
+            registerSyncedObjects(editor, expected);
         } else if (!uuids.empty()) {
             log::warn("RemoteActionHandler: sync_level had {} uuids but empty objectsString — "
                       "objects cannot be spawned (host sent no object data)", uuids.size());
@@ -1215,7 +1333,7 @@ namespace mpedit {
 
         m_objectLocks.clear();
         for (auto const& lock : locks) {
-            m_objectLocks[lock.uuid] = LockInfo { lock.playerId, lock.timeLeft };
+            m_objectLocks[lock.uuid] = LockInfo { lock.playerId, lock.timeLeft > 0.f ? lock.timeLeft : 3.0f };
         }
 
         editor->levelSettingsUpdated();
@@ -1225,6 +1343,7 @@ namespace mpedit {
         RevertManager::get().captureBaseline();
         m_initialSyncCompleted = true;
         m_processingRemote = false;
+        flushQueuedActions();
         log::info("RemoteActionHandler: sync_level complete (final m_objects count = {})",
             editor->m_objects ? editor->m_objects->count() : 0);
     }
@@ -1375,12 +1494,155 @@ namespace mpedit {
         return ss.str();
     }
 
+    std::string RemoteActionHandler::orangePortalUUID(std::string const& blueUuid) {
+        return blueUuid + ":tp";
+    }
+
+    std::vector<ExpectedObjectMeta> RemoteActionHandler::buildExpectedObjects(
+        std::string const& objectsString,
+        std::vector<std::string> const& uuids
+    ) {
+        std::vector<ExpectedObjectMeta> result;
+        result.reserve(uuids.size());
+
+        std::string_view sv(objectsString);
+        size_t pos = 0;
+        size_t idx = 0;
+
+        while (pos < sv.size()) {
+            size_t semi = sv.find(';', pos);
+            size_t end = (semi == std::string_view::npos) ? sv.size() : semi;
+            std::string_view entry = sv.substr(pos, end - pos);
+            if (!entry.empty()) {
+                ExpectedObjectMeta meta;
+                if (idx < uuids.size()) {
+                    meta.uuid = uuids[idx];
+                }
+                parseObjectMeta(entry, meta);
+                result.push_back(std::move(meta));
+                idx++;
+            }
+            if (semi == std::string_view::npos) break;
+            pos = semi + 1;
+        }
+
+        while (idx < uuids.size()) {
+            ExpectedObjectMeta meta;
+            meta.uuid = uuids[idx];
+            result.push_back(std::move(meta));
+            idx++;
+        }
+
+        return result;
+    }
+
+    void RemoteActionHandler::registerSyncedObjects(
+        LevelEditorLayer* editor,
+        std::vector<ExpectedObjectMeta> const& expected
+    ) {
+        if (!editor || !editor->m_objects) return;
+
+        auto matchesExact = [](GameObject* obj, ExpectedObjectMeta const& meta) -> bool {
+            if (!meta.hasCoords) return true;
+            if (meta.objectID != obj->m_objectID) return false;
+            return std::fabs(obj->getPositionX() - meta.x) <= 1.0f &&
+                   std::fabs(obj->getPositionY() - meta.y) <= 1.0f;
+        };
+
+        auto matchesCoordsOnly = [](GameObject* obj, ExpectedObjectMeta const& meta) -> bool {
+            if (!meta.hasCoords) return false;
+            return std::fabs(obj->getPositionX() - meta.x) <= 0.25f &&
+                   std::fabs(obj->getPositionY() - meta.y) <= 0.25f;
+        };
+
+        size_t cursor = 0;
+        size_t alignedCount = 0;
+        size_t resyncedCount = 0;
+        size_t extraCount = 0;
+        constexpr size_t LOOKAHEAD_LIMIT = 64;
+
+        for (auto* obj : CCArrayExt<GameObject*>(editor->m_objects)) {
+            if (!obj) continue;
+            if (obj == editor->m_player1CollisionBlock || obj == editor->m_player2CollisionBlock) {
+                continue;
+            }
+            if (auto* tpPortal = typeinfo_cast<TeleportPortalObject*>(obj)) {
+                if (tpPortal->m_isYellowPortal) {
+                    continue;
+                }
+            }
+
+            std::string assignedUuid;
+
+            if (cursor < expected.size() && matchesExact(obj, expected[cursor])) {
+                assignedUuid = expected[cursor].uuid;
+                cursor++;
+                alignedCount++;
+            } else if (cursor < expected.size()) {
+                size_t limit = std::min(expected.size(), cursor + LOOKAHEAD_LIMIT);
+                size_t foundIdx = expected.size();
+
+                for (size_t j = cursor; j < limit; ++j) {
+                    if (matchesExact(obj, expected[j])) {
+                        foundIdx = j;
+                        break;
+                    }
+                }
+                if (foundIdx == expected.size()) {
+                    for (size_t j = cursor; j < limit; ++j) {
+                        if (matchesCoordsOnly(obj, expected[j])) {
+                            foundIdx = j;
+                            break;
+                        }
+                    }
+                }
+
+                if (foundIdx < expected.size()) {
+                    assignedUuid = expected[foundIdx].uuid;
+                    if (foundIdx > cursor) {
+                        resyncedCount += (foundIdx - cursor);
+                    }
+                    cursor = foundIdx + 1;
+                    alignedCount++;
+                } else {
+                    extraCount++;
+                }
+            } else {
+                extraCount++;
+            }
+
+            if (assignedUuid.empty()) {
+                assignedUuid = generateUUID();
+            }
+
+            registerObject(assignedUuid, obj);
+
+            if (auto* tpPortal = typeinfo_cast<TeleportPortalObject*>(obj)) {
+                if (!tpPortal->m_isYellowPortal && tpPortal->m_orangePortal) {
+                    registerObject(orangePortalUUID(assignedUuid), tpPortal->m_orangePortal);
+                }
+            }
+
+            if (obj->m_objectID == 31) {
+                updateStartPosCache(obj);
+            }
+        }
+
+        if (resyncedCount > 0 || extraCount > 0 || cursor != expected.size()) {
+            log::warn("RemoteActionHandler: Sync alignment summary (aligned={}, expected={}, skippedExpected={}, extraLocal={})",
+                alignedCount, expected.size(), resyncedCount + (expected.size() - cursor), extraCount);
+        } else {
+            log::info("RemoteActionHandler: Sync alignment exact ({} objects)", alignedCount);
+        }
+    }
+
     void RemoteActionHandler::clearMappings() {
         m_uuidToObject.clear();
         m_objectToUuid.clear();
         m_activeObjects.clear();
         m_objectLocks.clear();
         m_preSelectSaveStrings.clear();
+        m_dirtyTransforms.clear();
         m_pendingPlacements.clear();
 
         m_initialSyncCompleted = false;
@@ -1419,7 +1681,8 @@ namespace mpedit {
             if (auto* tpPortal = typeinfo_cast<TeleportPortalObject*>(static_cast<GameObject*>(p.obj))) {
                 if (!tpPortal->m_isYellowPortal && tpPortal->m_orangePortal) {
                     auto* orange = tpPortal->m_orangePortal;
-                    auto orangeUuid = getOrCreateUUID(orange);
+                    auto orangeUuid = orangePortalUUID(p.uuid);
+                    registerObject(orangeUuid, orange);
                     objects.push_back(ActionSerializer::extractObjectData(orange, orangeUuid));
                     MessageBatcher::get().removePending(orangeUuid);
                 }

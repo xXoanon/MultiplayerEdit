@@ -44,6 +44,7 @@ namespace mpedit {
             m_input = geode::TextInput::create(200.f, "Password", "chatFont.fnt");
             m_input->setPosition(this->center());
             m_input->setCommonFilter(geode::CommonFilter::Any);
+            m_input->setDisplayEmojis(false);
             m_mainLayer->addChild(m_input);
 
             auto joinBtnSprite = ButtonSprite::create("Join", "goldFont.fnt", "GJ_button_01.png", 0.6f);
@@ -146,7 +147,8 @@ namespace mpedit {
                 360.f,
                 ccp(0.5f, 0.5f),
                 21.f,
-                false
+                false,
+                0
             );
             m_textArea->setScale(0.85f);
             m_mainLayer->addChildAtPosition(m_textArea, Anchor::Center, ccp(0.f, 5.f));
@@ -319,7 +321,8 @@ namespace mpedit {
                 360.f,
                 ccp(0.5f, 0.5f),
                 21.f,
-                false
+                false,
+                0
             );
             m_textArea->setScale(0.85f);
             m_mainLayer->addChildAtPosition(m_textArea, Anchor::Center, ccp(0.f, 8.f));
@@ -687,7 +690,6 @@ namespace mpedit {
             m_slider->setValue(0.0f);
             updatePreview();
 
-            this->syncTouchPriority();
             return true;
         }
 
@@ -961,7 +963,6 @@ namespace mpedit {
 
             updateBranchView();
 
-            this->syncTouchPriority();
             return true;
         }
 
@@ -1434,7 +1435,7 @@ namespace mpedit {
             float w = 230.f;
             float h = 140.f;
             m_scroll = geode::ScrollLayer::create({w, h});
-            m_scroll->setPosition(this->center() - CCPoint{w / 2.f, h / 2.f + 5.f});
+            m_scroll->setPosition(this->center() - CCPoint{0.f, 5.f});
             m_scroll->m_contentLayer->setLayout(ColumnLayout::create()->setGap(2.f)->setAxisReverse(true)->setAxisAlignment(AxisAlignment::End));
             m_mainLayer->addChild(m_scroll);
 
@@ -1488,7 +1489,6 @@ namespace mpedit {
             m_scroll->m_contentLayer->setContentHeight(std::max(h, totalH));
             m_scroll->m_contentLayer->updateLayout();
             m_scroll->scrollToTop();
-            this->syncTouchPriority();
 
             return true;
         }
@@ -1850,6 +1850,11 @@ namespace mpedit {
                 this->setupActiveSession();
             }
         });
+        SessionManager::get().onPlayerUpdated(this, [this](PlayerInfo const&) {
+            if (!m_isConnecting) {
+                this->setupActiveSession();
+            }
+        });
         SessionManager::get().onPlayerLeft(this, [this](PlayerInfo const&) {
             if (!m_isConnecting) {
                 this->setupActiveSession();
@@ -1868,7 +1873,9 @@ namespace mpedit {
                     fakeRoom.hasPassword = true;
                     this->promptPassword(fakeRoom);
                 } else {
-                    if (!m_lastJoinCode.empty()) {
+                    if (!m_lastJoinCode.empty() &&
+                        (error.find("Room not found") != std::string::npos ||
+                         error.find("Lobby is no longer active") != std::string::npos)) {
                         s_knownDeadRooms.insert(m_lastJoinCode);
                     }
                     FLAlertLayer::create("Error", error, "OK")->show();
@@ -1985,6 +1992,7 @@ namespace mpedit {
 
         m_codeInput = geode::TextInput::create(130.f, "Code", "chatFont.fnt");
         m_codeInput->setCommonFilter(geode::CommonFilter::Any);
+        m_codeInput->setDisplayEmojis(false);
         centerMenu->addChild(m_codeInput);
 
         auto joinSprite = ButtonSprite::create("Join", "goldFont.fnt", "GJ_button_01.png", 0.8f);
@@ -2024,7 +2032,6 @@ namespace mpedit {
         m_leftMenu->addChild(appearanceBtn);
 
         m_leftMenu->updateLayout();
-        this->syncTouchPriority();
     }
 
     void MultiplayerMenuPopup::clearCenter() {
@@ -2052,7 +2059,7 @@ namespace mpedit {
         m_centerNode->addChild(m_statusLabel);
 
         m_scrollLayer = ScrollLayer::create(m_centerNode->getContentSize());
-        m_scrollLayer->setPosition({0, 0});
+        m_scrollLayer->setPosition(m_centerNode->getContentSize() / 2.f);
         m_scrollLayer->m_contentLayer->setLayout(ColumnLayout::create()->setGap(0.f)->setAxisReverse(true)->setAxisAlignment(AxisAlignment::End));
         m_centerNode->addChild(m_scrollLayer);
 
@@ -2115,7 +2122,6 @@ namespace mpedit {
         }
         m_scrollLayer->m_contentLayer->updateLayout();
         m_scrollLayer->scrollToTop();
-        this->syncTouchPriority();
     }
 
     void MultiplayerMenuPopup::onRefresh(CCObject*) {
@@ -2246,7 +2252,6 @@ namespace mpedit {
         m_sessionUiNode->addChild(cancelMenu);
 
         
-        this->syncTouchPriority();
     }
 
     void MultiplayerMenuPopup::updateStatus(std::string const& status) {
@@ -2313,7 +2318,7 @@ namespace mpedit {
 
         float scrollHeight = h - 65.f;
         m_scrollLayer = ScrollLayer::create({w, scrollHeight});
-        m_scrollLayer->setPosition({0, 5.f});
+        m_scrollLayer->setPosition({w / 2.f, 5.f + scrollHeight / 2.f});
         m_scrollLayer->m_contentLayer->setLayout(ColumnLayout::create()->setGap(2.f)->setAxisReverse(true)->setAxisAlignment(AxisAlignment::End));
         m_centerNode->addChild(m_scrollLayer);
 
@@ -2385,7 +2390,6 @@ namespace mpedit {
         actionMenu->updateLayout();
         m_sessionUiNode->addChild(actionMenu);
 
-        this->syncTouchPriority();
     }
 
     void MultiplayerMenuPopup::onDisconnectedPlayers(CCObject*) {

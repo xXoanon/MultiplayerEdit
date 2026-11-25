@@ -26,6 +26,9 @@ const Opcode = {
     MoveBatch:          0x41,
     ChatMessage:        0x42,
     Heartbeat:          0x50,
+    Ping:               0x51,
+    Pong:               0x52,
+    PingUpdate:         0x53,
     Error:              0xFF,
     Relay:              0xFE,
 };

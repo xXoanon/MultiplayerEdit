@@ -10,12 +10,76 @@
 #include <Geode/utils/web.hpp>
 #include <thread>
 #include <chrono>
+#include <algorithm>
+#include <cctype>
+#include <unordered_set>
 
 using namespace geode::prelude;
 
 namespace mpedit {
 
+    namespace {
+        std::string toLower(std::string value) {
+            std::transform(value.begin(), value.end(), value.begin(), [](unsigned char c) {
+                return static_cast<char>(std::tolower(c));
+            });
+            return value;
+        }
 
+        bool isTcpOrTlsTurnUrl(std::string const& url) {
+            auto lower = toLower(url);
+            if (lower.rfind("turns:", 0) == 0) return true;
+            if (lower.find("transport=tcp") != std::string::npos) return true;
+            if (lower.find("transport=tls") != std::string::npos) return true;
+            return false;
+        }
+
+        int turnUrlRank(std::string const& url) {
+            auto lower = toLower(url);
+            if (lower.find(":443") != std::string::npos) return 0;
+            if (lower.find(":3478") != std::string::npos) return 1;
+            return 2;
+        }
+
+        std::string urlEncode(std::string const& value) {
+            static char const* hex = "0123456789ABCDEF";
+            std::string out;
+            out.reserve(value.size());
+            for (unsigned char c : value) {
+                if ((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') ||
+                    (c >= '0' && c <= '9') || c == '-' || c == '_' || c == '.' || c == '~') {
+                    out.push_back(static_cast<char>(c));
+                } else {
+                    out.push_back('%');
+                    out.push_back(hex[(c >> 4) & 0x0F]);
+                    out.push_back(hex[c & 0x0F]);
+                }
+            }
+            return out;
+        }
+
+        bool isHostOnlyOpcode(uint8_t opcode) {
+            switch (opcode) {
+                case static_cast<uint8_t>(proto::Opcode::PlayerJoined):
+                case static_cast<uint8_t>(proto::Opcode::PlayerLeft):
+                case static_cast<uint8_t>(proto::Opcode::RoomInfo):
+                case static_cast<uint8_t>(proto::Opcode::HostMigration):
+                case static_cast<uint8_t>(proto::Opcode::Reconnect):
+                case static_cast<uint8_t>(proto::Opcode::SetViewOnly):
+                case static_cast<uint8_t>(proto::Opcode::KickPlayer):
+                case static_cast<uint8_t>(proto::Opcode::BanPlayer):
+                case static_cast<uint8_t>(proto::Opcode::ServerMessage):
+                case static_cast<uint8_t>(proto::Opcode::Error):
+                    return true;
+                default:
+                    return false;
+            }
+        }
+
+        constexpr size_t MAX_INCOMING_MESSAGES = 2048;
+        constexpr size_t MAX_PENDING_MESSAGES = 256;
+        constexpr size_t MAX_PENDING_CANDIDATES = 128;
+    }
 
     P2PManager& P2PManager::get() {
         static P2PManager instance;
@@ -24,9 +88,23 @@ namespace mpedit {
 
     P2PManager::P2PManager() {
         rtc::InitLogger(rtc::LogLevel::Warning);
+
+        m_dispatchRunning.store(true);
+        m_dispatchThread = std::thread([this]() {
+            while (m_dispatchRunning.load()) {
+                std::this_thread::sleep_for(std::chrono::milliseconds(50));
+                geode::queueInMainThread([]() {
+                    P2PManager::get().dispatchMessages();
+                });
+            }
+        });
     }
 
     P2PManager::~P2PManager() {
+        m_dispatchRunning.store(false);
+        if (m_dispatchThread.joinable()) {
+            m_dispatchThread.join();
+        }
         leaveSession();
     }
 
@@ -37,31 +115,57 @@ namespace mpedit {
 
         auto mode = Mod::get()->getSettingValue<std::string>("ice-transport-mode");
 
-        config.iceServers.push_back({"stun:stun.l.google.com:19302"});
-        config.iceServers.push_back({"stun:stun.cloudflare.com:3478"});
-        config.iceServers.push_back({"stun:stun.nextcloud.com:443"});
-        config.iceServers.push_back({"stun:stun.1und1.de:3478"});
-        config.iceServers.push_back({"stun:stun.sipgate.net:3478"});
+        if (mode != "TURN Only") {
+            try {
+                config.iceServers.push_back({"stun:stun.cloudflare.com:3478"});
+            } catch (std::exception const& e) {
+                log::warn("P2PManager: Failed to configure STUN server: {}", e.what());
+            }
+        }
 
         if (mode != "STUN Only") {
-            if (!m_turnServers.empty()) {
-                for (auto const& ts : m_turnServers) {
-                    if (ts.urls.find("transport=tcp") != std::string::npos || ts.urls.rfind("turns:", 0) == 0) {
-                        continue;
-                    }
-                    try {
-                        rtc::IceServer server(ts.urls);
-                        server.username = ts.username;
-                        server.password = ts.credential;
-                        server.type = rtc::IceServer::Type::Turn;
-                        server.relayType = rtc::IceServer::RelayType::TurnUdp;
-                        config.iceServers.push_back(std::move(server));
-                    } catch (...) {}
+            std::vector<TurnServerInfo> usable;
+            for (auto const& ts : m_turnServers) {
+                if (ts.urls.empty() || isTcpOrTlsTurnUrl(ts.urls)) continue;
+                usable.push_back(ts);
+            }
+
+            std::sort(usable.begin(), usable.end(), [](TurnServerInfo const& a, TurnServerInfo const& b) {
+                int ar = turnUrlRank(a.urls);
+                int br = turnUrlRank(b.urls);
+                if (ar != br) return ar < br;
+                return a.urls < b.urls;
+            });
+
+            int added = 0;
+            std::unordered_set<std::string> seen;
+            for (auto const& ts : usable) {
+                if (added >= 2) break;
+                if (!seen.insert(ts.urls).second) continue;
+                try {
+                    rtc::IceServer server(ts.urls);
+                    server.username = ts.username;
+                    server.password = ts.credential;
+                    server.type = rtc::IceServer::Type::Turn;
+                    server.relayType = rtc::IceServer::RelayType::TurnUdp;
+                    config.iceServers.push_back(std::move(server));
+                    ++added;
+                    log::info("P2PManager: Using TURN server {}", ts.urls);
+                } catch (std::exception const& e) {
+                    log::warn("P2PManager: Ignoring invalid TURN server {}: {}", ts.urls, e.what());
                 }
-            } else {
-                config.iceServers.emplace_back("openrelay.metered.ca", 3478, "openrelayproject", "openrelayproject", rtc::IceServer::RelayType::TurnUdp);
-                config.iceServers.emplace_back("openrelay.metered.ca", 443, "openrelayproject", "openrelayproject", rtc::IceServer::RelayType::TurnUdp);
-                config.iceServers.emplace_back("openrelay.metered.ca", 80, "openrelayproject", "openrelayproject", rtc::IceServer::RelayType::TurnUdp);
+            }
+
+            if (added == 0) {
+                log::warn("P2PManager: No usable TURN servers; using Open Relay fallback");
+                try {
+                    config.iceServers.emplace_back("openrelay.metered.ca", 443,
+                        "openrelayproject", "openrelayproject", rtc::IceServer::RelayType::TurnUdp);
+                    config.iceServers.emplace_back("openrelay.metered.ca", 3478,
+                        "openrelayproject", "openrelayproject", rtc::IceServer::RelayType::TurnUdp);
+                } catch (std::exception const& e) {
+                    log::warn("P2PManager: Failed to configure TURN fallback: {}", e.what());
+                }
             }
         }
 
@@ -69,16 +173,19 @@ namespace mpedit {
             config.iceTransportPolicy = rtc::TransportPolicy::Relay;
         }
 
-        config.maxMessageSize = 250 * 1024 * 1024;
+        config.maxMessageSize = 16 * 1024 * 1024;
         return config;
     }
 
     std::string P2PManager::getSignalingUrl() {
         auto url = geode::utils::string::trim(Mod::get()->getSettingValue<std::string>("signaling-url"));
-        if (url.empty() || url == "https://" || url == "http://" || url.find('.') == std::string::npos || url == "https://dewy-flea-9364.d050.deno.net") {
+        if (url.empty() || url == "https://" || url == "http://" || url.find("://") == std::string::npos || url == "https://dewy-flea-9364.d050.deno.net") {
             return "https://multiplayer-edit.d050.workers.dev";
         }
-        if (url.back() == '/') url.pop_back();
+        if (url.find('.') == std::string::npos && url.find("localhost") == std::string::npos && url.find("127.0.0.1") == std::string::npos) {
+            return "https://multiplayer-edit.d050.workers.dev";
+        }
+        while (!url.empty() && url.back() == '/') url.pop_back();
         return url;
     }
 
@@ -235,6 +342,12 @@ namespace mpedit {
                 }
 
                 if (payloadLen > 0) {
+                    if (isHostOnlyOpcode(opcodeRaw) && fromId != 0) {
+                        log::warn("P2PManager: Ignoring host-only opcode 0x{:02x} from player {}", opcodeRaw, fromId);
+                        messages.pop();
+                        continue;
+                    }
+
                     auto it = m_handlers.find(opcodeRaw);
                     if (it != m_handlers.end()) {
                         auto handlersCopy = it->second;
@@ -286,6 +399,9 @@ namespace mpedit {
 
         auto& peer = it->second;
         if (!peer.ready) {
+            if (peer.pendingMessages.size() >= MAX_PENDING_MESSAGES) {
+                peer.pendingMessages.erase(peer.pendingMessages.begin());
+            }
             peer.pendingMessages.push_back({data, channel});
             return;
         }
@@ -321,8 +437,54 @@ namespace mpedit {
     void P2PManager::onPeerMessage(int fromPlayerId, const uint8_t* data, size_t len) {
         if (len == 0) return;
 
+        uint8_t opcode = data[0];
+
+        if (m_role == Role::Host && fromPlayerId != 0) {
+            if (opcode == static_cast<uint8_t>(proto::Opcode::PlayerJoined)) {
+                if (len > 1) {
+                    proto::Reader r(data + 1, len - 1);
+                    auto pj = proto::deserializePlayerJoined(r);
+                    if (!r.hasError() && !pj.name.empty()) {
+                        pj.name = ChatFilter::filter(pj.name);
+                        {
+                            std::lock_guard lock(m_peersMutex);
+                            auto it = m_peers.find(fromPlayerId);
+                            if (it != m_peers.end()) {
+                                it->second.playerName = pj.name;
+                                it->second.colorIndex = pj.colorIndex;
+                                it->second.iconStr = pj.iconStr;
+                            }
+                        }
+                        auto sanitized = proto::serializePlayerJoined(
+                            fromPlayerId, pj.name, pj.colorIndex, pj.iconStr);
+                        {
+                            std::lock_guard lock(m_incomingMutex);
+                            if (m_incoming.size() >= MAX_INCOMING_MESSAGES) {
+                                m_incoming.pop();
+                            }
+                            m_incoming.push(QueuedMessage{0, sanitized});
+                        }
+                        broadcast(sanitized, ChannelType::Reliable, fromPlayerId);
+                    }
+                }
+                return;
+            }
+
+            if (opcode == static_cast<uint8_t>(proto::Opcode::Relay) || isHostOnlyOpcode(opcode)) {
+                log::warn("P2PManager: Dropping client-originated opcode 0x{:02x} from player {}",
+                    opcode, fromPlayerId);
+                return;
+            }
+        } else if (m_role == Role::Client && fromPlayerId != 0 && isHostOnlyOpcode(opcode)) {
+            log::warn("P2PManager: Dropping non-host opcode 0x{:02x} from player {}", opcode, fromPlayerId);
+            return;
+        }
+
         {
             std::lock_guard lock(m_incomingMutex);
+            if (m_incoming.size() >= MAX_INCOMING_MESSAGES) {
+                m_incoming.pop();
+            }
             m_incoming.push(QueuedMessage{
                 fromPlayerId,
                 std::vector<uint8_t>(data, data + len)
@@ -330,28 +492,12 @@ namespace mpedit {
         }
 
         if (m_role == Role::Host) {
-            uint8_t opcode = data[0];
             if (opcode == static_cast<uint8_t>(proto::Opcode::Heartbeat) ||
                 opcode == static_cast<uint8_t>(proto::Opcode::Ping) ||
                 opcode == static_cast<uint8_t>(proto::Opcode::Pong)) return;
 
-            if (opcode == static_cast<uint8_t>(proto::Opcode::PlayerJoined) && len > 1) {
-                proto::Reader r(data + 1, len - 1);
-                auto pj = proto::deserializePlayerJoined(r);
-                {
-                    std::lock_guard lock(m_peersMutex);
-                    auto it = m_peers.find(fromPlayerId);
-                    if (it != m_peers.end()) {
-                        it->second.playerName = pj.name;
-                        it->second.colorIndex = pj.colorIndex;
-                        it->second.iconStr = pj.iconStr;
-                    }
-                }
-            }
-
             ChannelType ch = ChannelType::Reliable;
             if (opcode == static_cast<uint8_t>(proto::Opcode::CursorUpdate) ||
-                opcode == static_cast<uint8_t>(proto::Opcode::MoveBatch) ||
                 opcode == static_cast<uint8_t>(proto::Opcode::PingUpdate)) {
                 ch = ChannelType::Unreliable;
             }
@@ -379,16 +525,20 @@ namespace mpedit {
             auto req = geode::utils::web::WebRequest();
             req.header("ngrok-skip-browser-warning", "1");
             req.header("Content-Type", "application/json");
+            if (!m_hostToken.empty()) {
+                req.header("X-Room-Token", m_hostToken);
+            }
             auto body = matjson::makeObject({{"playerName", playerName},
             {"iconStr", fmt::format("{}:{}:{}:{}:{}", GameManager::sharedState()->getPlayerFrame(), GameManager::sharedState()->getPlayerColor(), GameManager::sharedState()->getPlayerColor2(), GameManager::sharedState()->getPlayerGlow() ? 1 : 0, GameManager::sharedState()->getPlayerGlowColor())}});
             req.bodyJSON(body);
+            req.timeout(asp::Duration::fromSecs(10));
             async::spawn(req.send("POST", url));
         }
     }
 
     void P2PManager::onPeerDisconnected(int playerId, bool unexpected) {
         dispatchMessages();
-        
+
         bool existed = false;
         {
             std::lock_guard lock(m_peersMutex);
@@ -402,41 +552,160 @@ namespace mpedit {
 
         if (!existed) return;
 
-        if (m_role == Role::Host) {
-            proto::Writer w;
-            w.writeOpcode(proto::Opcode::PlayerLeft);
-            w.writeVarInt(static_cast<uint32_t>(playerId));
-            broadcast(w.data(), ChannelType::Reliable);
-        }
-
         log::info("P2PManager: Player {} disconnected (unexpected={})", playerId, unexpected);
 
-        queueInMainThread([this, playerId, unexpected]() {
+        int attemptId = m_connectionAttemptId.load();
+        queueInMainThread([this, playerId, unexpected, attemptId]() {
+            if (m_connectionAttemptId.load() != attemptId) return;
             if (m_role == Role::Client && playerId == 0) {
-                for (auto& cb : m_onError) {
-                    cb("Host disconnected");
+                auto callbacks = m_onError;
+                auto message = m_isDedicated ? std::string("Disconnected from server") : std::string("Host disconnected");
+                for (auto& cb : callbacks) {
+                    cb(message);
                 }
                 return;
             }
 
-            for (auto& cb : m_onPeerDisconnected) {
+            auto disconnectCallbacks = m_onPeerDisconnected;
+            for (auto& cb : disconnectCallbacks) {
                 cb(playerId);
             }
 
             if (m_role == Role::Host) {
                 auto msg = proto::serializePlayerLeft(playerId);
                 broadcast(msg, ChannelType::Reliable);
-                if (!m_roomCode.empty()) {
-                    auto url = getSignalingUrl() + "/rooms/" + m_roomCode + "/leave";
-                    auto req = geode::utils::web::WebRequest();
-                    req.header("ngrok-skip-browser-warning", "1");
-                    req.header("Content-Type", "application/json");
-                    auto body = matjson::makeObject({{"playerId", playerId}});
-                    req.bodyJSON(body);
-                    async::spawn(req.send("POST", url));
-                }
+                sendLeaveForPlayer(playerId);
             }
         });
+    }
+
+    void P2PManager::scheduleDisconnectCheck(int playerId, int delayMs) {
+        int token = 0;
+        {
+            std::lock_guard lock(m_peersMutex);
+            auto it = m_peers.find(playerId);
+            if (it == m_peers.end()) return;
+            token = ++it->second.disconnectToken;
+        }
+
+        std::thread([this, playerId, token, delayMs]() {
+            std::this_thread::sleep_for(std::chrono::milliseconds(delayMs));
+            geode::queueInMainThread([this, playerId, token]() {
+                {
+                    std::lock_guard lock(m_peersMutex);
+                    auto it = m_peers.find(playerId);
+                    if (it == m_peers.end()) return;
+                    if (it->second.disconnectToken != token) return;
+                    if (it->second.pc) {
+                        auto state = it->second.pc->state();
+                        if (state == rtc::PeerConnection::State::Connected ||
+                            state == rtc::PeerConnection::State::Connecting) {
+                            return;
+                        }
+                    }
+                }
+                log::warn("P2PManager: Peer {} did not recover from disconnect", playerId);
+                onPeerDisconnected(playerId, true);
+            });
+        }).detach();
+    }
+
+    void P2PManager::cancelDisconnectCheck(int playerId) {
+        std::lock_guard lock(m_peersMutex);
+        auto it = m_peers.find(playerId);
+        if (it != m_peers.end()) {
+            ++it->second.disconnectToken;
+        }
+    }
+
+    void P2PManager::armConnectionWatchdog(int attemptId, int timeoutSeconds, std::string const& message) {
+        std::thread([this, attemptId, timeoutSeconds, message]() {
+            std::this_thread::sleep_for(std::chrono::seconds(timeoutSeconds));
+            geode::queueInMainThread([this, attemptId, message]() {
+                if (m_connectionAttemptId.load() != attemptId) return;
+                if (m_state.load() != State::Connecting) return;
+                log::warn("P2PManager: Connection watchdog fired: {}", message);
+                failSession(message);
+            });
+        }).detach();
+    }
+
+    void P2PManager::sendLeaveForPlayer(int playerId) {
+        if (m_role != Role::Host || m_roomCode.empty() || m_isDedicated) return;
+
+        auto url = getSignalingUrl() + "/rooms/" + m_roomCode + "/leave";
+        auto req = geode::utils::web::WebRequest();
+        req.header("ngrok-skip-browser-warning", "1");
+        req.header("Content-Type", "application/json");
+        if (!m_hostToken.empty()) {
+            req.header("X-Room-Token", m_hostToken);
+        }
+        auto body = matjson::makeObject({{"playerId", playerId}});
+        req.bodyJSON(body);
+        req.timeout(asp::Duration::fromSecs(10));
+        async::spawn(req.send("POST", url));
+    }
+
+    void P2PManager::fetchTurnServers(std::string const& roomCode) {
+        if (roomCode.empty()) return;
+
+        auto token = (m_role == Role::Host) ? m_hostToken : m_playerToken;
+        if (token.empty()) return;
+
+        auto url = getSignalingUrl() + "/rooms/" + roomCode + "/turn";
+        auto req = web::WebRequest();
+        req.header("ngrok-skip-browser-warning", "1");
+        req.timeout(asp::Duration::fromSecs(8));
+        if (m_role == Role::Host) {
+            req.header("X-Room-Token", m_hostToken);
+        } else {
+            req.header("X-Player-Token", m_playerToken);
+        }
+
+        int attemptId = m_connectionAttemptId.load();
+        m_turnListener.spawn(req.get(url), [this, attemptId](web::WebResponse res) {
+            if (m_connectionAttemptId.load() != attemptId) return;
+            if (res.ok()) {
+                auto json = res.json().unwrapOr(matjson::Value());
+                std::vector<TurnServerInfo> servers;
+                if (json.contains("turnServers") && json["turnServers"].isArray()) {
+                    for (auto const& item : json["turnServers"].asArray().unwrap()) {
+                        TurnServerInfo info;
+                        info.urls = item.get<std::string>("urls").unwrapOr("");
+                        info.username = item.get<std::string>("username").unwrapOr("");
+                        info.credential = item.get<std::string>("credential").unwrapOr("");
+                        if (!info.urls.empty()) {
+                            servers.push_back(std::move(info));
+                        }
+                    }
+                }
+                if (!servers.empty()) {
+                    m_turnServers = std::move(servers);
+                    log::info("P2PManager: Fetched {} TURN server(s) from retry endpoint", m_turnServers.size());
+                } else {
+                    log::warn("P2PManager: TURN retry endpoint returned no servers");
+                }
+            } else {
+                log::warn("P2PManager: TURN retry endpoint returned {}", res.code());
+            }
+        });
+    }
+
+    void P2PManager::failSession(std::string const& error) {
+        std::vector<ErrorCb> callbacks;
+        {
+            std::lock_guard lock(m_stateMutex);
+            m_error = error;
+            m_state.store(State::Error);
+            callbacks = m_onError;
+        }
+
+        m_signalingActive = false;
+        stopSignalPolling();
+
+        for (auto& cb : callbacks) {
+            cb(error);
+        }
     }
 
 
@@ -459,10 +728,14 @@ namespace mpedit {
         if (m_signalingActive) return;
         m_signalingActive = true;
         m_settings = settings;
+        m_hostToken.clear();
+        m_playerToken.clear();
+        int attemptId = ++m_connectionAttemptId;
 
         auto req = geode::utils::web::WebRequest();
         req.header("ngrok-skip-browser-warning", "1");
         req.header("Content-Type", "application/json");
+        req.timeout(asp::Duration::fromSecs(15));
 
         matjson::Value body = matjson::makeObject({
             {"action", "create"},
@@ -479,18 +752,20 @@ namespace mpedit {
         if (settings.password != "") {
             body.set("password", settings.password);
         }
-        
+
         req.bodyJSON(body);
 
         auto url = getSignalingUrl() + "/rooms";
         log::info("P2PManager: Creating room on signaling server: {}", url);
         m_signalingListener.spawn(
             req.post(url),
-            [this](web::WebResponse res) {
+            [this, attemptId](web::WebResponse res) {
+                if (m_connectionAttemptId.load() != attemptId) return;
                 if (res.ok()) {
                     auto json = res.json().unwrapOr(matjson::Value());
                     auto roomCode = json.get<std::string>("roomCode").unwrapOr("");
                     m_signalingRoomId = json.get<std::string>("roomId").unwrapOr("");
+                    m_hostToken = json.get<std::string>("hostToken").unwrapOr("");
 
                     m_turnServers.clear();
                     if (json.contains("turnServers") && json["turnServers"].isArray()) {
@@ -505,17 +780,8 @@ namespace mpedit {
                         }
                     }
 
-                     if (roomCode.empty()) {
-                        std::vector<ErrorCb> callbacks;
-                        std::string err;
-                        {
-                            std::lock_guard lock(m_stateMutex);
-                            m_error = "Failed to create room: no room code";
-                            m_state.store(State::Error);
-                            callbacks = m_onError;
-                            err = m_error;
-                        }
-                        for (auto& cb : callbacks) cb(err);
+                    if (roomCode.empty()) {
+                        failSession("Failed to create room: no room code");
                         return;
                     }
 
@@ -527,8 +793,20 @@ namespace mpedit {
 
                     log::info("P2PManager: Room created with code: {}", roomCode);
 
+                    auto mode = Mod::get()->getSettingValue<std::string>("ice-transport-mode");
+                    bool hasUsableTurn = false;
+                    for (auto const& ts : m_turnServers) {
+                        if (!ts.urls.empty() && !isTcpOrTlsTurnUrl(ts.urls)) {
+                            hasUsableTurn = true;
+                            break;
+                        }
+                    }
+                    if (mode != "STUN Only" && !hasUsableTurn && !m_hostToken.empty()) {
+                        fetchTurnServers(roomCode);
+                    }
+
                     startSignalPolling(roomCode, "host", 0);
-                    
+
                     std::vector<SessionStartedCb> callbacks;
                     {
                         std::lock_guard lock(m_stateMutex);
@@ -537,17 +815,7 @@ namespace mpedit {
                     for (auto& cb : callbacks) cb(roomCode, 0);
 
                 } else {
-                    std::vector<ErrorCb> callbacks;
-                    std::string err;
-                    {
-                        std::lock_guard lock(m_stateMutex);
-                        m_error = "Signaling error: " + res.string().unwrapOr("unknown error");
-                        m_state.store(State::Error);
-                        callbacks = m_onError;
-                        err = m_error;
-                    }
-                    for (auto& cb : callbacks) cb(err);
-                    m_signalingActive = false;
+                    failSession("Signaling error: " + res.string().unwrapOr("unknown error"));
                 }
             }
         );
@@ -567,8 +835,9 @@ namespace mpedit {
         auto req = geode::utils::web::WebRequest();
         req.header("ngrok-skip-browser-warning", "1");
         req.header("Bypass-Tunnel-Reminder", "true");
-        
-        m_signalingListener.spawn(
+        req.timeout(asp::Duration::fromSecs(10));
+
+        m_roomListListener.spawn(
             req.get(url),
             [cb, cleanUrl](geode::utils::web::WebResponse res) {
                 std::vector<RoomInfo> rooms;
@@ -607,6 +876,7 @@ namespace mpedit {
 
     void P2PManager::pollSignalOnce(std::string const& code, std::string const& role, int playerId) {
         if (!m_signalingActive.load()) return;
+        int attemptId = m_connectionAttemptId.load();
 
         float timeoutSec = 20.0f;
 
@@ -614,16 +884,28 @@ namespace mpedit {
 
         auto req = web::WebRequest();
         req.header("ngrok-skip-browser-warning", "1");
-        req.timeout(std::chrono::seconds(30));
+        req.timeout(asp::Duration::fromSecs(30));
+        if (role == "host") {
+            if (!m_hostToken.empty()) req.header("X-Room-Token", m_hostToken);
+        } else {
+            if (!m_playerToken.empty()) req.header("X-Player-Token", m_playerToken);
+        }
 
         m_signalPollListener.spawn(
             req.get(url),
-            [this, code, role, playerId](web::WebResponse res) {
+            [this, code, role, playerId, attemptId](web::WebResponse res) {
+                if (m_connectionAttemptId.load() != attemptId) return;
                 if (!m_signalingActive.load()) return;
 
                 if (res.ok()) {
                     auto json = res.json().unwrapOr(matjson::Value());
                     handleSignalingMessages(json);
+                } else if (res.code() == 404 || res.code() == 410) {
+                    failSession("Lobby is no longer active");
+                    return;
+                } else if (res.code() == 403) {
+                    failSession("Signaling authentication failed");
+                    return;
                 } else {
                     log::warn("P2PManager: Signal poll returned {}", res.code());
                 }
@@ -633,10 +915,11 @@ namespace mpedit {
                     if (std::chrono::steady_clock::now() < m_fastPollEndTime) {
                         delay = 0.1f;
                     }
-                    
-                    std::thread([this, code, role, playerId, delay]() {
+
+                    std::thread([this, code, role, playerId, delay, attemptId]() {
                         std::this_thread::sleep_for(std::chrono::milliseconds(static_cast<int>(delay * 1000)));
-                        geode::queueInMainThread([this, code, role, playerId]() {
+                        geode::queueInMainThread([this, code, role, playerId, attemptId]() {
+                            if (m_connectionAttemptId.load() != attemptId) return;
                             pollSignalOnce(code, role, playerId);
                         });
                     }).detach();
@@ -655,13 +938,46 @@ namespace mpedit {
     }
 
     void P2PManager::sendSignalingMessage(std::string const& roomCode, matjson::Value const& msg) {
+        sendSignalingMessageImpl(roomCode, msg, 2);
+    }
+
+    void P2PManager::sendSignalingMessageImpl(std::string const& roomCode, matjson::Value const& msg, int attemptsLeft) {
+        if (roomCode.empty()) return;
+        {
+            std::lock_guard lock(m_stateMutex);
+            if (m_role == Role::None || m_roomCode != roomCode) return;
+        }
+
         extendFastPoll();
         auto url = getSignalingUrl() + "/rooms/" + roomCode + "/signal";
         auto req = web::WebRequest();
         req.header("ngrok-skip-browser-warning", "1");
         req.header("Content-Type", "application/json");
+        req.timeout(asp::Duration::fromSecs(10));
+        {
+            std::lock_guard lock(m_stateMutex);
+            if (m_role == Role::Host) {
+                if (!m_hostToken.empty()) req.header("X-Room-Token", m_hostToken);
+            } else {
+                if (!m_playerToken.empty()) req.header("X-Player-Token", m_playerToken);
+            }
+        }
         req.bodyJSON(msg);
-        async::spawn(req.post(url));
+
+        async::spawn(req.post(url), [this, roomCode, msg, attemptsLeft](web::WebResponse res) {
+            if (res.ok()) return;
+            if (attemptsLeft <= 1) {
+                log::warn("P2PManager: Signaling message delivery failed ({})", res.code());
+                return;
+            }
+            log::warn("P2PManager: Signaling message failed ({}); retrying", res.code());
+            std::thread([this, roomCode, msg, attemptsLeft]() {
+                std::this_thread::sleep_for(std::chrono::milliseconds(750));
+                geode::queueInMainThread([this, roomCode, msg, attemptsLeft]() {
+                    sendSignalingMessageImpl(roomCode, msg, attemptsLeft - 1);
+                });
+            }).detach();
+        });
     }
 
     void P2PManager::handleSignalingMessages(matjson::Value const& messages) {
@@ -696,9 +1012,26 @@ namespace mpedit {
                             {"targetPlayerId", clientId}
                         });
                         sendSignalingMessage(m_roomCode, errBody);
+                        int attemptId = m_connectionAttemptId.load();
+                        std::thread([this, clientId, attemptId]() {
+                            std::this_thread::sleep_for(std::chrono::seconds(5));
+                            geode::queueInMainThread([this, clientId, attemptId]() {
+                                if (m_connectionAttemptId.load() != attemptId) return;
+                                sendLeaveForPlayer(clientId);
+                            });
+                        }).detach();
                     } else {
-                        m_nextPlayerId = std::max(m_nextPlayerId, clientId + 1);
-                        createHostPeer(clientId, clientName, iconStr, colorIdx);
+                        bool alreadyExists = false;
+                        {
+                            std::lock_guard lock(m_peersMutex);
+                            alreadyExists = m_peers.find(clientId) != m_peers.end();
+                        }
+                        if (alreadyExists) {
+                            log::warn("P2PManager: Ignoring duplicate client_joined for {}", clientId);
+                        } else {
+                            m_nextPlayerId = std::max(m_nextPlayerId, clientId + 1);
+                            createHostPeer(clientId, clientName, iconStr, colorIdx);
+                        }
                     }
                 }
             } else if (type == "answer") {
@@ -788,6 +1121,9 @@ namespace mpedit {
                             it->second.pc->addRemoteCandidate(rtcCand);
                         } else {
                             log::info("P2PManager: Remote description not set, buffering candidate from {}", fromId);
+                            if (it->second.pendingCandidates.size() >= MAX_PENDING_CANDIDATES) {
+                                it->second.pendingCandidates.erase(it->second.pendingCandidates.begin());
+                            }
                             it->second.pendingCandidates.push_back({cand, mid});
                         }
                         
@@ -814,16 +1150,8 @@ namespace mpedit {
             } else if (type == "error") {
                 auto errMsg = msg.get<std::string>("error").unwrapOr("Unknown error");
                 log::error("P2PManager: Received signaling error: {}", errMsg);
-                
-                std::vector<ErrorCb> callbacks;
-                {
-                    std::lock_guard lock(m_stateMutex);
-                    m_error = errMsg;
-                    m_state.store(State::Error);
-                    callbacks = m_onError;
-                }
-                for (auto& cb : callbacks) cb(errMsg);
-                leaveSession();
+                failSession(errMsg);
+                return;
             }
         }
     }
@@ -846,12 +1174,16 @@ namespace mpedit {
     void P2PManager::signalingJoinRoom(std::string const& roomCode, std::string const& playerName, std::string const& password) {
         if (m_signalingActive) return;
         m_signalingActive = true;
+        m_hostToken.clear();
+        m_playerToken.clear();
+        int attemptId = ++m_connectionAttemptId;
 
         for (auto& cb : m_onStatus) cb("Connecting to lobby...");
 
         auto req = geode::utils::web::WebRequest();
         req.header("ngrok-skip-browser-warning", "1");
         req.header("Content-Type", "application/json");
+        req.timeout(asp::Duration::fromSecs(15));
 
         matjson::Value body = matjson::makeObject({
             {"action", "join"},
@@ -863,40 +1195,31 @@ namespace mpedit {
         if (password != "") {
             body.set("password", password);
         }
-        
+
         req.bodyJSON(body);
 
         auto url = getSignalingUrl() + "/rooms/" + roomCode + "/join";
         log::info("P2PManager: Joining room {} on signaling server", roomCode);
         m_signalingListener.spawn(
             req.post(url),
-            [this, roomCode, playerName](web::WebResponse res) {
+            [this, roomCode, playerName, attemptId](web::WebResponse res) {
+                if (m_connectionAttemptId.load() != attemptId) return;
                 if (res.ok()) {
                     auto json = res.json().unwrapOr(matjson::Value());
                     m_localPlayerId = json.get<int>("playerId").unwrapOr(-1);
+                    m_playerToken = json.get<std::string>("playerToken").unwrapOr("");
                     auto hostName = json.get<std::string>("hostName").unwrapOr("Host");
                     auto hostIconStr = json.get<std::string>("hostIconStr").unwrapOr("");
                     int hostColorIndex = json.get<int>("hostColorIndex").unwrapOr(0);
 
                     if (m_localPlayerId < 0) {
-                        std::vector<ErrorCb> callbacks;
-                        std::string err;
-                        {
-                            std::lock_guard lock(m_stateMutex);
-                            m_error = "Failed to join room";
-                            m_state.store(State::Error);
-                            callbacks = m_onError;
-                            err = m_error;
-                        }
-                        for (auto& cb : callbacks) cb(err);
-                        m_signalingActive = false;
+                        failSession("Failed to join room");
                         return;
                     }
 
-                    int attemptId = ++m_connectionAttemptId;
                     m_waitingTimerFlag = std::make_shared<std::atomic<bool>>(true);
                     auto timerFlag = m_waitingTimerFlag;
-                    
+
                     std::thread([this, attemptId, timerFlag]() {
                         int secondsLeft = 8;
                         while (secondsLeft > 0 && timerFlag->load() && m_connectionAttemptId.load() == attemptId) {
@@ -916,7 +1239,7 @@ namespace mpedit {
                             });
                         }
                     }).detach();
-                    
+
                     log::info("P2PManager: Joined room {} as player {}", roomCode, m_localPlayerId);
 
                     m_turnServers.clear();
@@ -932,7 +1255,26 @@ namespace mpedit {
                         }
                     }
 
-                    auto pc = std::make_shared<rtc::PeerConnection>(makeRtcConfig());
+                    auto mode = Mod::get()->getSettingValue<std::string>("ice-transport-mode");
+                    bool hasUsableTurn = false;
+                    for (auto const& ts : m_turnServers) {
+                        if (!ts.urls.empty() && !isTcpOrTlsTurnUrl(ts.urls)) {
+                            hasUsableTurn = true;
+                            break;
+                        }
+                    }
+                    if (mode != "STUN Only" && !hasUsableTurn && !m_playerToken.empty()) {
+                        fetchTurnServers(roomCode);
+                    }
+
+                    std::shared_ptr<rtc::PeerConnection> pc;
+                    try {
+                        pc = std::make_shared<rtc::PeerConnection>(makeRtcConfig());
+                    } catch (std::exception const& e) {
+                        log::error("P2PManager: Failed to create peer connection: {}", e.what());
+                        failSession("Failed to create peer connection");
+                        return;
+                    }
 
                     PeerInfo hostPeer;
                     hostPeer.pc = pc;
@@ -946,7 +1288,7 @@ namespace mpedit {
                     pc->onDataChannel([this](std::shared_ptr<rtc::DataChannel> dc) {
                         bool isReliable = dc->label() == "reliable";
                         log::info("P2PManager: Received {} data channel", dc->label());
-                        
+
                         {
                             std::lock_guard lock(m_peersMutex);
                             auto it = m_peers.find(0);
@@ -975,7 +1317,7 @@ namespace mpedit {
 
 
 
-                    auto answerSent = std::make_shared<bool>(false);
+                    auto answerSent = std::make_shared<std::atomic<bool>>(false);
 
                     pc->onLocalCandidate([this, myId, roomCode](rtc::Candidate candidate) {
                         auto candType = candidate.type();
@@ -1023,18 +1365,17 @@ namespace mpedit {
 
                     pc->onLocalDescription([this, pc, myId, roomCode, answerSent](rtc::Description desc) {
                         std::string sdp = std::string(desc);
-                        
+
                         size_t setupPos = sdp.find("a=setup:actpass");
                         while (setupPos != std::string::npos) {
                             sdp.replace(setupPos, 15, "a=setup:active");
                             setupPos = sdp.find("a=setup:actpass", setupPos);
                         }
-                        
+
                         log::info("P2PManager: Local description set, sending SDP answer via HTTP (early/trickle)");
 
                         queueInMainThread([this, sdp, myId, roomCode, answerSent]() {
-                            if (*answerSent) return;
-                            *answerSent = true;
+                            if (answerSent->exchange(true)) return;
                             auto body = matjson::Value();
                             body["type"] = "answer";
                             body["sdp"] = sdp;
@@ -1058,8 +1399,7 @@ namespace mpedit {
                                 }
 
                                 queueInMainThread([this, sdp, myId, roomCode, answerSent]() {
-                                    if (*answerSent) return;
-                                    *answerSent = true;
+                                    if (answerSent->exchange(true)) return;
                                     log::info("P2PManager: ICE gathering complete, sending SDP answer via HTTP (fallback)");
                                     auto body = matjson::Value();
                                     body["type"] = "answer";
@@ -1113,11 +1453,14 @@ namespace mpedit {
                                 case rtc::PeerConnection::State::Closed: stateStr = "Closed"; break;
                             }
                             for (auto& cb : m_onStatus) cb(stateStr);
-                            
-                            if (state == rtc::PeerConnection::State::Disconnected ||
-                                state == rtc::PeerConnection::State::Failed ||
-                                state == rtc::PeerConnection::State::Closed) {
+
+                            if (state == rtc::PeerConnection::State::Disconnected) {
+                                scheduleDisconnectCheck(0, 5000);
+                            } else if (state == rtc::PeerConnection::State::Failed ||
+                                       state == rtc::PeerConnection::State::Closed) {
                                 onPeerDisconnected(0, true);
+                            } else if (state == rtc::PeerConnection::State::Connected) {
+                                cancelDisconnectCheck(0);
                             }
                         });
                     });
@@ -1128,46 +1471,20 @@ namespace mpedit {
                     }
 
                     startSignalPolling(roomCode, "client", m_localPlayerId);
+                    armConnectionWatchdog(attemptId, 45, "Timed out connecting to host");
 
                 } else if (res.code() == 404) {
-                    std::vector<ErrorCb> callbacks;
-                    std::string err;
-                    {
-                        std::lock_guard lock(m_stateMutex);
-                        m_error = "Room not found";
-                        m_state.store(State::Error);
-                        callbacks = m_onError;
-                        err = m_error;
-                    }
-                    for (auto& cb : callbacks) cb(err);
-                    m_signalingActive = false;
+                    failSession("Room not found");
                 } else if (res.code() == 410) {
-                    std::vector<ErrorCb> callbacks;
-                    std::string err;
-                    {
-                        std::lock_guard lock(m_stateMutex);
-                        m_error = "Lobby is no longer active";
-                        m_state.store(State::Error);
-                        callbacks = m_onError;
-                        err = m_error;
-                    }
-                    for (auto& cb : callbacks) cb(err);
-                    m_signalingActive = false;
+                    failSession("Lobby is no longer active");
+                } else if (res.code() == 403) {
+                    auto json = res.json().unwrapOr(matjson::Value());
+                    auto errMsg = json.get<std::string>("error").unwrapOr("Access denied");
+                    failSession(errMsg);
                 } else {
                     auto json = res.json().unwrapOr(matjson::Value());
                     std::string errMsg = json.get<std::string>("error").unwrapOr("HTTP " + std::to_string(res.code()));
-
-                    std::vector<ErrorCb> callbacks;
-                    std::string err;
-                    {
-                        std::lock_guard lock(m_stateMutex);
-                        m_error = "Failed to join room: " + errMsg;
-                        m_state.store(State::Error);
-                        callbacks = m_onError;
-                        err = m_error;
-                    }
-                    for (auto& cb : callbacks) cb(err);
-                    m_signalingActive = false;
+                    failSession("Failed to join room: " + errMsg);
                 }
             }
         );
@@ -1183,7 +1500,11 @@ namespace mpedit {
             m_roomCode = roomCode;
             m_localPlayerName = playerName;
             m_isDedicated = true;
+            m_error.clear();
+            m_hostToken.clear();
+            m_playerToken.clear();
         }
+        int attemptId = ++m_connectionAttemptId;
         for (auto& cb : m_onStatus) cb("Connecting to server...");
 
         std::string finalUrl = geode::utils::string::trim(url);
@@ -1193,19 +1514,32 @@ namespace mpedit {
         if (!finalUrl.empty() && finalUrl.back() == '/') finalUrl.pop_back();
 
         std::string fullUrl = finalUrl + "/" + roomCode;
-        if (!password.empty()) fullUrl += "?password=" + password;
+        if (!password.empty()) fullUrl += "?password=" + urlEncode(password);
+
+        {
+            std::lock_guard lock(m_peersMutex);
+            PeerInfo serverPeer;
+            serverPeer.playerId = 0;
+            serverPeer.playerName = playerName;
+            m_peers[0] = std::move(serverPeer);
+        }
 
         rtc::WebSocketConfiguration wsConfig;
-        wsConfig.pingInterval = std::chrono::milliseconds(0);
-        wsConfig.maxMessageSize = 250 * 1024 * 1024;
-        wsConfig.disableTlsVerification = true;
-        m_webSocket = std::make_shared<rtc::WebSocket>(wsConfig);
-        
-        m_webSocket->onOpen([this]() {
-            queueInMainThread([this]() {
+        wsConfig.pingInterval = std::chrono::milliseconds(15000);
+        wsConfig.maxMessageSize = 16 * 1024 * 1024;
+        wsConfig.disableTlsVerification = false;
+        try {
+            m_webSocket = std::make_shared<rtc::WebSocket>(wsConfig);
+        } catch (std::exception const& e) {
+            log::error("P2PManager: Failed to create WebSocket: {}", e.what());
+            failSession("Failed to connect to server");
+            return;
+        }
+
+        m_webSocket->onOpen([this, attemptId]() {
+            queueInMainThread([this, attemptId]() {
+                if (m_connectionAttemptId.load() != attemptId) return;
                 for (auto& cb : m_onStatus) cb("Connected! Handshaking...");
-                
-                m_state.store(State::Connected);
 
                 auto handshake = proto::serializePlayerJoined(0, m_localPlayerName, getLocalSavedCursorColor(), buildLocalIconStr());
                 try {
@@ -1216,43 +1550,58 @@ namespace mpedit {
             });
         });
 
-        m_webSocket->onMessage([this](auto data) {
+        m_webSocket->onMessage([this, attemptId](auto data) {
             if (auto* binaryMsg = std::get_if<rtc::binary>(&data)) {
-                queueInMainThread([this, data = *binaryMsg]() {
+                queueInMainThread([this, attemptId, data = *binaryMsg]() {
+                    if (m_connectionAttemptId.load() != attemptId) return;
                     onPeerMessage(0, reinterpret_cast<const uint8_t*>(data.data()), data.size());
                 });
             }
         });
 
-        m_webSocket->onClosed([this]() {
-            queueInMainThread([this]() {
+        m_webSocket->onClosed([this, attemptId]() {
+            queueInMainThread([this, attemptId]() {
+                if (m_connectionAttemptId.load() != attemptId) return;
                 log::info("P2PManager: WebSocket closed");
                 onPeerDisconnected(0, true);
             });
         });
 
-        m_webSocket->onError([this](std::string const& error) {
-            queueInMainThread([this, error]() {
+        m_webSocket->onError([this, attemptId](std::string const& error) {
+            queueInMainThread([this, attemptId, error]() {
+                if (m_connectionAttemptId.load() != attemptId) return;
                 log::error("P2PManager: WebSocket error: {}", error);
-                std::vector<ErrorCb> callbacks;
-                std::string err;
-                {
-                    std::lock_guard lock(m_stateMutex);
-                    m_error = "WebSocket Error: " + error;
-                    m_state.store(State::Error);
-                    callbacks = m_onError;
-                    err = m_error;
-                }
-                for (auto& cb : callbacks) cb(err);
+                failSession("WebSocket Error: " + error);
             });
         });
 
-        m_webSocket->open(fullUrl);
+        try {
+            m_webSocket->open(fullUrl);
+        } catch (std::exception const& e) {
+            log::error("P2PManager: Failed to open WebSocket: {}", e.what());
+            m_webSocket.reset();
+            failSession("Invalid server URL");
+            return;
+        }
+        armConnectionWatchdog(attemptId, 15, "Server handshake timed out");
     }
 
 
     void P2PManager::createHostPeer(int clientPlayerId, std::string const& clientName, std::string const& iconStr, int colorIndex) {
-        auto pc = std::make_shared<rtc::PeerConnection>(makeRtcConfig());
+        int attemptId = m_connectionAttemptId.load();
+        std::shared_ptr<rtc::PeerConnection> pc;
+        try {
+            pc = std::make_shared<rtc::PeerConnection>(makeRtcConfig());
+        } catch (std::exception const& e) {
+            log::error("P2PManager: Failed to create peer connection for player {}: {}", clientPlayerId, e.what());
+            auto errBody = matjson::makeObject({
+                {"type", "error"},
+                {"error", "Connection failed"},
+                {"targetPlayerId", clientPlayerId}
+            });
+            sendSignalingMessage(m_roomCode, errBody);
+            return;
+        }
 
         auto reliable = pc->createDataChannel("reliable");
 
@@ -1300,7 +1649,7 @@ namespace mpedit {
 
         auto roomCode = getRoomCode();
 
-        auto offerSent = std::make_shared<bool>(false);
+        auto offerSent = std::make_shared<std::atomic<bool>>(false);
 
         pc->onLocalCandidate([this, clientPlayerId, roomCode](rtc::Candidate candidate) {
             auto candType = candidate.type();
@@ -1325,8 +1674,7 @@ namespace mpedit {
             log::info("P2PManager: Local description set, sending SDP offer for player {} via HTTP (early/trickle)", clientPlayerId);
 
             queueInMainThread([this, sdp, clientPlayerId, roomCode, offerSent]() {
-                if (*offerSent) return;
-                *offerSent = true;
+                if (offerSent->exchange(true)) return;
                 auto body = matjson::Value();
                 body["type"] = "offer";
                 body["sdp"] = sdp;
@@ -1344,8 +1692,7 @@ namespace mpedit {
                     std::string sdp = std::string(desc.value());
 
                     queueInMainThread([this, sdp, clientPlayerId, roomCode, offerSent]() {
-                        if (*offerSent) return;
-                        *offerSent = true;
+                        if (offerSent->exchange(true)) return;
                         log::info("P2PManager: ICE gathering complete, sending SDP offer for player {} via HTTP (fallback)", clientPlayerId);
                         auto body = matjson::Value();
                         body["type"] = "offer";
@@ -1358,11 +1705,18 @@ namespace mpedit {
         });
 
         pc->onStateChange([this, clientPlayerId](rtc::PeerConnection::State state) {
-            if (state == rtc::PeerConnection::State::Disconnected ||
-                state == rtc::PeerConnection::State::Failed ||
-                state == rtc::PeerConnection::State::Closed) {
+            if (state == rtc::PeerConnection::State::Disconnected) {
+                queueInMainThread([this, clientPlayerId]() {
+                    scheduleDisconnectCheck(clientPlayerId, 5000);
+                });
+            } else if (state == rtc::PeerConnection::State::Failed ||
+                       state == rtc::PeerConnection::State::Closed) {
                 queueInMainThread([this, clientPlayerId]() {
                     onPeerDisconnected(clientPlayerId, true);
+                });
+            } else if (state == rtc::PeerConnection::State::Connected) {
+                queueInMainThread([this, clientPlayerId]() {
+                    cancelDisconnectCheck(clientPlayerId);
                 });
             }
         });
@@ -1371,8 +1725,7 @@ namespace mpedit {
 
         {
             auto desc = pc->localDescription();
-            if (desc.has_value() && !*offerSent) {
-                *offerSent = true;
+            if (desc.has_value() && !offerSent->exchange(true)) {
                 std::string sdp = std::string(desc.value());
                 log::info("P2PManager: Sending SDP offer for player {} immediately after setLocalDescription", clientPlayerId);
                 auto body = matjson::Value();
@@ -1388,9 +1741,10 @@ namespace mpedit {
             m_peers[clientPlayerId] = std::move(peer);
         }
 
-        std::thread([this, clientPlayerId]() {
+        std::thread([this, clientPlayerId, attemptId]() {
             std::this_thread::sleep_for(std::chrono::seconds(35));
-            geode::queueInMainThread([this, clientPlayerId]() {
+            geode::queueInMainThread([this, clientPlayerId, attemptId]() {
+                if (m_connectionAttemptId.load() != attemptId) return;
                 if (m_role != Role::Host) return;
                 bool needsDisconnect = false;
                 {
@@ -1450,18 +1804,20 @@ namespace mpedit {
 
         if (m_role == Role::Client && pid == 0) {
             m_state.store(State::Connected);
-            stopSignalPolling();
         }
 
         queueInMainThread([this, pid, name, colorIdx, iconStr]() {
             if (m_role == Role::Client && pid == 0) {
+                stopSignalPolling();
                 auto roomCode = getRoomCode();
-                for (auto& cb : m_onSessionStarted) {
+                auto callbacks = m_onSessionStarted;
+                for (auto& cb : callbacks) {
                     cb(roomCode, m_localPlayerId);
                 }
             }
 
-            for (auto& cb : m_onPeerConnected) {
+            auto peerCallbacks = m_onPeerConnected;
+            for (auto& cb : peerCallbacks) {
                 cb(pid, name, colorIdx, iconStr);
             }
 
@@ -1501,6 +1857,12 @@ namespace mpedit {
     void P2PManager::leaveSession() {
         m_connectionAttemptId++;
         stopSignalPolling();
+        m_signalingListener.cancel();
+        m_roomListListener.cancel();
+        m_turnListener.cancel();
+        if (m_waitingTimerFlag) {
+            m_waitingTimerFlag->store(false);
+        }
 
         {
             std::lock_guard lock(m_peersMutex);
@@ -1512,20 +1874,42 @@ namespace mpedit {
             m_peers.clear();
         }
 
-        if (m_role == Role::Host && !m_roomCode.empty()) {
-            auto url = getSignalingUrl() + "/rooms/" + m_roomCode;
+        Role role;
+        std::string roomCode;
+        int localPlayerId;
+        std::string hostToken;
+        std::string playerToken;
+        {
+            std::lock_guard lock(m_stateMutex);
+            role = m_role;
+            roomCode = m_roomCode;
+            localPlayerId = m_localPlayerId;
+            hostToken = m_hostToken;
+            playerToken = m_playerToken;
+        }
+
+        if (role == Role::Host && !roomCode.empty()) {
+            auto url = getSignalingUrl() + "/rooms/" + roomCode;
             auto req = web::WebRequest();
             req.header("ngrok-skip-browser-warning", "1");
+            if (!hostToken.empty()) {
+                req.header("X-Room-Token", hostToken);
+            }
+            req.timeout(asp::Duration::fromSecs(10));
             async::spawn(req.send("DELETE", url));
         }
 
-        if (m_role == Role::Client && !m_roomCode.empty() && m_localPlayerId >= 0 && !m_isDedicated) {
-            auto url = getSignalingUrl() + "/rooms/" + m_roomCode + "/leave";
+        if (role == Role::Client && !roomCode.empty() && localPlayerId >= 0 && !m_isDedicated) {
+            auto url = getSignalingUrl() + "/rooms/" + roomCode + "/leave";
             auto req = geode::utils::web::WebRequest();
             req.header("ngrok-skip-browser-warning", "1");
             req.header("Content-Type", "application/json");
-            auto body = matjson::makeObject({{"playerId", m_localPlayerId}});
+            if (!playerToken.empty()) {
+                req.header("X-Player-Token", playerToken);
+            }
+            auto body = matjson::makeObject({{"playerId", localPlayerId}});
             req.bodyJSON(body);
+            req.timeout(asp::Duration::fromSecs(10));
             async::spawn(req.post(url));
         }
 
@@ -1542,7 +1926,7 @@ namespace mpedit {
             m_localPlayerId = -1;
             m_localPlayerName.clear();
             m_error.clear();
-            
+
             if (m_webSocket) {
                 auto ws = m_webSocket;
                 m_webSocket = nullptr;
@@ -1552,12 +1936,15 @@ namespace mpedit {
                 }).detach();
             }
             m_isDedicated = false;
+            m_hostToken.clear();
+            m_playerToken.clear();
         }
 
         m_state.store(State::Disconnected);
         m_nextPlayerId = 1;
         m_signalingRoomId.clear();
         m_turnServers.clear();
+        m_settings = RoomSettings();
 
         log::info("P2PManager: Session ended");
     }

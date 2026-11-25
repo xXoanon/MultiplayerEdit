@@ -1,8 +1,6 @@
 #pragma once
 #include <Geode/Geode.hpp>
 #include <Geode/ui/Popup.hpp>
-
-#include <Geode/binding/CCTextInputNode.hpp>
 #include <Geode/binding/CCScrollLayerExt.hpp>
 #include <Geode/ui/TextInput.hpp>
 
@@ -24,10 +22,6 @@ public:
         geode::Popup::CloseEvent(this).send();
         this->setKeypadEnabled(false);
         this->setTouchEnabled(false);
-        if (this->m_forcePrioRegistered) {
-            cocos2d::CCDirector::sharedDirector()->getTouchDispatcher()->unregisterForcePrio(this);
-            this->m_forcePrioRegistered = false;
-        }
         this->setVisible(false);
         geode::Loader::get()->queueInMainThread([self = geode::Ref(this)]() {
             if (self->getParent()) {
@@ -36,50 +30,14 @@ public:
         });
     }
 
-    void registerWithTouchDispatcher() override {
-        auto dispatcher = cocos2d::CCDirector::sharedDirector()->getTouchDispatcher();
-        int targetPrio = dispatcher->getTargetPrio();
-        dispatcher->addTargetedDelegate(this, targetPrio, true);
-        if (this->m_forcePrioRegistered) {
-            dispatcher->registerForcePrio(this, 2);
-        }
-        syncTouchPriority(this);
-    }
-
     bool ccTouchBegan(cocos2d::CCTouch*, cocos2d::CCEvent*) override {
         if (!this->isRunning() || !this->isVisible()) return false;
         return true;
     }
 
-    void syncTouchPriority(cocos2d::CCNode* root = nullptr) {
-        auto dispatcher = cocos2d::CCDirector::sharedDirector()->getTouchDispatcher();
-        int prio = dispatcher->getTargetPrio() - 1;
-        applyTouchPriority(root ? root : this, prio, this);
-    }
-
-    static void applyTouchPriority(cocos2d::CCNode* node, int priority, cocos2d::CCNode* ignore = nullptr) {
-        if (!node) return;
-        if (node != ignore) {
-            if (auto layer = geode::cast::typeinfo_cast<cocos2d::CCLayer*>(node)) {
-                layer->setTouchPriority(priority);
-            } else if (auto textInput = geode::cast::typeinfo_cast<geode::TextInput*>(node)) {
-                if (textInput->getInputNode()) {
-                    textInput->getInputNode()->setTouchPriority(priority);
-                }
-            }
-        }
-        auto children = node->getChildren();
-        if (children) {
-            for (unsigned int i = 0; i < children->count(); ++i) {
-                applyTouchPriority(static_cast<cocos2d::CCNode*>(children->objectAtIndex(i)), priority, ignore);
-            }
-        }
-    }
-
 protected:
     bool init(float width, float height, char const* bg = "GJ_square01.png") {
         if (!geode::Popup::init(width, height, bg)) return false;
-        this->m_forcePrioRegistered = true;
         fixPopup();
         return true;
     }
@@ -101,11 +59,6 @@ protected:
             m_uiMenu->setZOrder(10);
             this->m_mainLayer->addChild(m_uiMenu);
         }
-
-        auto dispatcher = cocos2d::CCDirector::sharedDirector()->getTouchDispatcher();
-        int prio = dispatcher->getTargetPrio() - 1;
-        if (m_buttonMenu) m_buttonMenu->setTouchPriority(prio);
-        if (m_uiMenu) m_uiMenu->setTouchPriority(prio);
     }
 
     float left() { return 0.f; }

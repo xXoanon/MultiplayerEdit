@@ -110,9 +110,8 @@ namespace mpedit {
         item.root = cocos2d::CCNode::create();
         this->addChild(item.root, 20);
 
-        item.label = cocos2d::CCLabelBMFont::create(message.c_str(), "chatFont.fnt");
-        item.label->setScale(0.32f);
-        item.label->limitLabelWidth(130.f, 0.32f, 0.18f);
+        item.label = geode::Label::create(message, "chatFont.fnt");
+        item.label->setLimitLabelWidth(130.f, 0.32f, 0.18f);
         item.label->setAnchorPoint({0.5f, 0.5f});
         item.label->setPosition({0.f, 0.f});
 

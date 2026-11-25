@@ -109,6 +109,7 @@ namespace mpedit {
         void onSessionStarted(void* id, SessionCallback cb);
         void onSessionEnded(void* id, SessionCallback cb);
         void onPlayerJoined(void* id, PlayerCallback cb);
+        void onPlayerUpdated(void* id, PlayerCallback cb);
         void onPlayerLeft(void* id, PlayerCallback cb);
         void onError(void* id, ErrorCallback cb);
         void onStatus(void* id, StatusCallback cb);
@@ -138,6 +139,7 @@ namespace mpedit {
         std::map<void*, SessionCallback> m_onSessionStarted;
         std::map<void*, SessionCallback> m_onSessionEnded;
         std::map<void*, PlayerCallback> m_onPlayerJoined;
+        std::map<void*, PlayerCallback> m_onPlayerUpdated;
         std::map<void*, PlayerCallback> m_onPlayerLeft;
         std::map<void*, ErrorCallback> m_onError;
         std::map<void*, StatusCallback> m_onStatus;

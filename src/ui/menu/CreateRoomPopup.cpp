@@ -44,6 +44,7 @@ namespace mpedit {
             outInput = geode::TextInput::create(width, placeholder, "chatFont.fnt");
             outInput->setMaxCharCount(maxLen);
             outInput->setCommonFilter(filter);
+            outInput->setDisplayEmojis(false);
             wrapper->addChild(outInput);
             
             wrapper->updateLayout();
@@ -58,7 +59,9 @@ namespace mpedit {
         row->setLayout(RowLayout::create()->setGap(15.f));
         
         createLabeledInput(row, "Passcode", 112.5f, "(none)", 11, geode::CommonFilter::Uint, m_passInput);
+        m_passInput->setNumericMode(true);
         createLabeledInput(row, "Player limit", 112.5f, "Unlimited", 6, geode::CommonFilter::Uint, m_limitInput);
+        m_limitInput->setNumericMode(true);
         
         row->updateLayout();
         layoutNode->addChild(row);
