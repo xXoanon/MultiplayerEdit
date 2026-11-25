@@ -9,6 +9,7 @@
 #include <Geode/binding/GameLevelManager.hpp>
 #include <Geode/binding/LevelBrowserLayer.hpp>
 #include <Geode/binding/GJSearchObject.hpp>
+#include <Geode/binding/ColorActionSprite.hpp>
 #include <Geode/Geode.hpp>
 #include <Geode/utils/file.hpp>
 #include <random>
@@ -65,31 +66,66 @@ namespace mpedit {
             }
         }
 
+        ColorAction* createColorActionSafe(GJEffectManager* effectMgr, int channelID) {
+#ifdef GEODE_IS_IOS
+            auto* tempSettings = LevelSettingsObject::objectFromString(
+                fmt::format("kS38,1_255_2_255_3_255_6_{}_7_1_15_1_8_1|", channelID)
+            );
+            if (!tempSettings || !tempSettings->m_effectManager) return nullptr;
+            auto* tempMgr = tempSettings->m_effectManager;
+            ColorAction* created = nullptr;
+            if (channelID >= 0 && static_cast<size_t>(channelID) < tempMgr->m_colorActionVector.size()) {
+                created = tempMgr->m_colorActionVector[channelID];
+            }
+            if (!created && tempMgr->m_unkObject148) {
+                created = static_cast<ColorAction*>(tempMgr->m_unkObject148->objectForKey(channelID));
+            }
+            if (!created) return nullptr;
+            created->m_colorID = channelID;
+            created->m_colorSprite = effectMgr ? effectMgr->getColorSprite(channelID) : nullptr;
+            if (created->m_colorSprite) {
+                created->m_colorSprite->m_colorAction = created;
+            }
+            if (effectMgr) {
+                if (effectMgr->m_unkObject148) {
+                    effectMgr->m_unkObject148->setObject(created, channelID);
+                }
+                if (channelID >= 0 && static_cast<size_t>(channelID) < effectMgr->m_colorActionVector.size()) {
+                    effectMgr->m_colorActionVector[channelID] = created;
+                }
+            }
+            return created;
+#else
+            auto* created = ColorAction::create({255, 255, 255}, false, -1);
+            if (created) {
+                created->m_colorID = channelID;
+            }
+            return created;
+#endif
+        }
+
         ColorAction* getColorActionSafe(GJEffectManager* effectMgr, int channelID) {
             if (!effectMgr) return nullptr;
 #ifdef GEODE_IS_IOS
-            if (effectMgr->m_colorActionDict) {
-                if (auto* a = static_cast<ColorAction*>(effectMgr->m_colorActionDict->objectForKey(channelID))) {
+            if (channelID >= 0 && static_cast<size_t>(channelID) < effectMgr->m_colorActionVector.size()) {
+                if (auto* a = effectMgr->m_colorActionVector[channelID]) {
                     return a;
                 }
             }
-            if (channelID >= 0 && static_cast<size_t>(channelID) < effectMgr->m_colorActionVector.size()) {
-                if (auto* a = effectMgr->m_colorActionVector[channelID]) {
+            if (effectMgr->m_unkObject148) {
+                if (auto* a = static_cast<ColorAction*>(effectMgr->m_unkObject148->objectForKey(channelID))) {
+                    return a;
+                }
+            }
+            if (effectMgr->m_colorActionDict) {
+                if (auto* a = static_cast<ColorAction*>(effectMgr->m_colorActionDict->objectForKey(channelID))) {
                     return a;
                 }
             }
             for (auto* a : effectMgr->m_colorActionVector) {
                 if (a && a->m_colorID == channelID) return a;
             }
-            if (effectMgr->m_colorActionDict) {
-                auto* created = ColorAction::create({255, 255, 255}, false, -1);
-                if (created) {
-                    created->m_colorID = channelID;
-                    effectMgr->m_colorActionDict->setObject(created, channelID);
-                    return created;
-                }
-            }
-            return nullptr;
+            return createColorActionSafe(effectMgr, channelID);
 #else
             return effectMgr->getColorAction(channelID);
 #endif
@@ -98,6 +134,14 @@ namespace mpedit {
         void notifyColorActionUpdated(GJEffectManager* effectMgr, ColorAction* action) {
             if (!effectMgr || !action) return;
 #ifdef GEODE_IS_IOS
+            if (action->m_copyID == 0 && action->m_colorSprite) {
+                action->m_colorSprite->m_color = action->m_color;
+                action->m_colorSprite->m_opacity = action->m_currentOpacity * 255.f;
+            }
+            if (effectMgr->m_colorActionDict) {
+                if (action->m_copyID > 0) effectMgr->m_colorActionDict->setObject(action, action->m_colorID);
+                else effectMgr->m_colorActionDict->removeObjectForKey(action->m_colorID);
+            }
             effectMgr->updateEffects(0.f);
 #else
             effectMgr->updateColorAction(action);
@@ -1866,8 +1910,10 @@ namespace mpedit {
                                         auto* oldAction = static_cast<ColorAction*>(oldDict->objectForKey(k));
                                         
                                         if (!oldAction) {
-                                            oldAction = ColorAction::create({255, 255, 255}, false, -1);
-                                            oldDict->setObject(oldAction, k);
+                                            oldAction = createColorActionSafe(oldEffectMgr, static_cast<int>(k));
+                                            if (oldAction) {
+                                                oldDict->setObject(oldAction, k);
+                                            }
                                         }
                                         if (newAction && oldAction) {
                                             copyColor(oldAction, newAction);
