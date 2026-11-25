@@ -94,7 +94,7 @@ namespace mpedit {
 
         if (editor->m_levelSettings) {
             ActionSerializer::LevelSettingsData settings;
-            settings.saveString = editor->m_levelSettings->getSaveString();
+            settings.saveString = getLevelSettingsSaveString(editor);
             if (editor->m_level) {
                 settings.audioTrack = editor->m_level->m_audioTrack;
                 settings.songID = editor->m_level->m_songID;

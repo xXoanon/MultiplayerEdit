@@ -14,6 +14,7 @@ class LevelEditorLayer;
 
 namespace mpedit {
     void updateStartPosCache(GameObject* obj);
+    std::string getLevelSettingsSaveString(LevelEditorLayer* editor);
 
     struct LockInfo {
         int playerId;

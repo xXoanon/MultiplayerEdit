@@ -517,7 +517,7 @@ namespace {
 
         ActionSerializer::LevelSettingsData settings;
         if (editor->m_levelSettings) {
-            settings.saveString = editor->m_levelSettings->getSaveString();
+            settings.saveString = getLevelSettingsSaveString(editor);
         }
         if (editor->m_level) {
             settings.audioTrack = editor->m_level->m_audioTrack;
@@ -652,7 +652,7 @@ class $modify(MPLevelEditorLayer, LevelEditorLayer) {
         if (session.isInSession()) {
             ActionSerializer::LevelSettingsData settings;
             if (this->m_levelSettings) {
-                settings.saveString = this->m_levelSettings->getSaveString();
+                settings.saveString = getLevelSettingsSaveString(this);
             }
             if (this->m_level) {
                 settings.audioTrack = this->m_level->m_audioTrack;
@@ -1052,10 +1052,19 @@ class $modify(MPLevelEditorLayer, LevelEditorLayer) {
                 for (auto* innerObj : geode::cocos::CCArrayExt<cocos2d::CCObject*>(lastItem->m_objects)) {
                     if (auto* gObj = geode::cast::typeinfo_cast<GameObject*>(innerObj)) {
                         affectedObjects.insert(gObj);
-                    } else if (auto* copy = geode::cast::typeinfo_cast<GameObjectCopy*>(innerObj)) {
-                        if (copy->m_object) {
+                    } else if (innerObj) {
+#ifdef GEODE_IS_MACOS
+                        auto* copy = static_cast<GameObjectCopy*>(innerObj);
+                        if (copy && copy->m_object) {
                             affectedObjects.insert(copy->m_object);
                         }
+#else
+                        if (auto* copy = geode::cast::typeinfo_cast<GameObjectCopy*>(innerObj)) {
+                            if (copy->m_object) {
+                                affectedObjects.insert(copy->m_object);
+                            }
+                        }
+#endif
                     }
                 }
             }
@@ -2432,15 +2441,19 @@ ActionSerializer::ColorChannelData colorActionToData(ColorAction* action, int ch
 }
 
 
+namespace {
+    std::unordered_map<void*, std::unordered_map<int, ActionSerializer::ColorChannelData>> s_colorSetupCache;
+    std::unordered_map<void*, std::map<int, ActionSerializer::ColorChannelData>> s_levelSettingsCache;
+}
+
 #include <Geode/modify/GJColorSetupLayer.hpp>
 class $modify(MPGJColorSetupLayer, GJColorSetupLayer) {
-    struct Fields {
-        std::unordered_map<int, ActionSerializer::ColorChannelData> m_cachedColors;
-    };
-
 #ifndef GEODE_IS_IOS
     bool init(LevelSettingsObject* p0) {
         if (!GJColorSetupLayer::init(p0)) return false;
+
+        auto& cachedColors = s_colorSetupCache[this];
+        cachedColors.clear();
 
         auto* effectMgr = m_settingsObject ? m_settingsObject->m_effectManager : nullptr;
         if (!effectMgr) {
@@ -2455,7 +2468,7 @@ class $modify(MPGJColorSetupLayer, GJColorSetupLayer) {
                 if (auto* action = effectMgr->m_colorActionVector[i]) {
                     int channelID = action->m_colorID;
                     if (channelID == 0) channelID = static_cast<int>(i);
-                    m_fields->m_cachedColors[channelID] = colorActionToData(action, channelID);
+                    cachedColors[channelID] = colorActionToData(action, channelID);
                 }
             }
         }
@@ -2470,6 +2483,8 @@ class $modify(MPGJColorSetupLayer, GJColorSetupLayer) {
 
         auto& session = SessionManager::get();
         if (!session.isInSession()) return;
+
+        auto& cachedColors = s_colorSetupCache[this];
         
         auto editor = LevelEditorLayer::get();
         auto* effectMgr = m_settingsObject ? m_settingsObject->m_effectManager : nullptr;
@@ -2486,8 +2501,8 @@ class $modify(MPGJColorSetupLayer, GJColorSetupLayer) {
                     if (channelID == 0) channelID = static_cast<int>(i);
                     auto currentData = colorActionToData(action, channelID);
                     
-                    if (m_fields->m_cachedColors.find(channelID) == m_fields->m_cachedColors.end() || m_fields->m_cachedColors[channelID] != currentData) {
-                        m_fields->m_cachedColors[channelID] = currentData;
+                    if (cachedColors.find(channelID) == cachedColors.end() || cachedColors[channelID] != currentData) {
+                        cachedColors[channelID] = currentData;
                         RevertManager::get().onColorChannelUpdated(session.getLocalPlayerId(), currentData);
                         auto packet = proto::serializeUpdateColorChannel(currentData);
                         P2PManager::get().send(std::move(packet), ChannelType::Reliable);
@@ -2502,12 +2517,14 @@ class $modify(MPGJColorSetupLayer, GJColorSetupLayer) {
     void onClose(cocos2d::CCObject* sender) {
         GJColorSetupLayer::onClose(sender);
         syncColors();
+        s_colorSetupCache.erase(this);
     }
 #endif
 
     void keyBackClicked() {
         GJColorSetupLayer::keyBackClicked();
         syncColors();
+        s_colorSetupCache.erase(this);
     }
 };
 
@@ -2515,12 +2532,11 @@ class $modify(MPGJColorSetupLayer, GJColorSetupLayer) {
 
 #include <Geode/modify/LevelSettingsLayer.hpp>
 class $modify(MPLevelSettingsLayer, LevelSettingsLayer) {
-    struct Fields {
-        std::map<int, ActionSerializer::ColorChannelData> m_cachedColors;
-    };
-
     bool init(LevelSettingsObject* object, LevelEditorLayer* layer) {
         if (!LevelSettingsLayer::init(object, layer)) return false;
+
+        auto& cachedColors = s_levelSettingsCache[this];
+        cachedColors.clear();
 
         auto editor = LevelEditorLayer::get();
         if (editor && editor->m_levelSettings && editor->m_levelSettings->m_effectManager) {
@@ -2529,7 +2545,7 @@ class $modify(MPLevelSettingsLayer, LevelSettingsLayer) {
                 if (auto* action = effectMgr->m_colorActionVector[i]) {
                     int channelID = action->m_colorID;
                     if (channelID == 0) channelID = static_cast<int>(i);
-                    m_fields->m_cachedColors[channelID] = colorActionToData(action, channelID);
+                    cachedColors[channelID] = colorActionToData(action, channelID);
                 }
             }
         }
@@ -2542,6 +2558,8 @@ class $modify(MPLevelSettingsLayer, LevelSettingsLayer) {
         auto& session = SessionManager::get();
         if (!session.isInSession()) return;
 
+        auto& cachedColors = s_levelSettingsCache[this];
+
         auto editor = LevelEditorLayer::get();
         if (editor && editor->m_levelSettings && editor->m_levelSettings->m_effectManager) {
             auto effectMgr = editor->m_levelSettings->m_effectManager;
@@ -2553,8 +2571,8 @@ class $modify(MPLevelSettingsLayer, LevelSettingsLayer) {
                     if (channelID == 0) channelID = static_cast<int>(i);
                     auto currentData = colorActionToData(action, channelID);
                     
-                    if (m_fields->m_cachedColors.find(channelID) == m_fields->m_cachedColors.end() || m_fields->m_cachedColors[channelID] != currentData) {
-                        m_fields->m_cachedColors[channelID] = currentData;
+                    if (cachedColors.find(channelID) == cachedColors.end() || cachedColors[channelID] != currentData) {
+                        cachedColors[channelID] = currentData;
                         RevertManager::get().onColorChannelUpdated(session.getLocalPlayerId(), currentData);
                         auto packet = proto::serializeUpdateColorChannel(currentData);
                         P2PManager::get().send(std::move(packet), ChannelType::Reliable);
@@ -2571,16 +2589,22 @@ class $modify(MPLevelSettingsLayer, LevelSettingsLayer) {
         LevelSettingsLayer::onClose(sender);
 
         auto& handler = RemoteActionHandler::get();
-        if (handler.isProcessingRemote() || !handler.isInitialSyncCompleted()) return;
+        if (handler.isProcessingRemote() || !handler.isInitialSyncCompleted()) {
+            s_levelSettingsCache.erase(this);
+            return;
+        }
 
         auto& session = SessionManager::get();
-        if (!session.isInSession()) return;
+        if (!session.isInSession()) {
+            s_levelSettingsCache.erase(this);
+            return;
+        }
 
         auto editor = LevelEditorLayer::get();
         if (editor && editor->m_levelSettings) {
             syncColors();
             ActionSerializer::LevelSettingsData settings;
-            settings.saveString = editor->m_levelSettings->getSaveString();
+            settings.saveString = getLevelSettingsSaveString(editor);
             settings.audioTrack = editor->m_level->m_audioTrack;
             settings.songID = editor->m_level->m_songID;
             settings.levelLength = editor->m_level->m_levelLength;
@@ -2589,6 +2613,7 @@ class $modify(MPLevelSettingsLayer, LevelSettingsLayer) {
             auto packet = proto::serializeUpdateSettings(settings);
             P2PManager::get().send(std::move(packet), ChannelType::Reliable);
         }
+        s_levelSettingsCache.erase(this);
     }
 #endif
 
@@ -2596,16 +2621,22 @@ class $modify(MPLevelSettingsLayer, LevelSettingsLayer) {
         LevelSettingsLayer::keyBackClicked();
 
         auto& handler = RemoteActionHandler::get();
-        if (handler.isProcessingRemote() || !handler.isInitialSyncCompleted()) return;
+        if (handler.isProcessingRemote() || !handler.isInitialSyncCompleted()) {
+            s_levelSettingsCache.erase(this);
+            return;
+        }
 
         auto& session = SessionManager::get();
-        if (!session.isInSession()) return;
+        if (!session.isInSession()) {
+            s_levelSettingsCache.erase(this);
+            return;
+        }
 
         auto editor = LevelEditorLayer::get();
         if (editor && editor->m_levelSettings) {
             syncColors();
             ActionSerializer::LevelSettingsData settings;
-            settings.saveString = editor->m_levelSettings->getSaveString();
+            settings.saveString = getLevelSettingsSaveString(editor);
             settings.audioTrack = editor->m_level->m_audioTrack;
             settings.songID = editor->m_level->m_songID;
             settings.levelLength = editor->m_level->m_levelLength;
@@ -2614,6 +2645,7 @@ class $modify(MPLevelSettingsLayer, LevelSettingsLayer) {
             auto packet = proto::serializeUpdateSettings(settings);
             P2PManager::get().send(std::move(packet), ChannelType::Reliable);
         }
+        s_levelSettingsCache.erase(this);
     }
 };
 

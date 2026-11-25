@@ -53,15 +53,56 @@ namespace mpedit {
 
         void refreshObjectBounds(GameObject* obj) {
             if (!obj) return;
-            obj->dirtifyObjectRect();
+            obj->m_isObjectRectDirty = true;
+            obj->m_isOrientedBoxDirty = true;
             obj->getObjectRect();
-            obj->calculateOrientedBox();
+            obj->updateOrientedBox();
 
             auto* editor = LevelEditorLayer::get();
             if (!editor || editor->m_playbackMode == PlaybackMode::Not) {
                 obj->updateStartPos();
                 obj->updateStartValues();
             }
+        }
+
+        ColorAction* getColorActionSafe(GJEffectManager* effectMgr, int channelID) {
+            if (!effectMgr) return nullptr;
+#ifdef GEODE_IS_IOS
+            if (effectMgr->m_colorActionDict) {
+                if (auto* a = static_cast<ColorAction*>(effectMgr->m_colorActionDict->objectForKey(channelID))) {
+                    return a;
+                }
+            }
+            if (channelID >= 0 && static_cast<size_t>(channelID) < effectMgr->m_colorActionVector.size()) {
+                if (auto* a = effectMgr->m_colorActionVector[channelID]) {
+                    return a;
+                }
+            }
+            for (auto* a : effectMgr->m_colorActionVector) {
+                if (a && a->m_colorID == channelID) return a;
+            }
+            if (effectMgr->m_colorActionDict) {
+                auto* created = ColorAction::create({255, 255, 255}, false, -1);
+                if (created) {
+                    created->m_colorID = channelID;
+                    effectMgr->m_colorActionDict->setObject(created, channelID);
+                    return created;
+                }
+            }
+            return nullptr;
+#else
+            return effectMgr->getColorAction(channelID);
+#endif
+        }
+
+        void notifyColorActionUpdated(GJEffectManager* effectMgr, ColorAction* action) {
+            if (!effectMgr || !action) return;
+#ifdef GEODE_IS_IOS
+            effectMgr->updateEffects(0.f);
+#else
+            effectMgr->updateColorAction(action);
+            effectMgr->colorActionChanged(action);
+#endif
         }
 
         void applyTransformSafe(GameObject* obj, float rotation, float scaleX, float scaleY, bool flipX, bool flipY) {
@@ -838,10 +879,11 @@ namespace mpedit {
             } else {
                 obj->setPosition({pos.x + move.dx, pos.y + move.dy});
             }
-            obj->dirtifyObjectRect();
+            obj->m_isObjectRectDirty = true;
+            obj->m_isOrientedBoxDirty = true;
             
             obj->getObjectRect();
-            obj->calculateOrientedBox();
+            obj->updateOrientedBox();
 
             if (editor->m_playbackMode == PlaybackMode::Not) {
                 obj->updateStartPos();
@@ -850,7 +892,7 @@ namespace mpedit {
             
             if (tpOrange) {
                 tpOrange->getObjectRect();
-                tpOrange->calculateOrientedBox();
+                tpOrange->updateOrientedBox();
                 editor->addToSection(tpOrange);
             }
 
@@ -884,7 +926,7 @@ namespace mpedit {
             applyTransformSafe(obj, t.rotation, t.scaleX, t.scaleY, t.flipX, t.flipY);
             
             obj->getObjectRect();
-            obj->calculateOrientedBox();
+            obj->updateOrientedBox();
             
             editor->addToSection(obj);
 
@@ -937,13 +979,13 @@ namespace mpedit {
             applyTransformSafe(obj, r.rotation, r.scaleX, r.scaleY, r.flipX, r.flipY);
             
             obj->getObjectRect();
-            obj->calculateOrientedBox();
+            obj->updateOrientedBox();
             
             editor->addToSection(obj);
 
             if (tpOrange) {
                 tpOrange->getObjectRect();
-                tpOrange->calculateOrientedBox();
+                tpOrange->updateOrientedBox();
                 editor->addToSection(tpOrange);
             }
 
@@ -1420,10 +1462,19 @@ namespace mpedit {
                     for (auto* innerObj : geode::cocos::CCArrayExt<cocos2d::CCObject*>(item->m_objects)) {
                         if (innerObj == target) {
                             innerToRemove.push_back(innerObj);
-                        } else if (auto* copy = geode::cast::typeinfo_cast<GameObjectCopy*>(innerObj)) {
-                            if (copy->m_object == target) {
+                        } else if (!geode::cast::typeinfo_cast<GameObject*>(innerObj)) {
+#ifdef GEODE_IS_MACOS
+                            auto* copy = static_cast<GameObjectCopy*>(innerObj);
+                            if (copy && copy->m_object == target) {
                                 innerToRemove.push_back(innerObj);
                             }
+#else
+                            if (auto* copy = geode::cast::typeinfo_cast<GameObjectCopy*>(innerObj)) {
+                                if (copy->m_object == target) {
+                                    innerToRemove.push_back(innerObj);
+                                }
+                            }
+#endif
                         }
                     }
                     for (auto* innerObj : innerToRemove) {
@@ -1721,6 +1772,20 @@ namespace mpedit {
         geode::Notification::create("Failed to download custom song", geode::NotificationIcon::Error)->show();
     }
 
+    std::string getLevelSettingsSaveString(LevelEditorLayer* editor) {
+        if (!editor || !editor->m_levelSettings) return "";
+#if defined(GEODE_IS_ARM_MAC) || defined(GEODE_IS_IOS)
+        std::string levelStr = editor->getLevelString();
+        size_t semi = levelStr.find(';');
+        if (semi != std::string::npos) {
+            return levelStr.substr(0, semi);
+        }
+        return levelStr;
+#else
+        return editor->m_levelSettings->getSaveString();
+#endif
+    }
+
     void RemoteActionHandler::applyLevelSettings(LevelEditorLayer* editor, ActionSerializer::LevelSettingsData const& settings) {
         if (!editor) return;
 
@@ -1775,8 +1840,7 @@ namespace mpedit {
                                         auto* oldAction = oldEffectMgr->m_colorActionVector[i];
                                         copyColor(oldAction, newAction);
                                         if (oldAction) {
-                                            oldEffectMgr->updateColorAction(oldAction);
-                                            oldEffectMgr->colorActionChanged(oldAction);
+                                            notifyColorActionUpdated(oldEffectMgr, oldAction);
                                         }
                                     }
                                 }
@@ -1802,14 +1866,13 @@ namespace mpedit {
                                         auto* oldAction = static_cast<ColorAction*>(oldDict->objectForKey(k));
                                         
                                         if (!oldAction) {
-                                            oldAction = ColorAction::create();
+                                            oldAction = ColorAction::create({255, 255, 255}, false, -1);
                                             oldDict->setObject(oldAction, k);
                                         }
                                         if (newAction && oldAction) {
                                             copyColor(oldAction, newAction);
                                             
-                                            oldEffectMgr->updateColorAction(oldAction);
-                                            oldEffectMgr->colorActionChanged(oldAction);
+                                            notifyColorActionUpdated(oldEffectMgr, oldAction);
                                         }
                                     }
                                 }
@@ -1873,7 +1936,7 @@ namespace mpedit {
 
         auto* effectMgr = editor->m_levelSettings->m_effectManager;
         
-        ColorAction* action = effectMgr->getColorAction(data.channelID);
+        ColorAction* action = getColorActionSafe(effectMgr, data.channelID);
         if (!action) {
             m_processingRemote = false;
             return;
@@ -1896,8 +1959,7 @@ namespace mpedit {
         action->m_legacyHSV = data.legacyHSV;
 
         if (action->m_colorSprite) {
-            effectMgr->updateColorAction(action);
-            effectMgr->colorActionChanged(action);
+            notifyColorActionUpdated(effectMgr, action);
         }
 
         editor->m_updateColorSprites = true;
